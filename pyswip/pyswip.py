@@ -127,6 +127,7 @@ argc = len(sys.argv)
 
 # types
 
+atom_t = c_ulong
 term_t = c_ulong
 fid_t = c_ulong
 module_t = c_void_p
@@ -162,11 +163,21 @@ PL_chars_to_term.argtypes = [c_char_p, term_t]
 PL_call = _lib.PL_call
 PL_call.argtypes = [term_t, module_t]
 
+PL_call_predicate = _lib.PL_call_predicate
+PL_call_predicate.argtypes = [module_t, c_int, predicate_t, term_t]
+
 PL_discard_foreign_frame = _lib.PL_discard_foreign_frame
 PL_discard_foreign_frame.argtypes = [fid_t]
 
 PL_put_list_chars = _lib.PL_put_list_chars
 PL_put_list_chars.argtypes = [term_t, c_char_p]
+
+PL_put_atom_chars = _lib.PL_put_atom_chars
+PL_put_atom_chars.argtypes = [term_t, c_char_p]
+
+PL_atom_chars = _lib.PL_atom_chars
+PL_atom_chars.argtypes = [atom_t]
+PL_atom_restype = [c_char_p]
 
 PL_predicate = _lib.PL_predicate
 PL_predicate.argtypes = [c_char_p, c_int, c_char_p]
@@ -197,3 +208,31 @@ PL_close_query.argtypes = [qid_t]
 
 PL_halt = _lib.PL_halt
 PL_halt.argtypes = [c_int]
+
+
+def cstr2pystr(c_string):
+	result = []
+	for x in c_string:
+		if x in ["\x00", None]:
+			break
+			
+		result.append(x)
+		
+	return "".join(result)
+
+def cstrarr2pystr(c_string):
+	result = []
+	for item in c_string:
+		if item in ["\x00", None]:
+			break
+			
+		r = []
+		for x in item:
+			if x in ["\x00", None]:
+				break
+			r.append(x)
+		
+		result.append("".join(r))
+		
+	return result
+
