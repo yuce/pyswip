@@ -1,1 +1,0 @@
-../pyswip.py
