@@ -15,7 +15,7 @@ Requirements:
 * Python 2.3 and higher (most probably other versions will also work).
 * ctypes 0.9.9.9 and higher (most probably other versions will also work).
 * SWI-Prolog 5.6.x and higher(most probably other versions will also work).
-* libpl as a share library.
+* libpl as a shared library.
 * Tested only on Linux, should be working for other POSIX and Win32.
 
 Install

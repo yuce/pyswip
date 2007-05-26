@@ -43,7 +43,7 @@ except OSError:
     sys.exit(1)
     
 # PySWIP version
-__VERSION__ = "0.1.0"
+__VERSION__ = "0.1.1"
     
 # constants (from SWI-Prolog.h)
 PL_VARIABLE = 1  # nothing 
