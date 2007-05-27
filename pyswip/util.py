@@ -78,7 +78,6 @@ class PrologRunner:
         """
         assert cls.initialized
         
-        answers = []
         swipl_fid = PL_open_foreign_frame()
         swipl_head = PL_new_term_ref()
         swipl_args = PL_new_term_refs(2)

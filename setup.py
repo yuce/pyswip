@@ -7,7 +7,7 @@ import os.path
 from distutils.core import setup
 
 setup(name="pyswip",
-		version="0.1.0",
+		version="0.1.1",
 		url="http://code.google.com/p/pyswip/",
 		download_url="http://code.google.com/p/pyswip/downloads/list",
 		author="Yuce Tekol",

@@ -2,7 +2,7 @@ PySWIP README
 ============
 
 :version: 
-	0.1.0
+	0.1.1
 :author:
     Yuce Tekol. <http://www.geocities.com/yucetekol>
 
@@ -17,6 +17,9 @@ Requirements:
 * SWI-Prolog 5.6.x and higher(most probably other versions will also work).
 * libpl as a shared library.
 * Tested only on Linux, should be working for other POSIX and Win32.
+
+The core functionality of this package is based on Nathan Denny's public domain prolog.py found at http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html	
+
 
 Install
 -------
@@ -42,4 +45,3 @@ If you get an error, such as "libpl (shared) not found." or "FATAL ERROR: Resour
 
 Please see ``INSTALL`` for detailed instructions.
 
-	
