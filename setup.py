@@ -16,12 +16,19 @@ setup(name="pyswip",
 		long_description="""PySWIP is a GPL'd Python - SWI-Prolog bridge enabling to query SWI-Prolog in your Python programs.
 		
 		Example:
+			>>> from pyswip.util import PrologRunner
+			>>> prolog = PrologRunner()
 			>>> prolog.query("assertz(father(michael,john)).")
 			[{}]
 			>>> prolog.query("assertz(father(michael,gina)).")
 			[{}]
 			>>> prolog.query("father(michael,X).")
 			[{'X': 'john'}, {'X': 'gina'}]
+			>>> for soln in prolog.queryGenerator("father(X,Y)."):
+			...     print soln["X"], "is the father of", soln["Y"]
+			...
+			michael is the father of john
+			michael is the father of gina
 		""",
 		license="GPL",
 		packages=["pyswip"],
