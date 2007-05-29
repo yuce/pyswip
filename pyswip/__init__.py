@@ -46,18 +46,18 @@ except OSError:
 __VERSION__ = "0.1.1"
     
 # constants (from SWI-Prolog.h)
+# PL_unify_term() arguments
 PL_VARIABLE = 1  # nothing 
 PL_ATOM = 2  # const char
 PL_INTEGER = 3  # int
 PL_FLOAT = 4  # double
-#define PL_STRING    (5)        /* const char * */
-#define PL_TERM      (6)
-
-    #               /* PL_unify_term() */
-#define PL_FUNCTOR   (10)       /* functor_t, arg ... */
-#define PL_LIST      (11)       /* length, arg ... */
-#define PL_CHARS     (12)       /* const char * */
-#define PL_POINTER   (13)       /* void * */
+PL_STRING = 5  # const char *
+PL_TERM = 6  #
+# PL_unify_term()
+PL_FUNCTOR = 10  # functor_t, arg ...
+PL_LIST = 11  # length, arg ...
+PL_CHARS = 12  # const char *
+PL_POINTER = 13  # void *
     #               /* PlArg::PlArg(text, type) */
 #define PL_CODE_LIST     (14)       /* [ascii...] */
 #define PL_CHAR_LIST     (15)       /* [h,e,l,l,o] */
@@ -235,33 +235,102 @@ PL_get_chars = _lib.PL_get_chars  # FIXME
 PL_close_query = _lib.PL_close_query
 PL_close_query.argtypes = [qid_t]
 
+#void PL_cut_query(qid)
+PL_cut_query = _lib.PL_cut_query
+PL_cut_query.argtypes = [qid_t]
+
 PL_halt = _lib.PL_halt
 PL_halt.argtypes = [c_int]
 
 
-def cstr2pystr(c_string):
-    result = []
-    for x in c_string:
-        if x in ["\x00", None]:
-            break
-            
-        result.append(x)
-        
-    return "".join(result)
+# Verify types
 
-def cstrarr2pystr(c_string):
-    result = []
-    for item in c_string:
-        if item in ["\x00", None]:
-            break
+PL_term_type = _lib.PL_term_type
+PL_term_type.argtypes = [term_t]
+PL_term_type.restype = c_int
+
+PL_is_variable = _lib.PL_is_variable
+PL_is_variable.argtypes = [term_t]
+PL_is_variable.restype = c_int
+
+PL_is_ground = _lib.PL_is_ground
+PL_is_ground.argtypes = [term_t]
+PL_is_ground.restype = c_int
+
+PL_is_atom = _lib.PL_is_atom
+PL_is_atom.argtypes = [term_t]
+PL_is_atom.restype = c_int
+
+PL_is_integer = _lib.PL_is_integer
+PL_is_integer.argtypes = [term_t]
+PL_is_integer.restype = c_int
+
+PL_is_string = _lib.PL_is_string
+PL_is_string.argtypes = [term_t]
+PL_is_string.restype = c_int
+
+PL_is_float = _lib.PL_is_float
+PL_is_float.argtypes = [term_t]
+PL_is_float.restype = c_int
+
+PL_is_rational = _lib.PL_is_rational
+PL_is_rational.argtypes = [term_t]
+PL_is_rational.restype = c_int
+
+PL_is_compound = _lib.PL_is_compound
+PL_is_compound.argtypes = [term_t]
+PL_is_compound.restype = c_int
+
+PL_is_functor = _lib.PL_is_functor
+PL_is_functor.argtypes = [term_t, functor_t]
+PL_is_functor.restype = c_int
+
+PL_is_list = _lib.PL_is_list
+PL_is_list.argtypes = [term_t]
+PL_is_list.restype = c_int
+
+PL_is_atomic = _lib.PL_is_atomic
+PL_is_atomic.argtypes = [term_t]
+PL_is_atomic.restype = c_int
+
+PL_is_number = _lib.PL_is_number
+PL_is_number.argtypes = [term_t]
+PL_is_number.restype = c_int
+
+#
+
+# term_t PL_exception(qid_t qid)
+PL_exception = _lib.PL_exception
+
+#
+
+PL_register_foreign = _lib.PL_register_foreign
+
+
+
+#def cstr2pystr(c_string):
+    #result = []
+    #for x in c_string:
+        #if x in ["\x00", None]:
+            #break
             
-        r = []
-        for x in item:
-            if x in ["\x00", None]:
-                break
-            r.append(x)
+        #result.append(x)
         
-        result.append("".join(r))
+    #return "".join(result)
+
+#def cstrarr2pystr(c_string):
+    #result = []
+    #for item in c_string:
+        #if item in ["\x00", None]:
+            #break
+            
+        #r = []
+        #for x in item:
+            #if x in ["\x00", None]:
+                #break
+            #r.append(x)
         
-    return result
+        #result.append("".join(r))
+        
+    #return result
 

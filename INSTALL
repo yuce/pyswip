@@ -1,11 +1,14 @@
 PySWIP INSTALL
 ==============
 
-PySWIP requires SWI-Prolog as a shared library since it uses ctypes to access SWI-Prolog/C functions.
+PySWIP requires SWI-Prolog as a shared library since it uses ctypes to access SWI-Prolog/C functions. The shared library is present in Win32 installer, but missing by default from the builds made directly from the source.
 
-You need to do the following to install a shared library enabled version of SWI-Prolog. We use version 5.6.34 of SWI-Prolog but any other recent version should work fine. Please make the necessary modifications for your environment.
+Installing on Linux
+-------------------
 
 These instructions are tested on a Linux system, but should also work for POSIX systems. Also, you may want to install development packages for readline and libgmp (not required for basics).
+
+You need to do the following to install a shared library enabled version of SWI-Prolog. We use version 5.6.34 of SWI-Prolog but any other recent version should work fine. Please make the necessary modifications for your environment.
 
 1) Get the source from: http://www.swi-prolog.org/download.html::
 
@@ -27,23 +30,44 @@ These instructions are tested on a Linux system, but should also work for POSIX 
 5) Install the source::
 	
 	$ sudo make install
+	
+6) clp library is useful for constraint handling problems, so let's install it too::
 
-6)  Create a soft link::
+	$ cd cd packages/clpqr
+	$ ./configure --prefix=/usr --enable-shared
+	$ make && make install
+	
+
+7)  Create a soft link::
 
 	$ sudo ln -s  /usr/lib/pl-5.6.34/lib/i686-linux/libpl.so.5.6.34 /usr/lib/libpl.so
 
-Next, get and install ctypes from: http://starship.python.net/crew/theller/ctypes . Note that you don't need to install it if you are using Python 2.5.
+8) Next, get and install ctypes from: http://starship.python.net/crew/theller/ctypes . Note that you don't need to install it if you are using Python 2.5.
 
-Unpack PySwIP package and install it with, `python setup.py install`.
+9) Unpack PySwIP package and install it with, `python setup.py install`.
 
-After you install it, you can test it with the following at the shell::
+10) After you install it, you can test it with the following at your Python shell::
 
-	$ python
-	[ ... python info ...]
-	>>> from pyswip.util import PrologRunner
-	>>> prolog = PrologRunner()
-	>>> prolog.query("assertz(father(michael,john))")
-	[{}]
+	>>> from pyswip.util import Prolog
+	>>> prolog = Prolog()
+	>>> prolog.assertz("father(michael,john)")
 	
 If you get an error, such as "libpl (shared) not found." or "FATAL ERROR: Resource not found" be sure you have installed SWI-Prolog as a share library. Check your default library directory (usually ``/usr/lib``) for ``libpl.so``.
+
+
+Installing on Win32
+-------------------
+
+1) Get a recent version of SWI-Prolog for Win32 from: http://www.swi-prolog.org/dl-stable.html and install it.
+
+2) You need to add SWI-Prolog's bin directory ``C:\Program Files\pl\bin``) to *path*, here are two tutorials for that:  http://www.computerhope.com/issues/ch000549.htm and http://vlaurie.com/computers2/Articles/environment.htm
+
+3) Get a Windows installer version of PySWIP and install it.
+
+4) After you install it, you can test it with the following at your Python console::
+
+	>>> from pyswip.util import Prolog
+	>>> prolog = Prolog()
+	>>> prolog.assertz("father(michael,john)")
+
 

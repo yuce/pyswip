@@ -19,90 +19,100 @@
 
 from pyswip import *
 
-class PrologRunner:
-    """PrologRunner
+class PrologError(Exception):
+    pass
+    
+
+class Prolog:
+    """Easily query SWI-Prolog.
     This is a singleton class
     """
+    class _QueryWrapper(object):
+        __slots__ = "swipl_fid","swipl_qid","error"
+        
+        def __init__(self):
+            self.error = False
+    
+        def __call__(self, query, maxresult, catcherrors):
+            plq = catcherrors and  PL_Q_CATCH_EXCEPTION or PL_Q_NORMAL
+            self.swipl_fid = PL_open_foreign_frame()
+            swipl_head = PL_new_term_ref()
+            swipl_args = PL_new_term_refs(2)
+            swipl_goalCharList = swipl_args
+            swipl_bindingList = swipl_args + 1
+        
+            PL_put_list_chars(swipl_goalCharList, query)
+            
+            swipl_predicate = PL_predicate("pyrun", 2, None)
+            self.swipl_qid = swipl_qid = PL_open_query(None, plq,
+                    swipl_predicate, swipl_args)
+            while PL_next_solution(swipl_qid) and maxresult:
+                maxresult -= 1
+                bindings = []
+                swipl_list = PL_copy_term_ref(swipl_bindingList)
+                answer = c_char_p()
+                while PL_get_list(swipl_list, swipl_head, swipl_list):
+                    PL_get_chars(swipl_head, addressof(answer), CVT_ALL | CVT_WRITE | BUF_RING)
+                    bindings.append(answer.value)
+                
+                yield dict([y.split("=") for y in bindings])
+                
+            if PL_exception(self.swipl_qid):
+                self.error = True
+                PL_cut_query(self.swipl_qid)
+                PL_discard_foreign_frame(self.swipl_fid)
+                raise PrologError("".join(["Caused by: '", query, "'."]))
+        
+        def __del__(self):
+            if not self.error:
+                PL_close_query(self.swipl_qid)
+                PL_discard_foreign_frame(self.swipl_fid)    
     
     initialized = False
     
     def __init__(self):
-        if not PrologRunner.initialized:
-            PrologRunner.__initialize()
-            PrologRunner.initialized = True
+        if not self.initialized:
+            Prolog.__initialize()
+            Prolog.initialized = True
     
     def __del__(self):
-        if PrologRunner.initialized:
-            PrologRunner.__finalize()
+        if Prolog.initialized:
+            Prolog.__finalize()
             
-    def query(cls, query, maxresult=-1, maxsubresult=1024):
-        """Run a prolog query and return a list.
-        If the query is a yes/no question, returns [{}] for yes, and [] for no.
-        Otherwise returns a list of dicts with variables as keys.
+    def asserta(cls, assertion):
+        cls.query(assertion.join(["asserta((", "))."])).next()
         
-        >>> prolog = PrologRunner()
-        >>> prolog.query("assertz(father(michael,john)).")
-        [{}]
-        >>> prolog.query("assertz(father(michael,gina)).")
-        [{}]
-        >>> prolog.query("father(michael,john).")
-        [{}]
-        >>> prolog.query("father(michael,olivia).")
-        []
-        >>> r = prolog.query("father(michael,X).")
-        >>> {"X":"john"} in r
-        True
-        >>> {"X":"olivia"} in r
-        False
-        """
-        return list(cls.queryGenerator(query, maxresult, maxsubresult))
+    asserta = classmethod(asserta)    
     
-    query = classmethod(query)
+    def assertz(cls, assertion):
+        cls.query(assertion.join(["assertz((", "))."])).next()
+        
+    assertz = classmethod(assertz)
+    
+    def consult(cls, filename):
+        cls.query(filename.join(["consult('", "')"])).next()
+    
+    consult = classmethod(consult)
 
-    def queryGenerator(cls, query, maxresult=-1, maxsubresult=1024):
+    def query(cls, query, maxresult=-1, catcherrors=True):
         """Run a prolog query and return a generator.
         If the query is a yes/no question, returns {} for yes, and nothing for no.
         Otherwise returns a generator of dicts with variables as keys.
         
-        >>> prolog = PrologRunner()
-        >>> list(prolog.queryGenerator("assertz(father(michael,john))."))
+        >>> prolog = Prolog()
+        >>> prolog.assertz("father(michael,john)")
+        >>> prolog.assertz("father(michael,gina)")
+        >>> list(prolog.query("father(michael,john)"))
         [{}]
-        >>> list(prolog.queryGenerator("assertz(father(michael,gina))."))
-        [{}]
-        >>> list(prolog.queryGenerator("father(michael,john)."))
-        [{}]
-        >>> list(prolog.queryGenerator("father(michael,olivia)."))
+        >>> list(prolog.query("father(michael,olivia)"))
         []
-        >>> print sorted(prolog.query("father(michael,X)."))
+        >>> print sorted(prolog.query("father(michael,X)"))
         [{'X': 'gina'}, {'X': 'john'}]
         """
-        assert cls.initialized
-        
-        swipl_fid = PL_open_foreign_frame()
-        swipl_head = PL_new_term_ref()
-        swipl_args = PL_new_term_refs(2)
-        swipl_goalCharList = swipl_args
-        swipl_bindingList = swipl_args + 1
+        assert cls.initialized        
+        return cls._QueryWrapper()(query, maxresult, catcherrors)
     
-        PL_put_list_chars(swipl_goalCharList, query)
-        
-        swipl_predicate = PL_predicate("pyrun", 2, None)
-        swipl_qid = PL_open_query(None, PL_Q_NORMAL, swipl_predicate, swipl_args)
-        while PL_next_solution(swipl_qid) and maxresult:
-            maxresult -= 1
-            bindings = []
-            swipl_list = PL_copy_term_ref(swipl_bindingList)
-            answer = (c_char_p*maxsubresult)()
-            while PL_get_list(swipl_list, swipl_head, swipl_list):
-                PL_get_chars(swipl_head, answer, CVT_ALL | CVT_WRITE | BUF_RING)
-                bindings.append(cstr2pystr(answer))
-            
-            yield dict([y.split("=") for y in bindings])
-            
-        PL_close_query(swipl_qid)
-        PL_discard_foreign_frame(swipl_fid)
-    
-    queryGenerator = classmethod(queryGenerator)
+    query = classmethod(query)
 
     def __initialize(cls):
         plargs = (c_char_p * 3)()
@@ -134,14 +144,18 @@ def _test():
             ("father(michael,X).","Michael is the father of whom?"),
             ("father(X,Y).","Who is the father of whom?")]
     
-    prolog = PrologRunner()
+    prolog = Prolog()
     
     for code, comment in lines:
         print "?-", code, "[", comment, "]"
-        print prolog.query(code)
+        print list(prolog.query(code))
+        
+    for r in prolog.query("father(X,Y)"):
+        print r["X"], r["Y"]
+        
     
 if __name__ == "__main__":
-    #import doctest
-    #doctest.testmod()
-    _test()
+    import doctest
+    doctest.testmod()
+    #_test()
 

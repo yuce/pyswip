@@ -2,7 +2,7 @@ PySWIP README
 ============
 
 :version: 
-	0.1.1
+	0.1.2
 :author:
     Yuce Tekol. <http://www.geocities.com/yucetekol>
 
@@ -16,7 +16,7 @@ Requirements:
 * ctypes 0.9.9.9 and higher (most probably other versions will also work).
 * SWI-Prolog 5.6.x and higher(most probably other versions will also work).
 * libpl as a shared library.
-* Tested only on Linux, should be working for other POSIX and Win32.
+* Works on Linux and Win32, should work for all POSIX.
 
 The core functionality of this package is based on Nathan Denny's public domain prolog.py found at http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html	
 
@@ -36,10 +36,9 @@ PySWIP should work on Win32 systems, but this isn't tested. The instructions bel
 
 	$ python
 	[ ... python info ...]
-	>>> from pyswip.util import PrologRunner
-	>>> prolog = PrologRunner()
-	>>> prolog.query("assertz(father(michael,john))")
-	[{}]
+	>>> from pyswip.util import Prolog
+	>>> prolog = Prolog()
+	>>> prolog.assertz("father(michael,john)")
 	
 If you get an error, such as "libpl (shared) not found." or "FATAL ERROR: Resource not found" be sure you have installed SWI-Prolog as a share library. Check your default library directory (usually ``/usr/lib``) for ``libpl.so``.
 

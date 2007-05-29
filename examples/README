@@ -1,0 +1,11 @@
+PySWIP Examples
+===============
+
+This directory contains examples for PySWIP.
+
+The ones marked with (clp) requires clp library of SWI-Prolog.
+
++ (clp) coins
++ (clp) draughts
++ (clp) sendmoremoney : if, SEND + MORE = MONEY, so what is S, E, N, D, M, O, R, Y?
+
