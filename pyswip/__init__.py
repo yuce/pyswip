@@ -46,7 +46,7 @@ except OSError:
 __VERSION__ = "0.1.1"
 
 # PySWIP constants
-MAXSTR = 1024
+PYSWIP_MAXSTR = 1024
     
 # constants (from SWI-Prolog.h)
 # PL_unify_term() arguments

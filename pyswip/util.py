@@ -1,6 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 
-# util.py -- Utilites for pyswip
+# prolog.py -- Prolog class
 # (c) 2006-2007 Yüce TEKOL
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ class Prolog:
             self.error = False
     
         def __call__(self, query, maxresult, catcherrors):
-            plq = catcherrors and  PL_Q_CATCH_EXCEPTION or PL_Q_NORMAL
+            plq = catcherrors and  (PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
             self.swipl_fid = PL_open_foreign_frame()
             swipl_head = PL_new_term_ref()
             swipl_args = PL_new_term_refs(2)
@@ -50,7 +50,7 @@ class Prolog:
                 maxresult -= 1
                 bindings = []
                 swipl_list = PL_copy_term_ref(swipl_bindingList)
-                answer = c_char_p("\x00"*MAXSTR)
+                answer = c_char_p("\x00"*PYSWIP_MAXSTR)
                 while PL_get_list(swipl_list, swipl_head, swipl_list):
                     PL_get_chars(swipl_head, addressof(answer), CVT_ALL | CVT_WRITE | BUF_RING)
                     bindings.append(answer.value)
@@ -124,7 +124,7 @@ class Prolog:
         swipl_fid = PL_open_foreign_frame()
         swipl_load = PL_new_term_ref()
     
-        PL_chars_to_term("assert(pyrun(GoalString,BindingList):-(atom_chars(A,GoalString),atom_to_term(A,Goal,BindingList),call(Goal))).", swipl_load)
+        PL_chars_to_term("asserta(pyrun(GoalString,BindingList):-(atom_chars(A,GoalString),atom_to_term(A,Goal,BindingList),call(Goal))).", swipl_load)
     
         PL_call(swipl_load, None)
         PL_discard_foreign_frame(swipl_fid)
