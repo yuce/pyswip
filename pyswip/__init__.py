@@ -44,6 +44,9 @@ except OSError:
     
 # PySWIP version
 __VERSION__ = "0.1.1"
+
+# PySWIP constants
+MAXSTR = 1024
     
 # constants (from SWI-Prolog.h)
 # PL_unify_term() arguments
@@ -201,6 +204,8 @@ PL_discard_foreign_frame.argtypes = [fid_t]
 PL_put_list_chars = _lib.PL_put_list_chars
 PL_put_list_chars.argtypes = [term_t, c_char_p]
 
+PL_get_atom_chars = _lib.PL_get_atom_chars  # FIXME
+
 PL_put_atom_chars = _lib.PL_put_atom_chars
 PL_put_atom_chars.argtypes = [term_t, c_char_p]
 
@@ -242,6 +247,7 @@ PL_cut_query.argtypes = [qid_t]
 PL_halt = _lib.PL_halt
 PL_halt.argtypes = [c_int]
 
+PL_unify_integer = _lib.PL_unify_integer
 
 # Verify types
 
@@ -303,9 +309,9 @@ PL_is_number.restype = c_int
 PL_exception = _lib.PL_exception
 
 #
-
+# int PL_register_foreign(const char *name, int arity, foreign_t (*function)(), int flags)
 PL_register_foreign = _lib.PL_register_foreign
-
+#PL_register_foreign.argtypes = [c_char_p, c_int, 
 
 
 #def cstr2pystr(c_string):

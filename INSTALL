@@ -38,7 +38,7 @@ You need to do the following to install a shared library enabled version of SWI-
 	$ make && make install
 	
 
-7)  Create a soft link::
+7) Create a soft link::
 
 	$ sudo ln -s  /usr/lib/pl-5.6.34/lib/i686-linux/libpl.so.5.6.34 /usr/lib/libpl.so
 
@@ -60,7 +60,7 @@ Installing on Win32
 
 1) Get a recent version of SWI-Prolog for Win32 from: http://www.swi-prolog.org/dl-stable.html and install it.
 
-2) You need to add SWI-Prolog's bin directory ``C:\Program Files\pl\bin``) to *path*, here are two tutorials for that:  http://www.computerhope.com/issues/ch000549.htm and http://vlaurie.com/computers2/Articles/environment.htm
+2) You need to add SWI-Prolog's bin directory ``C:\Program Files\pl\bin`` to *path*, here are two tutorials for that:  http://www.computerhope.com/issues/ch000549.htm and http://vlaurie.com/computers2/Articles/environment.htm
 
 3) Get a Windows installer version of PySWIP and install it.
 

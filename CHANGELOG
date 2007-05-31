@@ -1,10 +1,14 @@
 PySWIP CHANGELOG
 ================
 
++ 0.1.3
+
+  *
+
 + 0.1.2
 
   * Renamed ``PrologRunner`` to ``Prolog``.
-  * ``query`` method of ``Prolog`` ditched, ``queryGenerator`` is renamed as ``query``.
+  * Removed ``query`` method of ``Prolog``, ``queryGenerator`` is renamed as ``query``.
   * Added ``asserta``, ``assertz`` and ``consult`` methods to ``Prolog``.
   * The necessary cleanup is done even if the ``query`` generator doesn't run to the end.
   * Errors during the execution of ``query`` is caught and ``PrologError`` is raised.

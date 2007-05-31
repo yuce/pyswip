@@ -50,7 +50,7 @@ class Prolog:
                 maxresult -= 1
                 bindings = []
                 swipl_list = PL_copy_term_ref(swipl_bindingList)
-                answer = c_char_p()
+                answer = c_char_p("\x00"*MAXSTR)
                 while PL_get_list(swipl_list, swipl_head, swipl_list):
                     PL_get_chars(swipl_head, addressof(answer), CVT_ALL | CVT_WRITE | BUF_RING)
                     bindings.append(answer.value)
