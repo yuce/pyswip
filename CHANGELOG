@@ -3,7 +3,11 @@ PySWIP CHANGELOG
 
 + 0.1.3
 
-  *
+  * Renamed ``pyswip/util.py`` to ``pyswip/prolog.py``.
+  * New module ``pyswip.easy``.
+  * Additions to the core library.
+  * Added example, "register foreign" which shows how to register a Python function as an SWI-Prolog predicate.
+  * Added example, "Towers of Hanoi"
 
 + 0.1.2
 

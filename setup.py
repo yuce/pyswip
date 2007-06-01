@@ -7,7 +7,7 @@ import os.path
 from distutils.core import setup
 
 setup(name="pyswip",
-		version="0.1.2",
+		version="0.1.3",
 		url="http://code.google.com/p/pyswip/",
 		download_url="http://code.google.com/p/pyswip/downloads/list",
 		author="Yuce Tekol",
@@ -16,9 +16,10 @@ setup(name="pyswip",
 		long_description="""PySWIP is a GPL'd Python - SWI-Prolog bridge which enables querying SWI-Prolog in your Python programs.
 		
 		PySWIP includes both an (incomplete) SWI-Prolog foreign language interface and a utity class that makes it easy querying SWI-Python.
+        Since it uses SWI-Prolog as a shared library and ctypes to access it, PySWIP doesn't require compilation to be installed.
 		
 		Example:
-			>>> from pyswip.util import Prolog
+			>>> from pyswip.prolog import Prolog
 			>>> prolog = Prolog()
 			>>> prolog.assertz("father(michael,john)")
 			[{}]

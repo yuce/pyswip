@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # based on http://gollem.science.uva.nl/SWI-Prolog/Manual/foreigninclude.html#sec:9.6.17
 
-from pyswip import *
+from pyswip.core import *
 from pyswip.util import Prolog
 
 def atom_checksum(a0, arity, context):
-    s = c_char_p("\x00"*PYSWIP_MAXSTR)
+    s = c_char_p()
     if PL_get_atom_chars(a0, addressof(s)):
         sum = 0
         for c in s.value:

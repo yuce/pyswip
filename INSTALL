@@ -48,7 +48,7 @@ You need to do the following to install a shared library enabled version of SWI-
 
 10) After you install it, you can test it with the following at your Python shell::
 
-	>>> from pyswip.util import Prolog
+	>>> from pyswip.prolog import Prolog
 	>>> prolog = Prolog()
 	>>> prolog.assertz("father(michael,john)")
 	
@@ -66,7 +66,7 @@ Installing on Win32
 
 4) After you install it, you can test it with the following at your Python console::
 
-	>>> from pyswip.util import Prolog
+	>>> from pyswip.prolog import Prolog
 	>>> prolog = Prolog()
 	>>> prolog.assertz("father(michael,john)")
 

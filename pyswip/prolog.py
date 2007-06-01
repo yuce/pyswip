@@ -17,12 +17,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
-from pyswip import *
+from pyswip.core import *
 
 class PrologError(Exception):
     pass
     
 
+#### Prolog ####
 class Prolog:
     """Easily query SWI-Prolog.
     This is a singleton class
@@ -34,7 +35,7 @@ class Prolog:
             self.error = False
     
         def __call__(self, query, maxresult, catcherrors):
-            plq = catcherrors and  (PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
+            plq = catcherrors and (PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
             self.swipl_fid = PL_open_foreign_frame()
             swipl_head = PL_new_term_ref()
             swipl_args = PL_new_term_refs(2)
@@ -50,7 +51,7 @@ class Prolog:
                 maxresult -= 1
                 bindings = []
                 swipl_list = PL_copy_term_ref(swipl_bindingList)
-                answer = c_char_p("\x00"*PYSWIP_MAXSTR)
+                answer = c_char_p()
                 while PL_get_list(swipl_list, swipl_head, swipl_list):
                     PL_get_chars(swipl_head, addressof(answer), CVT_ALL | CVT_WRITE | BUF_RING)
                     bindings.append(answer.value)

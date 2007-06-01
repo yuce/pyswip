@@ -8,7 +8,7 @@
 # So, what should be the values of S, E, N, D, M, O, R, Y
 # if they are all distinct digits.
 
-from pyswip.util import Prolog
+from pyswip.prolog import Prolog
 
 letters = "S E N D M O R Y".split()
 prolog = Prolog()
