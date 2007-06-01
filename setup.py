@@ -32,6 +32,29 @@ setup(name="pyswip",
 			...
 			michael is the father of john
 			michael is the father of gina
+            
+        Foreign Functions Example:
+        
+        Since version 0.1.3 of PySWIP, it is possible to register a Python function as a Prolog predicate through SWI-Prolog's Foreign Function Interface.
+        Here's an example:
+            
+                from pyswip.prolog import Prolog
+                from pyswip.easy import registerForeign, getAtomChars
+                
+                def hello(t):
+                    print "Hello,", getAtomChars(t)
+                    return True
+                hello.arity = 1
+                
+                registerForeign(hello)
+                prolog = Prolog()
+                prolog.assertz("father(michael,john)")
+                prolog.assertz("father(michael,gina)")    
+                list(prolog.query("father(michael,X), hello(X)"))
+            
+            Outputs:
+                Hello, john
+                Hello, gina            
 		""",
 		license="GPL",
 		packages=["pyswip"],

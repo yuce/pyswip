@@ -80,18 +80,18 @@ class Prolog:
         if Prolog.initialized:
             Prolog.__finalize()
             
-    def asserta(cls, assertion):
-        cls.query(assertion.join(["asserta((", "))."])).next()
+    def asserta(cls, assertion, catcherrors=False):
+        cls.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors).next()
         
     asserta = classmethod(asserta)    
     
-    def assertz(cls, assertion):
-        cls.query(assertion.join(["assertz((", "))."])).next()
+    def assertz(cls, assertion, catcherrors=False):
+        cls.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors).next()
         
     assertz = classmethod(assertz)
     
-    def consult(cls, filename):
-        cls.query(filename.join(["consult('", "')"])).next()
+    def consult(cls, filename, catcherrors=False):
+        cls.query(filename.join(["consult('", "')"]), catcherrors=catcherrors).next()
     
     consult = classmethod(consult)
 

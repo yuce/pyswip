@@ -2,7 +2,7 @@ PySWIP README
 ============
 
 :version: 
-	0.1.2
+	0.1.3
 :author:
     Yuce Tekol. <http://www.geocities.com/yucetekol>
 
@@ -12,35 +12,58 @@ Introduction
 PySWIP is a GPL'd Python - SWI-Prolog bridge enabling to query SWI-Prolog in your Python programs.
 
 Requirements:
-* Python 2.3 and higher (most probably other versions will also work).
-* ctypes 0.9.9.9 and higher (most probably other versions will also work).
-* SWI-Prolog 5.6.x and higher(most probably other versions will also work).
+* Python 2.3 and higher.
+* ctypes 0.9.9.9 and higher.
+* SWI-Prolog 5.6.x and higher (most probably other versions will also work).
 * libpl as a shared library.
 * Works on Linux and Win32, should work for all POSIX.
 
-The core functionality of this package is based on Nathan Denny's public domain prolog.py found at http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html	
+The core functionality of ``pyswip.prolog`` module is based on Nathan Denny's public domain prolog.py found at http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html	
 
 
 Install
 -------
 
-PySWIP should work on Win32 systems, but this isn't tested. The instructions below are for POSIX systems.
-
-+ First of all, you need to have SWI-Prolog's libpl as a shared library, e.g., ``libpl.so``, ``libpl.so.5.6.34``, etc. SWI-Prolog isn't compiled by default to enable shared library, so you need to compile it yourself with shared library production enabled. Please see ``INSTALL`` of this package.
-
-+ Install a recent version of `ctypes` if you don't have it already (if you have Python 2.5 you don't need to install it seperately).
-
-+ PySWIP supports distutils, so after the previous steps are satisfied, just do: `python setup.py install`.
-
-+ To test, do the following at the shell::
-
-	$ python
-	[ ... python info ...]
-	>>> from pyswip.util import Prolog
-	>>> prolog = Prolog()
-	>>> prolog.assertz("father(michael,john)")
-	
-If you get an error, such as "libpl (shared) not found." or "FATAL ERROR: Resource not found" be sure you have installed SWI-Prolog as a share library. Check your default library directory (usually ``/usr/lib``) for ``libpl.so``.
-
 Please see ``INSTALL`` for detailed instructions.
 
+
+Simple Example
+--------------
+
+A very simple example::
+
+    >>> from pyswip.prolog import Prolog
+    >>> prolog = Prolog()
+    >>> prolog.assertz("father(michael,john)")
+    >>> prolog.assertz("father(michael,gina)")
+    >>> list(prolog.query("father(michael,X)"))
+    [{'X': 'john'}, {'X': 'gina'}]
+    >>> for soln in prolog.query("father(X,Y)"):
+    ...     print soln["X"], "is the father of", soln["Y"]
+    ...
+    michael is the father of john
+    michael is the father of gina
+
+
+Foreign Functions Example
+-------------------------
+
+Since version 0.1.3 of PySWIP, it is possible to register a Python function as a Prolog predicate through SWI-Prolog's Foreign Function Interface. Here's an example::
+
+    from pyswip.prolog import Prolog
+    from pyswip.easy import registerForeign, getAtomChars
+    
+    def hello(t):
+        print "Hello,", getAtomChars(t)
+        return True
+    hello.arity = 1
+    
+    registerForeign(hello)
+    prolog = Prolog()
+    prolog.assertz("father(michael,john)")
+    prolog.assertz("father(michael,gina)")    
+    list(prolog.query("father(michael,X), hello(X)"))
+
+Outputs::
+    Hello, john
+    Hello, gina

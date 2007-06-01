@@ -5,9 +5,10 @@ PySWIP CHANGELOG
 
   * Renamed ``pyswip/util.py`` to ``pyswip/prolog.py``.
   * New module ``pyswip.easy``.
+  * Now it is possible to register a Python function as a Prolog predicate through SWI-Prolog's Foreign Function Interface.
   * Additions to the core library.
-  * Added example, "register foreign" which shows how to register a Python function as an SWI-Prolog predicate.
-  * Added example, "Towers of Hanoi"
+  * Added example, *register foreign* which shows how to register a Python function as an SWI-Prolog predicate.
+  * Added example, *Towers of Hanoi*
 
 + 0.1.2
 
