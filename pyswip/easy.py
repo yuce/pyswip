@@ -17,37 +17,119 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
-from pyswip import *
 from pyswip.core import *
 
-def callbackWrapper(arity=1):
-    #return CFUNCTYPE(*([foreign_t] + [term_t]*arity + [c_int, c_void_p]))
+class InvalidTypeError(TypeError):
+    def __init__(self, *args):
+        type = args and args[0] or "Unknown"
+        msg = "Term is expected to be of type: '%s'" % type
+        Exception.__init__(self, msg, *args)
+        
+
+class Atom(object):
+    __slots__ = "handle","chars"
+    def __init__(self, handle, term=None):
+        self.handle = handle
+        PL_register_atom(handle)
+        s = c_char_p()
+        if term and PL_get_atom_chars(term, addressof(s)):
+            self.chars = s.value
+        else:
+            self.chars = ""
+        
+    def __del__(self):
+        PL_unregister_atom(self.handle)
+    
+    def __str__(self):
+        return self.chars
+    
+    def __repr__(self):
+        return str(self.handle).join(["Atom('", "')"])
+        
+
+def _callbackWrapper(arity=1):
     return CFUNCTYPE(*([foreign_t] + [term_t]*arity))
 
+# deprecated
 def getAtomChars(t):
-    """If t is an atom, return it as a string, otherwise return None.
+    """If t is an atom, return it as a string, otherwise raise InvalidTypeError.
     """
     s = c_char_p()
     if PL_get_atom_chars(t, addressof(s)):
         return s.value
     else:
-        return None
+        raise InvalidTypeError("atom")
+    
+def getAtom(t):
+    """If t is an atom, return it , otherwise raise InvalidTypeError.
+    """
+    a = atom_t()
+    if PL_get_atom(t, addressof(a)):
+        return Atom(a.value, term=t)
+    else:
+        raise InvalidTypeError("atom")    
+
+def getBool(t):
+    """If t is of type bool, return it, otherwise raise InvalidTypeError.
+    """
+    b = c_int()
+    if PL_get_long(t, addressof(b)):
+        return bool(b.value)
+    else:
+        raise InvalidTypeError("bool")
+
+def getLong(t):
+    """If t is of type long, return it, otherwise raise InvalidTypeError.
+    """
+    i = c_long()
+    if PL_get_long(t, addressof(i)):
+        return i.value
+    else:
+        raise InvalidTypeError("long")
+    
+getInteger = getLong  # just an alias for getLong
+
+def getFloat(t):
+    """If t is of type float, return it, otherwise raise InvalidTypeError.
+    """
+    d = c_double()
+    if PL_get_float(t, addressof(d)):
+        return d.value
+    else:
+        raise InvalidTypeError("float")
+
+def getString(t):
+    """If t is of type string, return it, otherwise raise InvalidTypeError.
+    """
+    slen = c_int()
+    s = c_char_p()
+    if PL_get_string_chars(t, addressof(s), addressof(slen)):
+        return s.value
+    else:
+        raise InvalidTypeError("string")
 
 def getList(t):
     """Return t as a list.
     """
     head = PL_new_term_ref()
     result = []
-    v = c_char_p()
     while PL_get_list(t, head, t):
-        PL_get_chars(head, addressof(v), CVT_ALL|CVT_WRITE)
-        result.append(v.value)
+        result.append(_getList_router[PL_term_type(head)](head))        
         
-    return result            
+    return result
+
+def _get_atom(t):
+    if PL_is_string(t):
+        return getString(t)
+    else:
+        return getAtom(t)
+
+_getList_router = {PL_VARIABLE:None, PL_ATOM:getAtom, PL_STRING:getString,
+                    PL_INTEGER:getInteger, PL_FLOAT:getFloat,
+                    PL_TERM:getList}
 
 unifyInteger = PL_unify_integer
 
-#PL_register_foreign("atom_checksum", 2, funtype(atom_checksum), PL_FA_VARARGS)
 def registerForeign(func, name=None, arity=None, flags=0):
     """Register a Python predicate
     ``func``: Function to be registered. The function should return a value in
@@ -63,7 +145,7 @@ def registerForeign(func, name=None, arity=None, flags=0):
     if name is None:
         name = func.func_name
 
-    return PL_register_foreign(name, arity, callbackWrapper(arity)(func), flags)
+    return PL_register_foreign(name, arity, _callbackWrapper(arity)(func), flags)
     
     
     

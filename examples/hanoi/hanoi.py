@@ -28,7 +28,7 @@ class Tower:
             self.draw()
             self.started = True
         disks = self.disks
-        disks[r[1]].append(disks[r[0]].pop())
+        disks[str(r[1])].append(disks[str(r[0])].pop())
         self.step += 1
         return self.draw()
         

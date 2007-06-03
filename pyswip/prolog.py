@@ -116,10 +116,10 @@ class Prolog:
     query = classmethod(query)
 
     def __initialize(cls):
-        plargs = (c_char_p * 3)()
+        plargs = (c_char_p*2)()
         plargs[0] = "./"
         plargs[1] = "-q"
-        plargs[2] = "\x00"
+        #plargs[2] = "\x00"
         PL_initialise(2, plargs)
         
         swipl_fid = PL_open_foreign_frame()
