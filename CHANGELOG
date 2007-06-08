@@ -1,6 +1,9 @@
 PySWIP CHANGELOG
 ================
 
++ 0.2.0
+
+
 + 0.1.3
 
   * Renamed ``pyswip/util.py`` to ``pyswip/prolog.py``.

@@ -18,4 +18,4 @@
 # MA 02110-1301, USA.
 
 # PySWIP version
-__VERSION__ = "0.1.4"
+__VERSION__ = "0.2.0"
