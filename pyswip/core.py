@@ -260,8 +260,12 @@ PL_get_functor = _lib.PL_get_functor
 #PL_get_functor.argtypes = [term_t, POINTER(functor_t)]
 
 #PL_EXPORT(int)		PL_get_name_arity(term_t t, atom_t *name, int *arity);
+PL_get_name_arity = _lib.PL_get_name_arity
+
 #PL_EXPORT(int)		PL_get_module(term_t t, module_t *module);
 #PL_EXPORT(int)		PL_get_arg(int index, term_t t, term_t a);
+PL_get_arg = _lib.PL_get_arg
+
 #PL_EXPORT(int)		PL_get_list(term_t l, term_t h, term_t t);
 #PL_EXPORT(int)		PL_get_head(term_t l, term_t h);
 #PL_EXPORT(int)		PL_get_tail(term_t l, term_t t);

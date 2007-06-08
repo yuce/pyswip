@@ -14,7 +14,7 @@ letters = "S E N D M O R Y".split()
 prolog = Prolog()
 prolog.consult("money.pl")
 for result in prolog.query("sendmore(X)"):
-    r = eval(result["X"])
+    r = result["X"]
     for i, letter in enumerate(letters):
         print letter, "=", r[i]
 

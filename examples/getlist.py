@@ -14,4 +14,13 @@ print_list.arity = 1
 
 registerForeign(print_list)
 p = Prolog()
-list(p.query("""Y=[17,18, 'Hello, World!', atom, [3,4]], print_list(Y)""", catcherrors=False))
+print list(p.query("""Y=[17,18, 'Hello, World!', atom, [3,4]]""", catcherrors=False))
+print list(p.query("Z=[Y=[1,2]]", catcherrors=False))
+#print p.assertz("father(mich,john)")
+print list(p.query("assertz(father(mich,john))"))
+print list(p.query("assertz(father(mich,gina))"))
+#print list(p.query("father(X,Y)"))
+for r in p.query("father(X,Y)"):
+    print ">", r
+#print list(p.query("father(mich,gina)"))
+#print list(p.query("T=f(X, g(X)), X=a"))

@@ -18,6 +18,7 @@
 # MA 02110-1301, USA.
 
 from pyswip.core import *
+from pyswip.easy import getTerm
 
 class PrologError(Exception):
     pass
@@ -51,12 +52,23 @@ class Prolog:
                 maxresult -= 1
                 bindings = []
                 swipl_list = PL_copy_term_ref(swipl_bindingList)
-                answer = c_char_p()
-                while PL_get_list(swipl_list, swipl_head, swipl_list):
-                    PL_get_chars(swipl_head, addressof(answer), CVT_ALL | CVT_WRITE | BUF_RING)
-                    bindings.append(answer.value)
-                
-                yield dict([y.split("=") for y in bindings])
+                t = getTerm(swipl_list)
+                try:
+                    v = t.value
+                except AttributeError:
+                    v = {}
+                    for r in [x.value for x in t]:
+                        v.update(r)
+                yield v
+#                answer = c_char_p()
+                #while PL_get_list(swipl_list, swipl_head, swipl_list):
+                #    print PL_term_type(swipl_head)
+                #    PL_get_chars(swipl_head, addressof(answer), CVT_ALL | CVT_WRITE | BUF_RING)
+                #    print answer.value
+                #    bindings.append(answer.value)
+                #
+                #yield dict([y.split("=") for y in bindings])
+                #yield bindings
                 
             if PL_exception(self.swipl_qid):
                 self.error = True
@@ -152,11 +164,12 @@ def _test():
         print list(prolog.query(code))
         
     for r in prolog.query("father(X,Y)"):
-        print r["X"], r["Y"]
+        #print r["X"], r["Y"]
+        print ">>", r
         
     
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
-    #_test()
+    #doctest.testmod()
+    _test()
 
