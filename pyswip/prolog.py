@@ -35,7 +35,7 @@ class Prolog:
         def __init__(self):
             self.error = False
     
-        def __call__(self, query, maxresult, catcherrors):
+        def __call__(self, query, maxresult, catcherrors, normalize):
             plq = catcherrors and (PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
             self.swipl_fid = PL_open_foreign_frame()
             swipl_head = PL_new_term_ref()
@@ -53,22 +53,16 @@ class Prolog:
                 bindings = []
                 swipl_list = PL_copy_term_ref(swipl_bindingList)
                 t = getTerm(swipl_list)
-                try:
-                    v = t.value
-                except AttributeError:
-                    v = {}
-                    for r in [x.value for x in t]:
-                        v.update(r)
-                yield v
-#                answer = c_char_p()
-                #while PL_get_list(swipl_list, swipl_head, swipl_list):
-                #    print PL_term_type(swipl_head)
-                #    PL_get_chars(swipl_head, addressof(answer), CVT_ALL | CVT_WRITE | BUF_RING)
-                #    print answer.value
-                #    bindings.append(answer.value)
-                #
-                #yield dict([y.split("=") for y in bindings])
-                #yield bindings
+                if normalize:
+                    try:
+                        v = t.value
+                    except AttributeError:
+                        v = {}
+                        for r in [x.value for x in t]:
+                            v.update(r)
+                    yield v
+                else:
+                    yield t
                 
             if PL_exception(self.swipl_qid):
                 self.error = True
@@ -107,7 +101,7 @@ class Prolog:
     
     consult = classmethod(consult)
 
-    def query(cls, query, maxresult=-1, catcherrors=True):
+    def query(cls, query, maxresult=-1, catcherrors=True, normalize=True):
         """Run a prolog query and return a generator.
         If the query is a yes/no question, returns {} for yes, and nothing for no.
         Otherwise returns a generator of dicts with variables as keys.
@@ -123,7 +117,7 @@ class Prolog:
         [{'X': 'gina'}, {'X': 'john'}]
         """
         assert cls.initialized        
-        return cls._QueryWrapper()(query, maxresult, catcherrors)
+        return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)
     
     query = classmethod(query)
 

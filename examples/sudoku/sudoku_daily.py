@@ -53,7 +53,7 @@ def get_daily_sudoku(url):
 def solve(problem):
     prolog.consult("sudoku.pl")
     p = str(problem).replace("0", "_")
-    result = list(prolog.query("Puzzle=%s,sudoku(Puzzle)" % p, catcherrors=False))
+    result = list(prolog.query("Puzzle=%s,sudoku(Puzzle)" % p, maxresult=1))
     if result:
         result = result[0]
         return result["Puzzle"]
@@ -67,8 +67,7 @@ if __name__ == "__main__":
     
     puzzle = get_daily_sudoku(URL)
     print "-- PUZZLE --"
-    pretty_print(puzzle)
-    
+    pretty_print(puzzle)    
     print
     print " -- SOLUTION --"
     solution = solve(puzzle)
