@@ -1,3 +1,7 @@
+
+% Sudoku Solver (c) 2007 Markus Triska.
+% Contributed on 2007-06-09.
+
 :- use_module(library(bounds)).
 
 % Pss is a list of lists representing the game board.
