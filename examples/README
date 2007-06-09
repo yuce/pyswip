@@ -8,7 +8,7 @@ The ones marked with (clp) requires clp library of SWI-Prolog.
 + (clp) coins/
 + (clp) draughts/
 + hanoi/ : towers of Hanoi
-+ (clp) sendmoremoney/ : if, SEND + MORE = MONEY, so what is S, E, N, D, M, O, R, Y?
-+ (clp) sudoku/ : Sudoku solver
++ (clp) sendmoremoney/ : if, SEND + MORE = MONEY, what is S, E, N, D, M, O, R, Y?
++ (clp) sudoku/ : Sudoku solver (Prolog code is contributed by Markus Triska)
 + create_term.py : shows creating a Prolog term
 + register_foreign.py : shows how to call PL_register_foreign

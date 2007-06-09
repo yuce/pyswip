@@ -1,4 +1,8 @@
-:- use_module(library('clp/bounds')).
+
+% SEND + MORE = MONEY
+% Adapted from: http://en.wikipedia.org/wiki/Constraint_programming
+
+:- use_module(library('bounds')).
 
 sendmore(Digits) :-
    Digits = [S,E,N,D,M,O,R,Y],     % Create variables

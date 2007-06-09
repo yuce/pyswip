@@ -1,6 +1,6 @@
 % This example is adapted from http://eclipse.crosscoreop.com/examples/puzzle1.pl.txt
 
-:- use_module(library('clp/bounds')).
+:- use_module(library('bounds')).
 
 solve(Board) :-
 	Board = [NW,N,NE,W,E,SW,S,SE],
