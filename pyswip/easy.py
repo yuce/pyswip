@@ -270,6 +270,9 @@ def registerForeign(func, name=None, arity=None, flags=0):
         name = func.func_name
 
     return PL_register_foreign(name, arity, _callbackWrapper(arity)(func), flags)
-    
-    
-    
+
+def newTermRefs(count=2):
+    a = PL_new_term_refs(count)
+    return range(a, a + count)
+
+newTermRef = PL_new_term_ref
