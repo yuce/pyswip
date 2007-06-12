@@ -1,16 +1,14 @@
 
-from pyswip.prolog import Prolog
-from pyswip.easy import getAtomChars, unifyInteger, registerForeign
+from pyswip import Prolog, registerForeign, Atom
 
 def atom_checksum(*a):
-    s = getAtomChars(a[0])
-    if s is not None:
-        r = sum(ord(c)&0xFF for c in s)
-        return unifyInteger(a[1], r&0xFF)
+    if isinstance(a[0], Atom):
+        r = sum(ord(c)&0xFF for c in str(a[0]))
+        a[1].value = r&0xFF
+        return True
     else:
         return False
-atom_checksum.arity = 2
 
 p = Prolog()
-registerForeign(atom_checksum)
-print list(p.query("X='Python', atom_checksum(X, Y)"))
+registerForeign(atom_checksum, arity=2)
+print list(p.query("X='Python', atom_checksum(X, Y)", catcherrors=False))

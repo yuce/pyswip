@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from pyswip import __VERSION__ as pyswip_VERSION
 from pyswip.prolog import Prolog
 from pyswip.easy import *
 

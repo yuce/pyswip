@@ -109,10 +109,10 @@ class Prolog:
         >>> prolog = Prolog()
         >>> prolog.assertz("father(michael,john)")
         >>> prolog.assertz("father(michael,gina)")
-        >>> list(prolog.query("father(michael,john)"))
-        [{}]
-        >>> list(prolog.query("father(michael,olivia)"))
-        []
+        >>> bool(list(prolog.query("father(michael,john)")))
+        True
+        >>> bool(list(prolog.query("father(michael,olivia)")))
+        False
         >>> print sorted(prolog.query("father(michael,X)"))
         [{'X': 'gina'}, {'X': 'john'}]
         """
@@ -122,11 +122,11 @@ class Prolog:
     query = classmethod(query)
 
     def __initialize(cls):
-        plargs = (c_char_p*2)()
+        plargs = (c_char_p*3)()
         plargs[0] = "./"
         plargs[1] = "-q"
-        #plargs[2] = "\x00"
-        PL_initialise(2, plargs)
+        plargs[2] = "-nosignals"
+        PL_initialise(3, plargs)
         
         swipl_fid = PL_open_foreign_frame()
         swipl_load = PL_new_term_ref()
@@ -158,8 +158,7 @@ def _test():
         print list(prolog.query(code))
         
     for r in prolog.query("father(X,Y)"):
-        #print r["X"], r["Y"]
-        print ">>", r
+        print r["X"], "is the father of", r["Y"]
         
     
 if __name__ == "__main__":

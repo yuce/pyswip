@@ -30,14 +30,29 @@ class InvalidTypeError(TypeError):
 
 class Atom(object):
     __slots__ = "handle","chars"
-    def __init__(self, handle, term=None):
-        self.handle = handle
-        PL_register_atom(handle)
-        s = c_char_p()
-        if term and PL_get_atom_chars(term, addressof(s)):
-            self.chars = s.value
+    
+    def __init__(self, handleOrChars):
+        """Create an atom.
+        ``handleOrChars``: handle or string of the atom.
+        """
+        if isinstance(handleOrChars, basestring):
+            self.handle = PL_new_atom(handleOrChars)
+            self.chars = handleOrChars
         else:
-            self.chars = None
+            self.handle = handleOrChars
+            PL_register_atom(self.handle)
+            self.chars = c_char_p(PL_atom_chars(self.handle)).value
+            
+    def fromTerm(cls, term):
+        """Create an atom from a Term or term handle."""
+        if isinstance(term, Term):
+            term = term.handle
+            
+        a = atom_t()
+        if PL_get_atom(term, addressof(a)):
+            return cls(a.value)
+
+    fromTerm = classmethod(fromTerm)
         
     def __del__(self):
         PL_unregister_atom(self.handle)
@@ -57,7 +72,8 @@ class Term(object):
     __slots__ = "handle","chars","__value"
     def __init__(self, handle=None):
         if handle:
-            self.handle = PL_copy_term_ref(handle)
+            #self.handle = PL_copy_term_ref(handle)
+            self.handle = handle
         else:
             self.handle = PL_new_term_ref()
         self.chars = None
@@ -67,14 +83,19 @@ class Term(object):
     
 class Variable(object):
     __slots__ = "handle","chars"
-    def __init__(self, handle, term=None):
+    
+    def __init__(self, handle=None, name=None):
+        self.chars = None
         self.handle = handle
-        s = c_char_p()
-        if term and PL_get_chars(term, addressof(s)):
-            self.chars = s.value
-        else:
-            self.chars = None
-            
+        if name:
+            self.chars = name
+        if handle:
+            self.handle = handle
+            s = create_string_buffer("\00"*64)  # FIXME:
+            ptr = cast(s, c_char_p)
+            if PL_get_chars(handle, byref(ptr), CVT_VARIABLE|BUF_RING):
+                self.chars = ptr.value
+                
     def unify(self, value):
         if type(value) == str:
             fun = PL_unify_atom_chars
@@ -90,46 +111,90 @@ class Variable(object):
             raise
         
         fun(self.handle, value)
+        
+    def get_value(self):
+        return getTerm(self.handle)
+        
+    value = property(get_value, unify)
+    
+    def unified(self):
+        return PL_term_type(self.handle) == PL_VARIABLE
             
     def __str__(self):
         if self.chars is not None:
             return self.chars
         else:
-            return self.__repr__            
+            return self.__repr__()
         
     def __repr__(self):
         return "Variable(%d)" % self.handle
+    
 
 class Functor(object):
-    __slots__ = "handle","name","arity","args","__value"
+    __slots__ = "handle","name","arity","args","__value","a0"
+    
     func = {}
-    def __init__(self, handle, term=None):
-        self.handle = handle
-        self.name = None
-        self.arity = None
-        self.args = []
-        a = atom_t()
-        i = c_int()
-        if term and PL_get_name_arity(term, addressof(a), addressof(i)):
-            self.name = Atom(a.value, term=term)
-            c = c_char_p()
-            PL_get_chars(term, addressof(c), CVT_ALL | CVT_WRITE | BUF_RING)
-            #print "c=", c.value
-            self.arity = i.value
-            #print "name", self.name
-            #print "Arity", self.arity, type(self.arity)
-            args = self.args
-            for i in range(1, self.arity + 1):
-                arg = PL_new_term_ref()
-                if PL_get_arg(i, term, arg):
-                    args.append(getTerm(arg))
+    
+    def __init__(self, handleOrName, arity=1, args=None, a0=None):
+        """Create a functor.
+        ``handleOrName``: functor handle, a string or an atom.
+        """
+        
+        self.args = args or []
+        self.arity = arity
+        self.a0 = a0
+        
+        if isinstance(handleOrName, basestring):
+            self.name = Atom(handleOrName)
+            self.handle = PL_new_functor(self.name.handle, arity)
+            self.__value = "Functor%d" % self.handle
+        elif isinstance(handleOrName, Atom):
+            self.name = handleOrName
+            self.handle = PL_new_functor(self.name.handle, arity)
+            self.__value = "Functor%d" % self.handle
+        else:
+            self.handle = handleOrName
+            self.name = Atom(PL_functor_name(self.handle))
+            self.arity = PL_functor_arity(self.handle)
             try:
-                #print self.handle, type(self.handle)
                 self.__value = self.func[self.handle](self.arity, *self.args)
             except KeyError:
-                self.__value = {}
+                self.__value = "Functor%d" % self.handle                
+        
+    def fromTerm(cls, term):
+        """Create a functor from a Term or term handle."""
+        if isinstance(term, Term):
+            term = term.handle
+            
+        f = functor_t()
+        if PL_get_functor(term, addressof(f)):
+            # get args
+            args = []
+            arity = PL_functor_arity(f.value)
+            # let's have all args be consecutive
+            a0 = PL_new_term_refs(arity)
+            for i, a in enumerate(range(1, arity + 1)):
+                if PL_get_arg(a, term, a0 + i):
+                    args.append(getTerm(a0 + i))
+                    
+            return cls(f.value, args=args, a0=a0)
+            
+    fromTerm = classmethod(fromTerm)
                 
     value = property(lambda s: s.__value)
+    
+    def __call__(self, *args):
+        #l = len(args)
+        assert self.arity == len(args)
+        a = PL_new_term_refs(len(args))
+        for i, arg in enumerate(args):
+            ai = a + i
+            putTerm(ai, arg)
+
+        t = PL_new_term_ref()
+        PL_cons_functor_v(t, self.handle, a)
+        return Term(t)
+            
         
     def __str__(self):
         if self.name is not None and self.arity is not None:
@@ -143,7 +208,6 @@ class Functor(object):
     
 def _unifier(arity, *args):
     assert arity == 2
-    #print args, [type(arg) for arg in args]
     #if PL_is_variable(args[0]):
     #    args[0].unify(args[1])
     try:
@@ -153,8 +217,28 @@ def _unifier(arity, *args):
 
 Functor.func[274700] = _unifier
 
-def _callbackWrapper(arity=1):
-    return CFUNCTYPE(*([foreign_t] + [term_t]*arity))
+def putTerm(term, value):
+    if isinstance(value, Term):
+        PL_put_term(term, value.handle)
+    elif isinstance(value, basestring):
+        PL_put_atom_chars(term, value)
+    elif isinstance(value, int):
+        PL_put_integer(term, value)
+    elif isinstance(value, Variable):
+        #print "putTerm-var"
+        PL_put_variable(term)
+        value.handle = term
+    elif isinstance(value, list):
+        putList(term, value)
+    else:
+        raise Exception("Not implemented")    
+
+def putList(l, ls):
+    PL_put_nil(l)
+    for item in reversed(ls):
+        a = PL_new_term_ref()
+        putTerm(a, item)
+        PL_cons_list(l, a, l)        
 
 # deprecated
 def getAtomChars(t):
@@ -169,11 +253,13 @@ def getAtomChars(t):
 def getAtom(t):
     """If t is an atom, return it , otherwise raise InvalidTypeError.
     """
-    a = atom_t()
-    if PL_get_atom(t, addressof(a)):
-        return Atom(a.value, term=t)
-    else:
-        raise InvalidTypeError("atom")    
+    #a = atom_t()
+    #if PL_get_atom(t, addressof(a)):
+    #    #return Atom(a.value, term=t)
+    #    return Atom.fromTerm(t)
+    #else:
+    #    raise InvalidTypeError("atom")
+    return Atom.fromTerm(t)
 
 def getBool(t):
     """If t is of type bool, return it, otherwise raise InvalidTypeError.
@@ -237,11 +323,12 @@ def getList(t):
 def getFunctor(t):
     """Return t as a functor
     """
-    f = functor_t()
-    if PL_get_functor(t, addressof(f)):
-        return Functor(f.value, term=t)
-    else:
-        raise InvalidTypeError("functor")
+    #f = functor_t()
+    #if PL_get_functor(t, addressof(f)):
+    #    return Functor(f.value, term=t)
+    #else:
+    #    raise InvalidTypeError("functor")
+    return Functor.fromTerm(t)
     
 def getVariable(t):
     return Variable(t)
@@ -253,6 +340,16 @@ _getterm_router = {
                     }
 
 unifyInteger = PL_unify_integer
+
+def _callbackWrapper(arity=1):
+    return CFUNCTYPE(*([foreign_t] + [term_t]*arity))
+
+def _foreignWrapper(fun):
+    def wrapper(*args):
+        args = [getTerm(arg) for arg in args]
+        r = fun(*args)
+        return (r is None) and True or r
+    return wrapper
 
 def registerForeign(func, name=None, arity=None, flags=0):
     """Register a Python predicate
@@ -269,10 +366,64 @@ def registerForeign(func, name=None, arity=None, flags=0):
     if name is None:
         name = func.func_name
 
-    return PL_register_foreign(name, arity, _callbackWrapper(arity)(func), flags)
+    return PL_register_foreign(name, arity,
+            _callbackWrapper(arity)(_foreignWrapper(func)), flags)
+
+newTermRef = PL_new_term_ref
 
 def newTermRefs(count=2):
     a = PL_new_term_refs(count)
     return range(a, a + count)
 
-newTermRef = PL_new_term_ref
+def call(term, module=None):
+    """Call term in module.
+    ``term``: a Term or term handle
+    """
+    if isinstance(term, Term):
+        term = term.handle
+        
+    return PL_call(term, module)
+
+def record(term):
+    if isinstance(term, Term):
+        term = term.handle        
+    return PL_record(term)
+
+def recorded(rec):
+    t = PL_new_term_ref()
+    PL_recorded(rec, t)
+#    return Term(t)    
+
+
+class Query(object):
+    __slots__ = "qid","running"
+    
+    def __init__(self, term, flags=PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION, module=None):
+        if isinstance(term, Term):
+            term = term.handle
+            
+        f = Functor.fromTerm(term)
+        p = PL_pred(f.handle, module)
+        a0 = f.a0
+        self.qid = PL_open_query(module, flags, p, a0)
+        self.running = True
+        
+    def __del__(self):
+        if self.running:
+            self.closeQuery()
+        self.__finalize()
+    
+    def __finalize(self):
+        self.running = False
+        
+    def nextSolution(self):
+        return PL_next_solution(self.qid)
+    
+    def cutQuery(self):
+        PL_cut_query(self.qid)
+        self.__finalize()
+        
+    def closeQuery(self):
+        PL_close_query(self.qid)
+        self.__finalize()
+        

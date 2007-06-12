@@ -211,6 +211,12 @@ PL_register_atom = _lib.PL_register_atom
 #PL_EXPORT(void)		PL_unregister_atom(atom_t a);
 PL_unregister_atom = _lib.PL_unregister_atom
 
+#PL_EXPORT(atom_t)	PL_functor_name(functor_t f);
+PL_functor_name = _lib.PL_functor_name
+
+#PL_EXPORT(int)		PL_functor_arity(functor_t f);
+PL_functor_arity = _lib.PL_functor_arity
+
 #			/* Get C-values from Prolog terms */
 #PL_EXPORT(int)		PL_get_atom(term_t t, atom_t *a);
 PL_get_atom = _lib.PL_get_atom
@@ -372,6 +378,7 @@ PL_is_number.restype = c_int
 
 #			/* Assign to term-references */
 #PL_EXPORT(void)		PL_put_variable(term_t t);
+PL_put_variable = _lib.PL_put_variable
 #PL_EXPORT(void)		PL_put_atom(term_t t, atom_t a);
 #PL_EXPORT(void)		PL_put_atom_chars(term_t t, const char *chars);
 #PL_EXPORT(void)		PL_put_string_chars(term_t t, const char *chars);
@@ -390,7 +397,9 @@ PL_put_integer.restype = None
 #PL_EXPORT(void)		PL_put_functor(term_t t, functor_t functor);
 #PL_EXPORT(void)		PL_put_list(term_t l);
 #PL_EXPORT(void)		PL_put_nil(term_t l);
+PL_put_nil = _lib.PL_put_nil
 #PL_EXPORT(void)		PL_put_term(term_t t1, term_t t2);
+PL_put_term = _lib.PL_put_term
 
 #			/* construct a functor or list-cell */
 #PL_EXPORT(void)		PL_cons_functor(term_t h, functor_t f, ...);
@@ -403,7 +412,7 @@ PL_cons_functor_v.argtypes = [term_t, functor_t, term_t]
 PL_cons_functor_v.restype = None
 
 #PL_EXPORT(void)		PL_cons_list(term_t l, term_t h, term_t t);
-
+PL_cons_list = _lib.PL_cons_list
 
 #
 # term_t PL_exception(qid_t qid)
@@ -423,3 +432,21 @@ PL_new_atom.restype = atom_t
 PL_new_functor = _lib.PL_new_functor
 PL_new_functor.argtypes = [atom_t, c_int]
 PL_new_functor.restype = functor_t
+
+#		 /*******************************
+#		 *      RECORDED DATABASE	*
+#		 *******************************/
+#
+#PL_EXPORT(record_t)	PL_record(term_t term);
+PL_record = _lib.PL_record
+
+#PL_EXPORT(void)		PL_recorded(record_t record, term_t term);
+PL_recorded = _lib.PL_recorded
+
+#PL_EXPORT(void)		PL_erase(record_t record);
+PL_erase = _lib.PL_erase
+#
+#PL_EXPORT(char *)	PL_record_external(term_t t, size_t *size);
+#PL_EXPORT(int)		PL_recorded_external(const char *rec, term_t term);
+#PL_EXPORT(int)		PL_erase_external(char *rec);
+
