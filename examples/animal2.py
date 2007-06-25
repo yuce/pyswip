@@ -14,12 +14,18 @@ def main():
 
     X = Variable()
     call(assertz(animal("gnu", 50)))
-    call(assertz(animal("gnu", 76)))
+    call(assertz(animal("gnu", [1,2,3])))
     call(assertz(animal("gnu", 78)))
 
     q = Query(animal("gnu", X))
     while q.nextSolution():
         print X.value
+
+    #list(prolog.query("listing(animal)."))
+    listing = Functor("listing", 1)
+    q = Query(listing(animal))
+    while q.nextSolution():
+        pass
 
 if __name__ == "__main__":
     main()

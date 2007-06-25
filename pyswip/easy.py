@@ -242,21 +242,17 @@ def putTerm(term, value):
         #PL_put_integer(term, value[0])
     elif isinstance(value, Atom):
         print "ATOM"
+    elif isinstance(value, Functor):
+        PL_put_functor(term, value.handle)
     else:
         raise Exception("Not implemented")
 
 def putList(l, ls):
     PL_put_nil(l)
     a0 = PL_new_term_refs(len(ls))
-    #a = PL_new_term_ref()
-#    return
     for i, item in enumerate(reversed(ls)):
         putTerm(a0 + i, item)
-        #PL_put_atom_chars(a, str(item))
-        #PL_cons_list(l, a0 + i, l)
-        #h = PL_new_term_ref()
         PL_cons_list(l, a0 + i, l)
-        #l = h
 
 # deprecated
 def getAtomChars(t):

@@ -395,6 +395,7 @@ PL_put_integer.restype = None
 #PL_EXPORT(void)		PL_put_pointer(term_t t, void *ptr);
 #PL_EXPORT(void)		PL_put_float(term_t t, double f);
 #PL_EXPORT(void)		PL_put_functor(term_t t, functor_t functor);
+PL_put_functor = _lib.PL_put_functor
 #PL_EXPORT(void)		PL_put_list(term_t l);
 PL_put_list = _lib.PL_put_list
 #PL_EXPORT(void)		PL_put_nil(term_t l);
