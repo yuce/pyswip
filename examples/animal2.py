@@ -21,7 +21,6 @@ def main():
     while q.nextSolution():
         print X.value
 
-    #list(prolog.query("listing(animal)."))
     listing = Functor("listing", 1)
     q = Query(listing(animal))
     while q.nextSolution():

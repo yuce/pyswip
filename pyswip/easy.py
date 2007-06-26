@@ -249,10 +249,10 @@ def putTerm(term, value):
 
 def putList(l, ls):
     PL_put_nil(l)
-    a0 = PL_new_term_refs(len(ls))
-    for i, item in enumerate(reversed(ls)):
-        putTerm(a0 + i, item)
-        PL_cons_list(l, a0 + i, l)
+    a0 = PL_new_term_ref()  #PL_new_term_refs(len(ls))
+    for item in reversed(ls):
+        putTerm(a0, item)
+        PL_cons_list(l, a0, l)
 
 # deprecated
 def getAtomChars(t):

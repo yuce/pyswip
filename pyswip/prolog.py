@@ -48,7 +48,7 @@ class Prolog:
             swipl_predicate = PL_predicate("pyrun", 2, None)
             self.swipl_qid = swipl_qid = PL_open_query(None, plq,
                     swipl_predicate, swipl_args)
-            while PL_next_solution(swipl_qid) and maxresult:
+            while maxresult and PL_next_solution(swipl_qid):
                 maxresult -= 1
                 bindings = []
                 swipl_list = PL_copy_term_ref(swipl_bindingList)
