@@ -233,13 +233,9 @@ def putTerm(term, value):
     elif isinstance(value, int):
         PL_put_integer(term, value)
     elif isinstance(value, Variable):
-        #PL_put_variable(term)
-        #value.handle = term
         value.put(term)
     elif isinstance(value, list):
-        #PL_put_list(term)
         putList(term, value)
-        #PL_put_integer(term, value[0])
     elif isinstance(value, Atom):
         print "ATOM"
     elif isinstance(value, Functor):
@@ -248,11 +244,14 @@ def putTerm(term, value):
         raise Exception("Not implemented")
 
 def putList(l, ls):
-    PL_put_nil(l)
-    a0 = PL_new_term_ref()  #PL_new_term_refs(len(ls))
+    h = PL_new_term_ref()
+    PL_put_nil(h)
+    a = PL_new_term_ref()  #PL_new_term_refs(len(ls))
     for item in reversed(ls):
-        putTerm(a0, item)
-        PL_cons_list(l, a0, l)
+        putTerm(a, item)
+        PL_cons_list(h, a, h)
+    PL_get_head(h, h)
+    PL_unify(h, l)
 
 # deprecated
 def getAtomChars(t):
@@ -267,12 +266,6 @@ def getAtomChars(t):
 def getAtom(t):
     """If t is an atom, return it , otherwise raise InvalidTypeError.
     """
-    #a = atom_t()
-    #if PL_get_atom(t, addressof(a)):
-    #    #return Atom(a.value, term=t)
-    #    return Atom.fromTerm(t)
-    #else:
-    #    raise InvalidTypeError("atom")
     return Atom.fromTerm(t)
 
 def getBool(t):
@@ -397,16 +390,14 @@ def call(term, module=None):
 
     return PL_call(term, module)
 
-#def record(term):
-#    if isinstance(term, Term):
-#        term = term.handle
-#    return PL_record(term)
+def newModule(name):
+    """Create a new module.
+    ``name``: An Atom or a string
+    """
+    if isinstance(name, basestring):
+        name = Atom(name)
 
-#def recorded(rec):
-#    t = PL_new_term_ref()
-#    PL_recorded(rec, t)
-##    return Term(t)
-
+    return PL_new_module(name.handle)
 
 class Query(object):
     qid = None

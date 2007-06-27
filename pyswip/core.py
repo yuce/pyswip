@@ -274,8 +274,11 @@ PL_get_arg = _lib.PL_get_arg
 
 #PL_EXPORT(int)		PL_get_list(term_t l, term_t h, term_t t);
 #PL_EXPORT(int)		PL_get_head(term_t l, term_t h);
+PL_get_head = _lib.PL_get_head
 #PL_EXPORT(int)		PL_get_tail(term_t l, term_t t);
+PL_get_tail = _lib.PL_get_tail
 #PL_EXPORT(int)		PL_get_nil(term_t l);
+PL_get_nil = _lib.PL_get_nil
 #PL_EXPORT(int)		PL_get_term_value(term_t t, term_value_t *v);
 #PL_EXPORT(char *)	PL_quote(int chr, const char *data);
 
@@ -321,6 +324,7 @@ PL_halt = _lib.PL_halt
 PL_halt.argtypes = [c_int]
 
 PL_unify_integer = _lib.PL_unify_integer
+PL_unify = _lib.PL_unify
 
 # Verify types
 
@@ -452,3 +456,4 @@ PL_erase = _lib.PL_erase
 #PL_EXPORT(int)		PL_recorded_external(const char *rec, term_t term);
 #PL_EXPORT(int)		PL_erase_external(char *rec);
 
+PL_new_module = _lib.PL_new_module
