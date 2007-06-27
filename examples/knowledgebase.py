@@ -23,7 +23,6 @@ while q.nextSolution():
 
 print "knowledgebase test2"
 
-X = Variable()
 q = Query(parent(X, "bob"), module=test2)
 while q.nextSolution():
     print X.value
