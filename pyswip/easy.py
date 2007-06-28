@@ -94,9 +94,9 @@ class Variable(object):
             ptr = cast(s, c_char_p)
             if PL_get_chars(handle, byref(ptr), CVT_VARIABLE|BUF_RING):
                 self.chars = ptr.value
-        #else:
-        #    self.handle = PL_new_term_ref()
-        #    PL_put_variable(self.handle)
+        else:
+            self.handle = PL_new_term_ref()
+            PL_put_variable(self.handle)
 
     def unify(self, value):
         if type(value) == str:
