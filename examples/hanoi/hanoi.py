@@ -9,7 +9,8 @@ class Notifier:
         self.fun = fun
         
     def notify(self, t):
-        return not self.fun(getList(t))
+        #return not self.fun(getList(t))
+        return not self.fun(t)
     notify.arity = 1
     
 class Tower:

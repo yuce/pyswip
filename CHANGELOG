@@ -8,6 +8,7 @@ PySWIP CHANGELOG
   * Prolog.query returns real Python datatypes
   * Markus Triska's Sudoku Solver
   * Prolog module support
+  * Foreign functions retrieve Python datatypes.
 
 + 0.1.3
 

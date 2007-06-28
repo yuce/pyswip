@@ -13,7 +13,12 @@ setup(name="pyswip",
 		author="Yuce Tekol",
 		author_email="yucetekol@gmail.com",
 		description="PySWIP enables querying SWI-Prolog in your Python programs.",
-        long_description="""PySWIP is a GPL'd Python - SWI-Prolog bridge enabling to query SWI-Prolog in your Python programs. It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a Pythonic interface.
+        long_description="""
+PySWIP 0.2
+==========
+
+PySWIP is a GPL'd Python - SWI-Prolog bridge enabling to query SWI-Prolog in your Python programs. It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a Pythonic interface.
+
 
 Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
 
@@ -35,6 +40,7 @@ News
 * New Pythonic interface (See the last example).
 * Several new examples, including Markus Triska's *Sudoku Solver*.
 * Prolog module support.
+* Foreign functions retrieve Python datatypes.
 
 Example (Using Prolog):
 -----------------------
