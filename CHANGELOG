@@ -3,6 +3,11 @@ PySWIP CHANGELOG
 
 + 0.2.0
 
+  * All names are included with ``from pyswip import ...``
+  * New *Pythonic* interface
+  * Prolog.query returns real Python datatypes
+  * Markus Triska's Sudoku Solver
+  * Prolog module support
 
 + 0.1.3
 
@@ -24,7 +29,6 @@ PySWIP CHANGELOG
   * Added ``examples`` directory.
   * Added examples, *coins* and *draughts*.
   
-
 + 0.1.1
 
   * Added ``queryGenerator`` to PrologRunner, ``query`` calls ``queryGenerator``.

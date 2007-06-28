@@ -430,9 +430,10 @@ class Query(object):
 
     nextSolution = staticmethod(nextSolution)
 
-    #def cutQuery(self):
-    #    PL_cut_query(self.qid)
-    #    self.__finalize()
+    def cutQuery():
+        PL_cut_query(Query.qid)
+
+    cutQuery = staticmethod(cutQuery)
 
     def closeQuery():
         PL_close_query(Query.qid)

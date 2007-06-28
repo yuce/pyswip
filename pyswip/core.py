@@ -356,9 +356,9 @@ PL_is_float = _lib.PL_is_float
 PL_is_float.argtypes = [term_t]
 PL_is_float.restype = c_int
 
-PL_is_rational = _lib.PL_is_rational
-PL_is_rational.argtypes = [term_t]
-PL_is_rational.restype = c_int
+#PL_is_rational = _lib.PL_is_rational
+#PL_is_rational.argtypes = [term_t]
+#PL_is_rational.restype = c_int
 
 PL_is_compound = _lib.PL_is_compound
 PL_is_compound.argtypes = [term_t]

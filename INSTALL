@@ -31,20 +31,20 @@ You need to do the following to install a shared library enabled version of SWI-
 	
 	$ sudo make install
 	
-6) clp library is useful for constraint handling problems, so let's install it too::
+6) clp library is useful for constraint handling problems, so let's install that too::
 
 	$ cd cd packages/clpqr
 	$ ./configure --prefix=/usr --enable-shared
 	$ make && make install
 	
 
-7) Create a soft link::
+7) Create a soft link to ``libpol.so``::
 
 	$ sudo ln -s  /usr/lib/pl-5.6.34/lib/i686-linux/libpl.so.5.6.34 /usr/lib/libpl.so
 
 8) Next, get and install ctypes from: http://starship.python.net/crew/theller/ctypes . Note that you don't need to install it if you are using Python 2.5.
 
-9) Unpack PySwIP package and install it with, `python setup.py install`.
+9) Unpack PySwIP package and install it with, ``python setup.py install``.
 
 10) After you install it, you can test it with the following at your Python shell::
 

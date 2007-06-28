@@ -13,13 +13,33 @@ setup(name="pyswip",
 		author="Yuce Tekol",
 		author_email="yucetekol@gmail.com",
 		description="PySWIP enables querying SWI-Prolog in your Python programs.",
-		long_description="""PySWIP is a GPL'd Python - SWI-Prolog bridge which enables querying SWI-Prolog in your Python programs.
-		
-PySWIP includes both an (incomplete) SWI-Prolog foreign language interface and a utity class that makes it easy querying SWI-Python.
-Since it uses SWI-Prolog as a shared library and ctypes to access it, PySWIP doesn't require compilation to be installed.
+        long_description="""PySWIP is a GPL'd Python - SWI-Prolog bridge enabling to query SWI-Prolog in your Python programs. It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a Pythonic interface.
 
-Example:
-    >>> from pyswip.prolog import Prolog
+Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
+
+Note that this version of PySWIP is slightly incompatible with prior versions.
+
+Requirements:
+-------------
+
+* Python 2.3 and higher.
+* ctypes 1.0 and higher.
+* SWI-Prolog 5.6.x and higher (most probably other versions will also work).
+* libpl as a shared library.
+* Works on Linux and Win32, should work for all POSIX.
+
+News
+----
+
+* Prolog.query returns real Python datatypes.
+* New Pythonic interface (See the last example).
+* Several new examples, including Markus Triska's *Sudoku Solver*.
+* Prolog module support.
+
+Example (Using Prolog):
+-----------------------
+
+    >>> from pyswip import Prolog
     >>> prolog = Prolog()
     >>> prolog.assertz("father(michael,john)")
     >>> prolog.assertz("father(michael,gina)")
@@ -30,21 +50,20 @@ Example:
     ...
     michael is the father of john
     michael is the father of gina
-    
-Foreign Functions Example:
 
-Since version 0.1.3 of PySWIP, it is possible to register a Python function as a Prolog predicate through SWI-Prolog's Foreign Function Interface.
-Here's an example:
+Since version 0.1.3 of PySWIP, it is possible to register a Python function as a Prolog predicate through SWI-Prolog's foreign language interface.
+
+Example (Foreign Functions):
+----------------------------
     
-    from pyswip.prolog import Prolog
-    from pyswip.easy import registerForeign, getAtomChars
-    
+    from pyswip import Prolog, registerForeign
+
     def hello(t):
-        print "Hello,", getAtomChars(t)
-        return True
+        print "Hello,", t
     hello.arity = 1
-    
+
     registerForeign(hello)
+
     prolog = Prolog()
     prolog.assertz("father(michael,john)")
     prolog.assertz("father(michael,gina)")    
@@ -52,7 +71,29 @@ Here's an example:
 
 Outputs:
     Hello, john
-    Hello, gina            
+    Hello, gina
+
+Since version 0.2, PySWIP contains a 'Pythonic' interface which allows writing predicates in pure Python.
+
+Example (Pythonic interface):
+-----------------------------
+
+    from pyswip import Prolog, Functor, Variable, Query
+
+    assertz = Functor("assertz", 2)
+    father = Functor("father", 2)
+
+    call(assertz(father("michael","john")))
+    call(assertz(father("michael","gina")))
+
+    X = Variable()
+    q = Query(father("michael",X))
+    while q.nextSolution():
+        print "Hello,", X.value
+
+Outputs:
+    Hello, john
+    Hello, gina
 """,
 		license="GPL",
 		packages=["pyswip"],
@@ -67,3 +108,4 @@ Outputs:
 			'Topic :: Software Development :: Libraries :: Python Modules'
 			],
 		)
+
