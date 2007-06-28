@@ -99,7 +99,6 @@ class Variable(object):
         #    PL_put_variable(self.handle)
 
     def unify(self, value):
-        print "var unify"
         if type(value) == str:
             fun = PL_unify_atom_chars
         elif type(value) == int:
@@ -225,7 +224,6 @@ def _unifier(arity, *args):
 Functor.func[274700] = _unifier
 
 def putTerm(term, value):
-    #print "putterm", term, value
     if isinstance(value, Term):
         PL_put_term(term, value.handle)
     elif isinstance(value, basestring):
