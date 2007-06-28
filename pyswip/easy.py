@@ -96,7 +96,7 @@ class Variable(object):
                 self.chars = ptr.value
         else:
             self.handle = PL_new_term_ref()
-            PL_put_variable(self.handle)
+            #PL_put_variable(self.handle)
 
     def unify(self, value):
         if type(value) == str:
@@ -134,7 +134,7 @@ class Variable(object):
         return "Variable(%s)" % self.handle
 
     def put(self, term):
-        PL_put_variable(term)
+        #PL_put_variable(term)
         self.handle = term
 
 
@@ -194,10 +194,8 @@ class Functor(object):
     def __call__(self, *args):
         assert self.arity == len(args)
         a = PL_new_term_refs(len(args))
-        #a = PL_new_term_ref()
         for i, arg in enumerate(args):
             putTerm(a + i, arg)
-            #putTerm(a, arg)
 
         t = PL_new_term_ref()
         PL_cons_functor_v(t, self.handle, a)
@@ -242,14 +240,12 @@ def putTerm(term, value):
         raise Exception("Not implemented")
 
 def putList(l, ls):
-    h = PL_new_term_ref()
-    PL_put_nil(h)
+    PL_put_nil(l)
     a = PL_new_term_ref()  #PL_new_term_refs(len(ls))
     for item in reversed(ls):
         putTerm(a, item)
-        PL_cons_list(h, a, h)
-    PL_get_head(h, h)
-    PL_unify(h, l)
+        PL_cons_list(l, a, l)
+    #PL_get_head(h, h)
 
 # deprecated
 def getAtomChars(t):
@@ -314,9 +310,10 @@ def getTerm(t):
     else:
         return getFunctor(t)
 
-def getList(t):
+def getList(x):
     """Return t as a list.
     """
+    t = PL_copy_term_ref(x)
     head = PL_new_term_ref()
     result = []
     while PL_get_list(t, head, t):
