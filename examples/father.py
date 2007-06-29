@@ -17,7 +17,7 @@ def main():
 
     p.assertz("father(john,mich)")
     p.assertz("father(john,gina)")
-    p.assertz("mother(jane,john)")
+    p.assertz("mother(jane,mich)")
 
     X = Variable(); Y = Variable(); Z = Variable()
 

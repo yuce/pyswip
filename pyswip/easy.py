@@ -18,6 +18,8 @@
 # MA 02110-1301, USA.
 
 from pyswip.core import *
+#from pyswip.prolog import Prolog
+#_prolog = Prolog()
 
 PYSWIP_UNIFY = 274700
 
@@ -78,6 +80,9 @@ class Term(object):
             self.handle = PL_new_term_ref()
         self.chars = None
 
+    def __invert__(self):
+        return _not(self)
+
     def get_value(self):
         pass
 
@@ -137,10 +142,8 @@ class Variable(object):
         #PL_put_variable(term)
         self.handle = term
 
-
 class Functor(object):
     __slots__ = "handle","name","arity","args","__value","a0"
-
     func = {}
 
     def __init__(self, handleOrName, arity=1, args=None, a0=None):
@@ -220,6 +223,8 @@ def _unifier(arity, *args):
         return {args[0].chars:args[1]}
 
 Functor.func[274700] = _unifier
+_not = Functor("not", 1)
+_comma = Functor(",", 2)
 
 def putTerm(term, value):
     if isinstance(value, Term):
@@ -324,11 +329,6 @@ def getList(x):
 def getFunctor(t):
     """Return t as a functor
     """
-    #f = functor_t()
-    #if PL_get_functor(t, addressof(f)):
-    #    return Functor(f.value, term=t)
-    #else:
-    #    raise InvalidTypeError("functor")
     return Functor.fromTerm(t)
 
 def getVariable(t):
@@ -339,8 +339,6 @@ _getterm_router = {
                     PL_INTEGER:getInteger, PL_FLOAT:getFloat,
                     PL_TERM:getTerm
                     }
-
-unifyInteger = PL_unify_integer
 
 def _callbackWrapper(arity=1):
     return CFUNCTYPE(*([foreign_t] + [term_t]*arity))
@@ -376,14 +374,21 @@ def newTermRefs(count):
     a = PL_new_term_refs(count)
     return range(a, a + count)
 
-def call(term, module=None):
+def call(*terms, **kwargs):
     """Call term in module.
     ``term``: a Term or term handle
     """
-    if isinstance(term, Term):
-        term = term.handle
+    for kwarg in kwargs:
+        if kwarg not in ["module"]:
+            raise KeyError
 
-    return PL_call(term, module)
+    module = kwargs.get("module", None)
+
+    t = terms[0]
+    for tx in terms[1:]:
+        t = _comma(t, tx)
+
+    return PL_call(t.handle, module)
 
 def newModule(name):
     """Create a new module.
@@ -397,7 +402,6 @@ def newModule(name):
 class Query(object):
     qid = None
     fid = None
-    comma = Functor(",", 2)
 
     def __init__(self, *terms, **kwargs):
         for key in kwargs:
@@ -407,10 +411,9 @@ class Query(object):
         flags = kwargs.get("flags", PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION)
         module = kwargs.get("module", None)
 
-        comma = Query.comma
         t = terms[0]
         for tx in terms[1:]:
-            t = comma(t, tx)
+            t = _comma(t, tx)
 
         f = Functor.fromTerm(t)
         p = PL_pred(f.handle, module)
@@ -437,21 +440,29 @@ class Query(object):
 
 
 def _test():
-    from pyswip.prolog import Prolog
-    p = Prolog()
+    #from pyswip.prolog import Prolog
+    #p = Prolog()
+
+    #p = _prolog
 
     assertz = Functor("assertz")
     a = Functor("a_")
+    b = Functor("b_")
 
     call(assertz(a(10)))
     call(assertz(a([1,2,3])))
     call(assertz(a(11)))
+    #call(assertz(b(11)))
+    call(assertz(b(12)))
 
     X = Variable()
 
-    q = Query(a(X))
-    while q.nextSolution():
-        print ">", X.value
+    #q = Query(a(X), ~b(X))
+    #q = Query(b(X), a(X))
+    #while q.nextSolution():
+    #    print X.value
+    print call(a(X),b(X))
+    print call(_comma(~a(X),a(X)))
 
 if __name__ == "__main__":
     _test()

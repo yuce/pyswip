@@ -17,7 +17,26 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
+import atexit
 from pyswip.core import *
+
+def _initialize():
+    plargs = (c_char_p*3)()
+    plargs[0] = "./"
+    plargs[1] = "-q"
+    plargs[2] = "-nosignals"
+    PL_initialise(3, plargs)
+    swipl_fid = PL_open_foreign_frame()
+    swipl_load = PL_new_term_ref()
+    PL_chars_to_term("asserta(pyrun(GoalString,BindingList):-(atom_chars(A,GoalString),atom_to_term(A,Goal,BindingList),call(Goal))).", swipl_load)
+    PL_call(swipl_load, None)
+    PL_discard_foreign_frame(swipl_fid)
+_initialize()
+
+def _finalize():
+    PL_halt(0)
+atexit.register(_finalize)
+
 from pyswip.easy import getTerm
 
 class PrologError(Exception):
@@ -75,17 +94,6 @@ class Prolog:
                 PL_close_query(self.swipl_qid)
                 PL_discard_foreign_frame(self.swipl_fid)    
     
-    initialized = False
-    
-    def __init__(self):
-        if not self.initialized:
-            Prolog.__initialize()
-            Prolog.initialized = True
-    
-    def __del__(self):
-        if Prolog.initialized:
-            Prolog.__finalize()
-            
     def asserta(cls, assertion, catcherrors=False):
         cls.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors).next()
         
@@ -116,32 +124,11 @@ class Prolog:
         >>> print sorted(prolog.query("father(michael,X)"))
         [{'X': 'gina'}, {'X': 'john'}]
         """
-        assert cls.initialized        
+        #assert cls.initialized        
         return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)
     
     query = classmethod(query)
-
-    def __initialize(cls):
-        plargs = (c_char_p*3)()
-        plargs[0] = "./"
-        plargs[1] = "-q"
-        plargs[2] = "-nosignals"
-        PL_initialise(3, plargs)
-        
-        swipl_fid = PL_open_foreign_frame()
-        swipl_load = PL_new_term_ref()
     
-        PL_chars_to_term("asserta(pyrun(GoalString,BindingList):-(atom_chars(A,GoalString),atom_to_term(A,Goal,BindingList),call(Goal))).", swipl_load)
-    
-        PL_call(swipl_load, None)
-        PL_discard_foreign_frame(swipl_fid)
-    
-    __initialize = classmethod(__initialize)
-    
-    def __finalize(cls):
-        PL_halt(0)
-        
-    __finalize = classmethod(__finalize)
         
 def _test():
     lines = [("assertz(father(michael,john)).","Michael is the father of John"),
@@ -162,7 +149,7 @@ def _test():
         
     
 if __name__ == "__main__":
-    import doctest
+    #import doctest
     #doctest.testmod()
     _test()
 
