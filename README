@@ -18,7 +18,7 @@ PySWIP is a GPL'd Python - SWI-Prolog bridge enabling to query SWI-Prolog in you
 
 Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
 
-Note that this version of PySWIP is slightly incompatible with prior versions.
+Note that this version of PySWIP is slightly incompatible with 0.1.x versions.
 
 Requirements:
 -------------
@@ -80,7 +80,7 @@ Since version 0.2, PySWIP contains a 'Pythonic' interface which allows writing p
 Example (Pythonic interface):
 -----------------------------
 
-    from pyswip import Prolog, Functor, Variable, Query
+    from pyswip import Functor, Variable, Query
 
     assertz = Functor("assertz", 2)
     father = Functor("father", 2)

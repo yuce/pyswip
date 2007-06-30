@@ -15,14 +15,17 @@ setup(name="pyswip",
 		description="PySWIP enables querying SWI-Prolog in your Python programs.",
         long_description="""
 PySWIP 0.2.1
-==========
+============
 
-PySWIP is a GPL'd Python - SWI-Prolog bridge enabling to query SWI-Prolog in your Python programs. It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a Pythonic interface.
+PySWIP is a GPL'd Python - SWI-Prolog bridge enabling to query SWI-Prolog
+in your Python programs. It features an (incomplete) SWI-Prolog foreign
+language interface, a utility class that makes it easy querying with Prolog
+and also a Pythonic interface.
 
+Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it,
+it doesn't require compilation to be installed.
 
-Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
-
-Note that this version of PySWIP is slightly incompatible with prior versions.
+Note that this version of PySWIP is slightly incompatible with 0.1.x versions.
 
 Requirements:
 -------------
@@ -36,11 +39,8 @@ Requirements:
 News
 ----
 
-* Prolog.query returns real Python datatypes.
-* New Pythonic interface (See the last example).
-* Several new examples, including Markus Triska's *Sudoku Solver*.
-* Prolog module support.
-* Foreign functions retrieve Python datatypes.
+* Importing ``pyswip`` automatically initializes SWI-Prolog.
+* Fixed a bug with querying lists with the new interface.
 
 Example (Using Prolog):
 -----------------------
@@ -84,7 +84,7 @@ Since version 0.2, PySWIP contains a 'Pythonic' interface which allows writing p
 Example (Pythonic interface):
 -----------------------------
 
-    from pyswip import Prolog, Functor, Variable, Query
+    from pyswip import Functor, Variable, Query
 
     assertz = Functor("assertz", 2)
     father = Functor("father", 2)
