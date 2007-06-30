@@ -1,6 +1,11 @@
 PySWIP CHANGELOG
 ================
 
++ 0.2.1
+
+  * Importing ``pyswip`` automatically initializes SWI-Prolog.
+  * Fixed a bug with querying lists with the new interface.
+
 + 0.2.0
 
   * All names are included with ``from pyswip import ...``

@@ -29,15 +29,6 @@ Requirements:
 * libpl as a shared library.
 * Works on Linux and Win32, should work for all POSIX.
 
-News:
------
-
-* Prolog.query returns real Python datatypes.
-* New Pythonic interface (See the last example).
-* Several new examples, including Markus Triska's *Sudoku Solver*.
-* Prolog module support.
-* Foreign functions retrieve Python datatypes.
-
 Example (Using Prolog):
 -----------------------
 
