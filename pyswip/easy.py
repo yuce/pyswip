@@ -18,10 +18,7 @@
 # MA 02110-1301, USA.
 
 from pyswip.core import *
-#from pyswip.prolog import Prolog
-#_prolog = Prolog()
 
-PYSWIP_UNIFY = 274700
 
 class InvalidTypeError(TypeError):
     def __init__(self, *args):
@@ -71,14 +68,15 @@ class Atom(object):
         return str(self.handle).join(["Atom('", "')"])
 
 class Term(object):
-    __slots__ = "handle","chars","__value"
-    def __init__(self, handle=None):
+    __slots__ = "handle","chars","__value","a0"
+    def __init__(self, handle=None, a0=None):
         if handle:
             #self.handle = PL_copy_term_ref(handle)
             self.handle = handle
         else:
             self.handle = PL_new_term_ref()
         self.chars = None
+        self.a0 = a0
 
     def __invert__(self):
         return _not(self)
@@ -142,6 +140,14 @@ class Variable(object):
         #PL_put_variable(term)
         self.handle = term
 
+
+class Predicate(object):
+    __slots__ = "handle"
+
+    def __init__(self, functor, module=None):
+        self.handle = PL_pred(functor, module)
+
+
 class Functor(object):
     __slots__ = "handle","name","arity","args","__value","a0"
     func = {}
@@ -153,7 +159,7 @@ class Functor(object):
 
         self.args = args or []
         self.arity = arity
-        self.a0 = a0
+        #self.a0 = a0
 
         if isinstance(handleOrName, basestring):
             self.name = Atom(handleOrName)
@@ -192,17 +198,42 @@ class Functor(object):
 
     fromTerm = classmethod(fromTerm)
 
+    def getArgs(self, term):
+        if isinstance(term, Term):
+            term = term.handle
+        args = []
+        a0 = PL_new_term_refs(self.arity)
+        for i, a in enumerate(range(1, self.arity + 1)):
+            if PL_get_arg(a, term, a0 + i):
+                args.append(getTerm(a0 + i))
+        return a0
+
+    #a0 = property(getArgs)
+
     value = property(lambda s: s.__value)
+
+    #def __call__(self, *args):
+    #    assert self.arity == len(args)
+    #    a = PL_new_term_refs(len(args))
+    #    for i, arg in enumerate(args):
+    #        putTerm(a + i, arg)
+
+    #    t = PL_new_term_ref()
+    #    PL_cons_functor_v(t, self.handle, a)
+    #    return Term(t)
 
     def __call__(self, *args):
         assert self.arity == len(args)
         a = PL_new_term_refs(len(args))
+        q = PL_new_term_ref()
+        PL_get_functor(q, self.handle)
         for i, arg in enumerate(args):
-            putTerm(a + i, arg)
+            #putTerm(a + i, arg)
+            PL_unify_arg(i + 1, q, a + i)
 
         t = PL_new_term_ref()
-        PL_cons_functor_v(t, self.handle, a)
-        return Term(t)
+        PL_cons_functor_v(t, q, a)
+        return Term(t, a0=a)
 
     def __str__(self):
         if self.name is not None and self.arity is not None:
@@ -222,7 +253,8 @@ def _unifier(arity, *args):
     except AttributeError:
         return {args[0].chars:args[1]}
 
-Functor.func[274700] = _unifier
+_unify = Functor("=", 2)
+Functor.func[_unify.handle] = _unifier
 _not = Functor("not", 1)
 _comma = Functor(",", 2)
 
@@ -416,8 +448,10 @@ class Query(object):
             t = _comma(t, tx)
 
         f = Functor.fromTerm(t)
+        print f, Atom(PL_functor_name(f.handle)), PL_functor_arity(f.handle)
         p = PL_pred(f.handle, module)
-        Query.qid = PL_open_query(module, flags, p, f.a0)
+        #Query.qid = PL_open_query(module, flags, p, f.a0)
+        Query.qid = PL_open_query(module, flags, p, t.a0)
 
     def __del__(self):
         if Query.qid is not None:
@@ -452,7 +486,7 @@ def _test():
     call(assertz(a(10)))
     call(assertz(a([1,2,3])))
     call(assertz(a(11)))
-    #call(assertz(b(11)))
+    call(assertz(b(11)))
     call(assertz(b(12)))
 
     X = Variable()
@@ -461,8 +495,12 @@ def _test():
     #q = Query(b(X), a(X))
     #while q.nextSolution():
     #    print X.value
-    print call(a(X),b(X))
-    print call(_comma(~a(X),a(X)))
+    #print call(a(X),b(X))
+    #print call(_comma(~a(X),a(X)))
+    #q = Query(_comma(a(X), b(X)))
+    q = Query(a(X))
+    while q.nextSolution():
+        print ">", X.value
 
 if __name__ == "__main__":
     _test()

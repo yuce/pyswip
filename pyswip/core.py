@@ -326,6 +326,8 @@ PL_halt.argtypes = [c_int]
 PL_unify_integer = _lib.PL_unify_integer
 PL_unify = _lib.PL_unify
 
+PL_unify_arg = _lib.PL_unify_arg
+
 # Verify types
 
 PL_term_type = _lib.PL_term_type
@@ -457,3 +459,99 @@ PL_erase = _lib.PL_erase
 #PL_EXPORT(int)		PL_erase_external(char *rec);
 
 PL_new_module = _lib.PL_new_module
+
+intptr_t = c_long
+ssize_t = intptr_t
+wint_t = c_uint
+
+#typedef struct
+#{
+#  int __count;
+#  union
+#  {
+#    wint_t __wch;
+#    char __wchb[4];
+#  } __value;            /* Value so far.  */
+#} __mbstate_t;
+
+class _mbstate_t_value(Union):
+    _fields_ = [("__wch",wint_t),
+                ("__wchb",c_char*4)]
+
+class mbstate_t(Structure):
+    _fields_ = [("__count",c_int),
+                ("__value",_mbstate_t_value)]
+
+# stream related funcs
+Sread_function = CFUNCTYPE(ssize_t, c_void_p, c_char_p, c_size_t)
+Swrite_function = CFUNCTYPE(ssize_t, c_void_p, c_char_p, c_size_t)
+Sseek_function = CFUNCTYPE(c_long, c_void_p, c_long, c_int)
+Sseek64_function = CFUNCTYPE(c_int64, c_void_p, c_int64, c_int)
+Sclose_function = CFUNCTYPE(c_int, c_void_p)
+Scontrol_function = CFUNCTYPE(c_int, c_void_p, c_int, c_void_p)
+
+# IOLOCK
+IOLOCK = c_void_p
+
+# IOFUNCTIONS
+class IOFUNCTIONS(Structure):
+    _fields_ = [("read",Sread_function),
+                ("write",Swrite_function),
+                ("seek",Sseek_function),
+                ("close",Sclose_function),
+                ("seek64",Sseek64_function),
+                ("reserved",intptr_t*2)]
+
+# IOENC
+ENC_UNKNOWN,ENC_OCTET,ENC_ASCII,ENC_ISO_LATIN_1,ENC_ANSI,ENC_UTF8,ENC_UNICODE_BE,ENC_UNICODE_LE,ENC_WCHAR = range(9)
+IOENC = c_int
+
+# IOPOS
+class IOPOS(Structure):
+    _fields_ = [("byteno",c_int64),
+                ("charno",c_int64),
+                ("lineno",c_int),
+                ("linepos",c_int),
+                ("reserved", intptr_t*2)]
+
+# IOSTREAM
+class IOSTREAM(Structure):
+    _fields_ = [("bufp",c_char_p),
+                ("limitp",c_char_p),
+                ("buffer",c_char_p),
+                ("unbuffer",c_char_p),
+                ("lastc",c_int),
+                ("magic",c_int),
+                ("bufsize",c_int),
+                ("flags",c_int),
+                ("posbuf",IOPOS),
+                ("position",POINTER(IOPOS)),
+                ("handle",c_void_p),
+                ("functions",IOFUNCTIONS),
+                ("locks",c_int),
+                ("mutex",IOLOCK),
+                ("closure_hook",CFUNCTYPE(None, c_void_p)),
+                ("closure",c_void_p),
+                ("timeout",c_int),
+                ("message",c_char_p),
+                ("encoding",IOENC)]
+IOSTREAM._fields_.extend([("tee",IOSTREAM),
+                ("mbstate",POINTER(mbstate_t)),
+                ("reserved",intptr_t*6)])
+
+
+
+#PL_EXPORT(IOSTREAM *)	Sopen_string(IOSTREAM *s, char *buf, size_t sz, const char *m);
+Sopen_string = _lib.Sopen_string
+Sopen_string.argtypes = [POINTER(IOSTREAM), c_char_p, c_size_t, c_char_p]
+Sopen_string.restype = POINTER(IOSTREAM)
+
+#PL_EXPORT(int)		Sclose(IOSTREAM *s);
+Sclose = _lib.Sclose
+Sclose.argtypes = [POINTER(IOSTREAM)]
+
+
+#PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
+PL_unify_stream = _lib.PL_unify_stream
+PL_unify_stream.argtypes = [term_t, POINTER(IOSTREAM)]
+
