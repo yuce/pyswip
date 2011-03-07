@@ -141,13 +141,6 @@ class Variable(object):
         self.handle = term
 
 
-class Predicate(object):
-    __slots__ = "handle"
-
-    def __init__(self, functor, module=None):
-        self.handle = PL_pred(functor, module)
-
-
 class Functor(object):
     __slots__ = "handle","name","arity","args","__value","a0"
     func = {}
@@ -159,7 +152,7 @@ class Functor(object):
 
         self.args = args or []
         self.arity = arity
-        #self.a0 = a0
+        self.a0 = a0
 
         if isinstance(handleOrName, basestring):
             self.name = Atom(handleOrName)
@@ -198,42 +191,17 @@ class Functor(object):
 
     fromTerm = classmethod(fromTerm)
 
-    def getArgs(self, term):
-        if isinstance(term, Term):
-            term = term.handle
-        args = []
-        a0 = PL_new_term_refs(self.arity)
-        for i, a in enumerate(range(1, self.arity + 1)):
-            if PL_get_arg(a, term, a0 + i):
-                args.append(getTerm(a0 + i))
-        return a0
-
-    #a0 = property(getArgs)
-
     value = property(lambda s: s.__value)
-
-    #def __call__(self, *args):
-    #    assert self.arity == len(args)
-    #    a = PL_new_term_refs(len(args))
-    #    for i, arg in enumerate(args):
-    #        putTerm(a + i, arg)
-
-    #    t = PL_new_term_ref()
-    #    PL_cons_functor_v(t, self.handle, a)
-    #    return Term(t)
 
     def __call__(self, *args):
         assert self.arity == len(args)
         a = PL_new_term_refs(len(args))
-        q = PL_new_term_ref()
-        PL_get_functor(q, self.handle)
         for i, arg in enumerate(args):
-            #putTerm(a + i, arg)
-            PL_unify_arg(i + 1, q, a + i)
+            putTerm(a + i, arg)
 
         t = PL_new_term_ref()
-        PL_cons_functor_v(t, q, a)
-        return Term(t, a0=a)
+        PL_cons_functor_v(t, self.handle, a)
+        return Term(t)
 
     def __str__(self):
         if self.name is not None and self.arity is not None:
@@ -448,14 +416,11 @@ class Query(object):
             t = _comma(t, tx)
 
         f = Functor.fromTerm(t)
-        print f, Atom(PL_functor_name(f.handle)), PL_functor_arity(f.handle)
         p = PL_pred(f.handle, module)
-        #Query.qid = PL_open_query(module, flags, p, f.a0)
-        Query.qid = PL_open_query(module, flags, p, t.a0)
+        Query.qid = PL_open_query(module, flags, p, f.a0)
 
-    def __del__(self):
-        if Query.qid is not None:
-            self.closeQuery()
+#    def __del__(self):
+#        self.closeQuery()
 
     def nextSolution():
         return PL_next_solution(Query.qid)
@@ -468,7 +433,9 @@ class Query(object):
     cutQuery = staticmethod(cutQuery)
 
     def closeQuery():
-        PL_close_query(Query.qid)
+        if Query.qid is not None:
+            PL_close_query(Query.qid)
+            Query.qid = None
 
     closeQuery = staticmethod(closeQuery)
 

@@ -6,8 +6,7 @@ from pyswip.prolog import Prolog
 from pyswip.easy import registerForeign, getAtomChars
 
 def hello(t):
-    print "Hello,", getAtomChars(t)
-    return True
+    print "Hello,", t
 hello.arity = 1
 
 def main():

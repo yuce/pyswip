@@ -21,6 +21,7 @@ def main():
             print "%dx%d" % (c,v),
         print
         i += 1
+    q.closeQuery()
         
 if __name__ == "__main__":
     main()

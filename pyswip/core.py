@@ -29,6 +29,9 @@ try:
     if sys.platform[:3] == "win":
         # we're on windows
         _lib = CDLL("libpl.dll")
+    elif sys.platform[:3] == "dar":
+       # we're on Mac OS
+       _lib = CDLL("libpl.dylib") 
     else:
         # UNIX-like
         try:

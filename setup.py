@@ -7,14 +7,14 @@ import os.path
 from distutils.core import setup
 
 setup(name="pyswip",
-		version="0.2.1",
+		version="0.2.2",
 		url="http://code.google.com/p/pyswip/",
 		download_url="http://code.google.com/p/pyswip/downloads/list",
 		author="Yuce Tekol",
 		author_email="yucetekol@gmail.com",
 		description="PySWIP enables querying SWI-Prolog in your Python programs.",
         long_description="""
-PySWIP 0.2.1
+PySWIP 0.2.2
 ============
 
 PySWIP is a GPL'd Python - SWI-Prolog bridge enabling to query SWI-Prolog
@@ -79,7 +79,7 @@ Outputs:
     Hello, john
     Hello, gina
 
-Since version 0.2, PySWIP contains a 'Pythonic' interface which allows writing predicates in pure Python.
+Since version 0.2, PySWIP contains a 'Pythonic' interface which allows writing predicates in pure Python (*Note that interface is experimental.*)
 
 Example (Pythonic interface):
 -----------------------------

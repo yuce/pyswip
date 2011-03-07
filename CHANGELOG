@@ -1,6 +1,10 @@
 PySWIP CHANGELOG
 ================
 
++ 0.2.2
+  * PySWIP won't rely on the (id of the) functor handle of ``=/2``.
+  * Sebastian Höhn's patch to enable PySWIP to work on MAC OS-X is incorporated.
+
 + 0.2.1
 
   * Importing ``pyswip`` automatically initializes SWI-Prolog.

@@ -18,7 +18,7 @@
 # MA 02110-1301, USA.
 
 # PySWIP version
-__VERSION__ = "0.2.1"
+__VERSION__ = "0.2.2"
 
 from pyswip.prolog import Prolog
 from pyswip.easy import *
