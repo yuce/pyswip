@@ -3,7 +3,7 @@ from ctypes.util import find_library
 import sys
 
 def loadLibrary():
-    '''tries to load the swi-prolog shared library'''    
+    '''tries to load the swi-prolog shared library'''
     for libname in ('swipl', 'pl'):
         # try to use find_library from ctypes
         print('try find_library()...')
@@ -18,7 +18,12 @@ def loadLibrary():
         print('try CDLL()...')
         try:
             if sys.platform[:3] in ('win', 'cyg'):
-                path = 'lib%s.dll' % libname
+                try:
+                    path = '%s.dll' % libname
+                    CDLL(path)
+                    break
+                except:
+                    path = 'lib%s.dll' % libname
             elif sys.platform[:3] in ('dar', 'os2'):
                 path = 'lib%s.dylib' % libname
             else: # assume UNIX-like
@@ -37,6 +42,7 @@ def loadLibrary():
     else:
         # try to get lib path from the swipl executable
         # TODO: check whether this is reliable(different versions)
+        # does not work for windows currently
         print('try swipl executable...')
         from subprocess import check_output
         
@@ -54,7 +60,7 @@ def loadLibrary():
             else:
                 raise OSError
         except OSError:
-            raise ImportError('Could not find shared library "libswipl" or "libpl"')
+            raise ImportError('Could not find library "libswipl" or "libpl"')
     print('return')
     return CDLL(path)
 
