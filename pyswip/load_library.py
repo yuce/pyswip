@@ -47,14 +47,10 @@ def loadLibrary():
             
             if ret[9] == 'PLSHARED="yes"':
                 print('shared true')
-                path = (ret[1][7:] + '/lib/' +
-                        ret[2][7:] + '/lib' + 
-                        ret[4][9:] + '.' +
-                        ret[7][8:]).replace('"', '')
-#                path = (ret[1].replace('PLBASE=', '') + '/lib/' +
-#                        ret[2].replace('PLARCH=', '') + '/lib' + 
-#                        ret[4].replace('PLLIB="-l', '') + '.' +
-#                        ret[7].replace('PLSOEXT=', '')).replace('"', '')
+                path = (ret[1].split('=',1)[1] + '/lib/' +
+                        ret[2].split('=',1)[1] + '/lib' +
+                        ret[4].split('=',1)[1][3:] + '.' +
+                        ret[7].split('=',1)[1]).replace('"', '')
             else:
                 raise OSError
         except OSError:
