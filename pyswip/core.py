@@ -2,6 +2,7 @@
 
 # pyswip -- Python SWI-Prolog bridge
 # (c) 2006-2007 Yüce TEKOL
+# (c) 2010-2011 Manuel ROTTER
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -18,15 +19,49 @@
 # MA 02110-1301, USA.
 
 import sys
+from subprocess import Popen, PIPE
 
 try:
     from ctypes import *
+    from ctypes.util import find_library
 except ImportError:
-    print>>sys.stderr, "A required module: 'ctypes' not found."
-    sys.exit(1)
+    raise ImportError("A required module: 'ctypes' not found.")
     
-try:
-    if sys.platform[:3] == "win":
+try: # to get library path from swipl executable
+    cmd = Popen(['swipl', '--dump-runtime-variables'], stdout=PIPE)
+    ret = cmd.communicate()
+    
+    if sys.platform[:3] in ("win, cyg"):
+        ret = ret[0].replace('\r\n', '').split(';') # use .decode() in python3
+    else:
+        ret = ret[0].replace('\n', '').split(';')
+    
+    if ret[9] == 'PLSHARED="yes"':
+        # determine platform specific path
+        if sys.platform[:3] in ("win", "cyg"):
+            
+            path = (ret[1].split('=',1)[1] + '/bin/' +
+              ret[4].split('=',1)[1][4:][:5] + '.' +
+              ret[7].split('=',1)[1]).replace('"', '')
+        else: # assume UNIX-like
+            path = (ret[1].split('=',1)[1] + '/lib/' +
+              ret[2].split('=',1)[1] + '/lib' +
+              ret[4].split('=',1)[1][3:] + '.' +
+              ret[7].split('=',1)[1]).replace('"', '')
+    else:
+        raise ImportError("SWI-Prolog is not installed as a shared library.")
+    # if everything went right, load it
+    _lib = CDLL(path)
+    
+except (OSError, IndexError): # IndexError from accessing 'ret'
+    #raise ImportError('Could not find library "libswipl" or "libpl"')
+    print>>sys.stderr, \
+      "Deprecation Warning: Could not find swipl executable. " + \
+      "Support for your SWI-Prolog version will be dropped."
+    
+    # unsafe, because we don't know for sure
+    # if lib version == executable version; to be dropped
+    if sys.platform[:3] in ("win", "cyg"):
         # we're on windows
         _lib = CDLL("libpl.dll")
     elif sys.platform[:3] == "dar":
@@ -39,11 +74,9 @@ try:
         except IndexError:
             # let's try the cwd
             _lib = CDLL("./libpl.so")
-    
+            
 except OSError:
-    print>>sys.stderr, "libpl (shared) not found. Possible reasons:"
-    print>>sys.stderr, "1) SWI-Prolog not installed as a shared library. Install SWI-Prolog (5.6.34 works just fine)"
-    sys.exit(1)
+    raise ImportError('Could not find library "libswipl" or "libpl"')
 
 
 # PySWIP constants
