@@ -19,27 +19,20 @@
 # MA 02110-1301, USA.
 
 import sys
+import warnings
 from subprocess import Popen, PIPE
-
-try:
-    from ctypes import *
-    from ctypes.util import find_library
-except ImportError:
-    raise ImportError("A required module: 'ctypes' not found.")
+from ctypes import *
+from ctypes.util import find_library
     
 try: # to get library path from swipl executable
     cmd = Popen(['swipl', '--dump-runtime-variables'], stdout=PIPE)
     ret = cmd.communicate()
     
-    if sys.platform[:3] in ("win, cyg"):
-        ret = ret[0].replace('\r\n', '').split(';') # use .decode() in python3
-    else:
-        ret = ret[0].replace('\n', '').split(';')
+    ret = ret[0].replace(';', '').splitlines()
     
     if ret[9] == 'PLSHARED="yes"':
         # determine platform specific path
         if sys.platform[:3] in ("win", "cyg"):
-            
             path = (ret[1].split('=',1)[1] + '/bin/' +
               ret[4].split('=',1)[1][4:][:5] + '.' +
               ret[7].split('=',1)[1]).replace('"', '')
@@ -48,16 +41,21 @@ try: # to get library path from swipl executable
               ret[2].split('=',1)[1] + '/lib' +
               ret[4].split('=',1)[1][3:] + '.' +
               ret[7].split('=',1)[1]).replace('"', '')
-    else:
+    else: # PLSHARED="no"
         raise ImportError("SWI-Prolog is not installed as a shared library.")
     # if everything went right, load it
     _lib = CDLL(path)
     
 except (OSError, IndexError): # IndexError from accessing 'ret'
     #raise ImportError('Could not find library "libswipl" or "libpl"')
-    print>>sys.stderr, \
-      "Deprecation Warning: Could not find swipl executable. " + \
-      "Support for your SWI-Prolog version will be dropped."
+    # for now just print a DepcrecationWarning
+    with warnings.catch_warnings():
+        warnings.simplefilter("always")
+
+        msg = ("Could not find swipl executable.\n" +
+          "Support for your SWI-Prolog version will be dropped.")
+
+        warnings.warn(msg, DeprecationWarning)
     
     # unsafe, because we don't know for sure
     # if lib version == executable version; to be dropped
