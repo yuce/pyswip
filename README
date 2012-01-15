@@ -5,7 +5,7 @@ PySWIP README
 	0.2.2
 
 :Author:
-    Yuce Tekol. <http://www.geocities.com/yucetekol>
+    Yuce Tekol. <yucetekol@gmail.com>
 
 :Project Website:
    http://code.google.com/p/pyswip
@@ -14,7 +14,7 @@ PySWIP README
 Introduction
 ------------
 
-PySWIP is a GPL'd Python - SWI-Prolog bridge enabling to query SWI-Prolog in your Python programs. It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a Pythonic interface.
+PySWIP is a Python - SWI-Prolog bridge enabling to query SWI-Prolog in your Python programs. It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a Pythonic interface.
 
 Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
 
