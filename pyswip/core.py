@@ -148,16 +148,23 @@ def _findSwipl():
             if platform in ("win", "cyg"):
                 dllName = rtvars['PLLIB'][:-4] + '.' + rtvars['PLSOEXT']
                 path = os.path.join(rtvars['PLBASE'],
-                                    'bin',
-                                    dllName)
+                                    'bin')
             else: # assume UNIX-like
-                dllName = rtvars['PLLIB'][2:] + '.' + rtvars['PLSOEXT']
+                dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + rtvars['PLSOEXT']
                 path = os.path.join(rtvars['PLBASE'],
                                     'lib',
-                                    rtvars['PLARCH'],
-                                    dllName)
-            if os.path.exists(path):
-                return path
+                                    rtvars['PLARCH'])
+            fullName = os.path.join(path, dllName)
+            if os.path.exists(fullName):
+                return fullName
+
+            # If it does not exist, search for a name like dllName in path
+            files = os.listdir(path)
+            for f in files:
+                if dllName in f:
+                    fullName = os.path.join(path, f)
+                    return fullName
+                    
         else: # PLSHARED="no"
             raise ImportError('SWI-Prolog is not installed as a shared library.')
 
