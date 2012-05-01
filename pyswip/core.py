@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 # pyswip -- Python SWI-Prolog bridge
 # (c) 2006-2007 Yüce TEKOL
 # (c) 2010-2011 Manuel ROTTER
@@ -18,64 +19,159 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
+
 import sys
+import os
 import warnings
 from subprocess import Popen, PIPE
 from ctypes import *
 from ctypes.util import find_library
-    
-try: # to get library path from swipl executable
-    cmd = Popen(['swipl', '--dump-runtime-variables'], stdout=PIPE)
-    ret = cmd.communicate()
-    
-    ret = ret[0].replace(';', '').splitlines()
-    
-    if ret[9] == 'PLSHARED="yes"':
-        # determine platform specific path
-        if sys.platform[:3] in ("win", "cyg"):
-            path = (ret[1].split('=',1)[1] + '/bin/' +
-              ret[4].split('=',1)[1][4:][:5] + '.' +
-              ret[7].split('=',1)[1]).replace('"', '')
-        else: # assume UNIX-like
-            path = (ret[1].split('=',1)[1] + '/lib/' +
-              ret[2].split('=',1)[1] + '/lib' +
-              ret[4].split('=',1)[1][3:] + '.' +
-              ret[7].split('=',1)[1]).replace('"', '')
-    else: # PLSHARED="no"
-        raise ImportError("SWI-Prolog is not installed as a shared library.")
-    # if everything went right, load it
-    _lib = CDLL(path)
-    
-except (OSError, IndexError): # IndexError from accessing 'ret'
-    #raise ImportError('Could not find library "libswipl" or "libpl"')
-    # for now just print a DepcrecationWarning
-    with warnings.catch_warnings():
-        warnings.simplefilter("always")
 
-        msg = ("Could not find swipl executable.\n" +
-          "Support for your SWI-Prolog version will be dropped.")
 
-        warnings.warn(msg, DeprecationWarning)
+def _fixWindowsPath(dll):
+    """
+    When the path to the DLL is not in Windows search path, Windows will not be
+    able to find other DLLs on the same directory, so we have to add it to the
+    path. This function takes care of it.
+
+    :param dll: File name of the DLL
+    :type dll: string
+    """
+
+    if sys.platform[:3] != 'win':
+        return # Nothing to do here
+
+    pathToDll = os.path.dirname(dll)
+    currentWindowsPath = os.getenv('PATH')
     
-    # unsafe, because we don't know for sure
-    # if lib version == executable version; to be dropped
-    if sys.platform[:3] in ("win", "cyg"):
-        # we're on windows
-        _lib = CDLL("libpl.dll")
-    elif sys.platform[:3] == "dar":
-       # we're on Mac OS
-       _lib = CDLL("libpl.dylib") 
-    else:
-        # UNIX-like
+    if pathToDll not in currentWindowsPath:
+        # We will prepend the path, to avoid conflicts between DLLs
+        newPath = pathToDll + ';' + currentWindowsPath
+        os.putenv('PATH', newPath)
+
+def _findSwipl():
+    """
+    This function makes a big effort to find the path to the SWI-Prolog shared
+    library. Since this is both OS dependent and installation dependent, we may
+    not aways succeed. If we do, we return a name/path that can be used by
+    CDLL(). Otherwise we raise an exception.
+
+    :return: Name or path to the library that can be used by CDLL
+    :rtype: String
+    :raises ImportError: If we cannot guess the name of the library
+    """
+
+    # No matter what the platform is, the first try should alway be
+    # find_library.
+    path = find_library('swipl') or find_library('pl')
+    if path is not None:
+        return path
+
+    # Now begins the guesswork
+    platform = sys.platform[:3]
+    if platform == 'win': # In Windows, we have the default installer path and
+                          # the registry to look
+                          
+        dllName = 'swipl.dll'
+        
+        # First try: check the usual installation path (this is faster but
+        # hardcoded)
+        programFiles = os.getenv('ProgramFiles')
+        path = os.path.join(programFiles, r'pl\bin', dllName)
+        if os.path.exists(path):
+            return path
+
+        # Second try: use reg.exe to find the installation path in the registry
+        # (reg should be installed in all Windows XPs)
         try:
-            _lib = CDLL("libpl.so")
-        except IndexError:
-            # let's try the cwd
-            _lib = CDLL("./libpl.so")
-            
-except OSError:
-    raise ImportError('Could not find library "libswipl" or "libpl"')
+            cmd = Popen(['reg', 'query', 
+                r'HKEY_LOCAL_MACHINE\Software\SWI\Prolog', 
+                '/v', 'home'], stdout=PIPE)
+            ret = cmd.communicate()
 
+            # Result is like:
+            # ! REG.EXE VERSION 3.0
+            #
+            # HKEY_LOCAL_MACHINE\Software\SWI\Prolog
+            #    home        REG_SZ  C:\Program Files\pl
+            # (Note: spaces are \t in the output)
+            ret = ret[0].splitlines()
+            ret = [line for line in ret if len(line) > 0]
+            data = ret[-1].split('\t')
+            path = data[-1]
+
+            path = os.path.join(path, 'bin', dllName)
+            if os.path.exists(path):
+                return path
+        except OSError:
+            # reg.exe not found? Weird...
+            pass
+
+        # Last try: maybe it is in the current dir
+        if os.path.exists(dllName):
+            return dllName
+        
+    elif platform == 'lin':
+        # In Linux we will try some hardcoded paths. find_library will have
+        # already done almost all we can
+        paths = ['/lib', '/usr/lib', '/usr/local/lib', '.', './lib']
+        names = ['libswipl.so', 'libpl.so']
+
+        for name in names:
+            for path in paths:
+                path = os.path.join(path, name)
+                if os.path.exists(path):
+                    return path
+                
+    elif platform == "dar":  # Help with MacOS is welcome!!
+        paths = ['.', './lib']
+        names = ['libswipl.dylib', 'libpl.dylib']
+
+        for name in names:
+            for path in paths:
+                path = os.path.join(path, name)
+                if os.path.exists(path):
+                    return path
+
+    # Last resource: see if executable is on the path
+    try: # try to get library path from swipl executable.
+        cmd = Popen(['swipl', '--dump-runtime-variables'], stdout=PIPE)
+        ret = cmd.communicate()
+
+        # Parse the output into a dictionary
+        ret = ret[0].replace(';', '').splitlines()
+        ret = [line.split('=', 1) for line in ret]
+        rtvars = dict((name, value[1:-1]) for name, value in ret)
+
+        if rtvars['PLSHARED'] == 'yes':
+            # determine platform specific path
+            if platform in ("win", "cyg"):
+                dllName = rtvars['PLLIB'][:-4] + '.' + rtvars['PLSOEXT']
+                path = os.path.join(rtvars['PLBASE'],
+                                    'bin',
+                                    dllName)
+            else: # assume UNIX-like
+                dllName = rtvars['PLLIB'][2:] + '.' + rtvars['PLSOEXT']
+                path = os.path.join(rtvars['PLBASE'],
+                                    'lib',
+                                    rtvars['PLARCH'],
+                                    dllName)
+            if os.path.exists(path):
+                return path
+        else: # PLSHARED="no"
+            raise ImportError('SWI-Prolog is not installed as a shared library.')
+
+    except (OSError, KeyError): # KeyError from accessing rtvars
+        pass
+
+    # This is a catch all raise
+    raise ImportError('Could not find the SWI-Prolog library in this platform. '
+                      'If you are sure it is installed, please open an issue.')
+    
+# Load the library
+path = _findSwipl()
+_fixWindowsPath(path)
+_lib = CDLL(path)
 
 # PySWIP constants
 PYSWIP_MAXSTR = 1024
