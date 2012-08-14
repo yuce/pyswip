@@ -40,7 +40,8 @@ class Atom(object):
         else:
             self.handle = handleOrChars
             PL_register_atom(self.handle)
-            self.chars = c_char_p(PL_atom_chars(self.handle)).value
+            #self.chars = c_char_p(PL_atom_chars(self.handle)).value
+            self.chars = PL_atom_chars(self.handle)
 
     def fromTerm(cls, term):
         """Create an atom from a Term or term handle."""

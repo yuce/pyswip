@@ -174,7 +174,12 @@ def _findSwipl():
     # This is a catch all raise
     raise ImportError('Could not find the SWI-Prolog library in this platform. '
                       'If you are sure it is installed, please open an issue.')
+
+class c_void(Structure):
+    _fields_ = [('dummy', c_int)]
     
+c_void_p = POINTER(c_void)
+
 # Load the library
 path = _findSwipl()
 _fixWindowsPath(path)
@@ -357,6 +362,8 @@ PL_functor_arity = _lib.PL_functor_arity
 #			/* Get C-values from Prolog terms */
 #PL_EXPORT(int)		PL_get_atom(term_t t, atom_t *a);
 PL_get_atom = _lib.PL_get_atom
+PL_get_atom.argtypes = [term_t, c_ulong]
+
 #PL_EXPORT(int)		PL_get_bool(term_t t, int *value);
 PL_get_bool = _lib.PL_get_bool
 
@@ -400,6 +407,7 @@ PL_get_float = _lib.PL_get_float
 
 #PL_EXPORT(int)		PL_get_functor(term_t t, functor_t *f);
 PL_get_functor = _lib.PL_get_functor
+PL_get_functor.argtypes = [term_t, c_ulong]
 #PL_get_functor.argtypes = [term_t, POINTER(functor_t)]
 
 #PL_EXPORT(int)		PL_get_name_arity(term_t t, atom_t *name, int *arity);
@@ -424,7 +432,7 @@ PL_put_atom_chars.argtypes = [term_t, c_char_p]
 
 PL_atom_chars = _lib.PL_atom_chars
 PL_atom_chars.argtypes = [atom_t]
-PL_atom_restype = [c_char_p]
+PL_atom_chars.restype = c_char_p
 
 PL_predicate = _lib.PL_predicate
 PL_predicate.argtypes = [c_char_p, c_int, c_char_p]
@@ -596,6 +604,8 @@ PL_erase = _lib.PL_erase
 #PL_EXPORT(int)		PL_erase_external(char *rec);
 
 PL_new_module = _lib.PL_new_module
+PL_new_module.argtypes = [atom_t]
+PL_new_module.restype = module_t
 
 intptr_t = c_long
 ssize_t = intptr_t

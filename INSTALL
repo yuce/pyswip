@@ -1,58 +1,58 @@
 PySWIP INSTALL
 ==============
 
-PySWIP requires SWI-Prolog as a shared library since it uses ctypes to access SWI-Prolog/C functions. The shared library is present in Win32 installer, but missing by default from the builds made directly from the source.
+PySWIP requires SWI-Prolog as a shared library since it uses ctypes to access SWI-Prolog/C functions. The shared library is present in the Win32 installer, but missing by default from the builds made directly from the source.
 
 Installing on Linux
 -------------------
 
-These instructions are tested on a Linux system, but should also work for POSIX systems. Also, you may want to install development packages for readline and libgmp (not required for basics).
+These instructions are tested on a Linux system, but should also work for POSIX systems. Also, you may want to install development packages for readline, libncurses, and libgmp.
 
-You need to do the following to install a shared library enabled version of SWI-Prolog. We use version 5.6.34 of SWI-Prolog but any other recent version should work fine. Please make the necessary modifications for your environment.
+You need to do the following to install a shared library enabled version of SWI-Prolog. We use version 6.0.2 of SWI-Prolog. Please make the necessary modifications for your environment.
 
-1) Get the source from: http://www.swi-prolog.org/download.html::
+1) Get the source from http://www.swi-prolog.org/download/stable:
 
-	$ wget http://gollem.science.uva.nl/cgi-bin/nph-download/SWI-Prolog/pl-5.6.34.tar.gz
+	$ wget http://www.swi-prolog.org/download/stable/src/pl-6.0.2.tar.gz
 
-2) Extract the archive and cd into it::
+2) Extract the archive and cd into it:
 	
-	$ tar xzvf pl-5.6.34.tar.gz
-	$ cd pl-5.6.34
+	$ tar xzvf pl-6.0.2.tar.gz
+	$ cd pl-6.0.2.tar.gz
 
-3) Configure the source with shared library enabled::
+3) Configure the source with shared library enabled:
 
-	$ ./configure --prefix=/usr --enable-shared
+	$ ./configure --enable-shared
+	
+   *** If using a 64-bit system, you may have to compile with the -ggdb flag in order to get PySWIP to work with SWI-Prolog without segfaults (But not necessarily.  YMMV.):
+   
+	$ CFLAGS=-ggdb ./configure --enable-shared
 
-4) Compile the source::
+4) Compile the source:
 
 	$ make
 
-5) Install the source::
+5) Install the source:
 	
 	$ sudo make install
 	
-6) clp library is useful for constraint handling problems, so let's install that too::
+6) *** This is perhaps no longer relevant, as it appears clp is installed by default with SWI-Prolog
+	clp library is useful for constraint handling problems, so let's install that too:
 
 	$ cd cd packages/clpqr
-	$ ./configure --prefix=/usr --enable-shared
+	$ ./configure --enable-shared
 	$ make && make install
-	
 
-7) Create a soft link to ``libpol.so``::
+7) If you are not using Python 2.5 or later, you should install ctypes, or get a new version of Python (apt-get is fine if you're using Ubuntu).
 
-	$ sudo ln -s  /usr/lib/pl-5.6.34/lib/i686-linux/libpl.so.5.6.34 /usr/lib/libpl.so
+8) Unpack PySwIP package and install it with, ``python setup.py install``.
 
-8) Next, get and install ctypes from: http://starship.python.net/crew/theller/ctypes . Note that you don't need to install it if you are using Python 2.5.
-
-9) Unpack PySwIP package and install it with, ``python setup.py install``.
-
-10) After you install it, you can test it with the following at your Python shell::
+9) After you install it, you can test it with the following at your Python shell::
 
 	>>> from pyswip import Prolog
 	>>> prolog = Prolog()
 	>>> prolog.assertz("father(michael,john)")
 	
-If you get an error, such as "libpl (shared) not found." or "FATAL ERROR: Resource not found" be sure you have installed SWI-Prolog as a share library. Check your default library directory (usually ``/usr/lib``) for ``libpl.so``.
+If you get an error, such as "libpl (shared) not found." or "FATAL ERROR: Resource not found" be sure you have installed SWI-Prolog as a shared library. Check your default library directory (usually ``/usr/lib``) for ``libswipl.so``.
 
 
 Installing on Win32
