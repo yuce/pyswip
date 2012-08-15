@@ -141,7 +141,6 @@ class Variable(object):
         #PL_put_variable(term)
         self.handle = term
 
-
 class Functor(object):
     __slots__ = "handle","name","arity","args","__value","a0"
     func = {}
@@ -307,14 +306,22 @@ def getString(t):
     else:
         raise InvalidTypeError("string")
 
+mappedTerms = {}
 def getTerm(t):
+    global mappedTerms
+    #print 'mappedTerms', mappedTerms
+
+    #if t in mappedTerms:
+    #    return mappedTerms[t]
     p = PL_term_type(t)
     if p < PL_TERM:
-        return _getterm_router[p](t)
+        res = _getterm_router[p](t)
     elif PL_is_list(t):
-        return getList(t)
+        res = getList(t)
     else:
-        return getFunctor(t)
+        res = getFunctor(t)
+    mappedTerms[t] = res
+    return res
 
 def getList(x):
     """Return t as a list.
@@ -341,15 +348,31 @@ _getterm_router = {
                     PL_TERM:getTerm
                     }
 
+arities = {}
 def _callbackWrapper(arity=1):
-    return CFUNCTYPE(*([foreign_t] + [term_t]*arity))
+    global arities
 
+    res = arities.get(arity)
+    if res is None:
+        res = CFUNCTYPE(*([foreign_t] + [term_t]*arity))
+        arities[arity] = res
+    return res
+
+funwraps = {}
 def _foreignWrapper(fun):
-    def wrapper(*args):
-        args = [getTerm(arg) for arg in args]
-        r = fun(*args)
-        return (r is None) and True or r
-    return wrapper
+    global funwraps
+
+    res = funwraps.get(fun)
+    if res is None:
+        def wrapper(*args):
+            args = [getTerm(arg) for arg in args]
+            r = fun(*args)
+            return (r is None) and True or r
+        res = wrapper
+        funwraps[fun] = res
+    return res
+
+cwraps = []
 
 def registerForeign(func, name=None, arity=None, flags=0):
     """Register a Python predicate
@@ -360,14 +383,21 @@ def registerForeign(func, name=None, arity=None, flags=0):
     ``arity``: Arity (number of arguments) of the function. If this value is not
     used, ``func.arity`` should exist.
     """
+    global cwraps
+
     if arity is None:
         arity = func.arity
 
     if name is None:
         name = func.func_name
 
-    return PL_register_foreign(name, arity,
-            _callbackWrapper(arity)(_foreignWrapper(func)), flags)
+    cwrap = _callbackWrapper(arity)
+    fwrap = _foreignWrapper(func)
+    fwrap2 = cwrap(fwrap)
+    cwraps.append(fwrap2)
+    return PL_register_foreign(name, arity, fwrap2, flags)
+    # return PL_register_foreign(name, arity,
+    #            _callbackWrapper(arity)(_foreignWrapper(func)), flags)
 
 newTermRef = PL_new_term_ref
 

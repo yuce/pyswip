@@ -25,6 +25,7 @@ def _initialize():
     plargs[0] = "./"
     plargs[1] = "-q"
     plargs[2] = "-nosignals"
+    #plargs[2] = "\x00"
     PL_initialise(3, plargs)
     swipl_fid = PL_open_foreign_frame()
     swipl_load = PL_new_term_ref()
@@ -88,7 +89,7 @@ class Prolog:
                 PL_cut_query(self.swipl_qid)
                 PL_discard_foreign_frame(self.swipl_fid)
                 raise PrologError("".join(["Caused by: '", query, "'."]))
-        
+                
         def __del__(self):
             if not self.error:
                 PL_close_query(self.swipl_qid)
