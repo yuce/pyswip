@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # prolog.py -- Prolog class
 # (c) 2006-2007 Yüce TEKOL
@@ -17,32 +17,60 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301, USA.
 
+
+import sys
 import atexit
+
 from pyswip.core import *
 
-def _initialize():
-    plargs = (c_char_p*3)()
-    plargs[0] = "./"
-    plargs[1] = "-q"
-    plargs[2] = "-nosignals"
-    #plargs[2] = "\x00"
-    PL_initialise(3, plargs)
-    swipl_fid = PL_open_foreign_frame()
-    swipl_load = PL_new_term_ref()
-    PL_chars_to_term("asserta(pyrun(GoalString,BindingList):-(atom_chars(A,GoalString),atom_to_term(A,Goal,BindingList),call(Goal))).", swipl_load)
-    PL_call(swipl_load, None)
-    PL_discard_foreign_frame(swipl_fid)
-_initialize()
-
-def _finalize():
-    PL_halt(0)
-atexit.register(_finalize)
-
-from pyswip.easy import getTerm
 
 class PrologError(Exception):
     pass
     
+
+def _initialize():
+    args = []
+    args.append("./")
+    args.append("-q")
+    args.append("-nosignals")
+    if SWI_HOME_DIR is not None:
+        args.append("--home=%s" % SWI_HOME_DIR)
+    
+    s_plargs = len(args)
+    plargs = (c_char_p*s_plargs)()
+    for i in range(s_plargs):
+        plargs[i] = args[i]
+        
+    result = PL_initialise(s_plargs, plargs)
+    # For some reason, PL_initialise is returning 1, even though everything is
+    # working
+#    if result != 0:
+#        raise PrologError("Could not initialize Prolog environment."
+#                          "PL_initialise returned %d" % result)
+        
+    swipl_fid = PL_open_foreign_frame()
+    swipl_load = PL_new_term_ref()
+    PL_chars_to_term("asserta(pyrun(GoalString,BindingList) :- "
+                     "(atom_chars(A,GoalString),"
+                     "atom_to_term(A,Goal,BindingList),"
+                     "call(Goal))).", swipl_load)
+    PL_call(swipl_load, None)
+    PL_discard_foreign_frame(swipl_fid)
+_initialize()
+
+# Since the program is terminated when we call PL_halt, we monkey patch sys.exit
+# to be able to intercept the exit status and ensure that PL_halt is the last
+# function called from those registered in atexit. What we do here is very, very
+# ugly. Any better way is welcome.
+_original_sys_exit = sys.exit
+def _patched_sys_exit(code=0):
+    # Since atexit process exit functions from last to first, we put PL_halt as
+    # the first one, so it will run last
+    atexit._exithandlers.insert(0, (PL_halt, (code,), {}))
+sys.exit = _patched_sys_exit
+
+
+from pyswip.easy import getTerm
 
 #### Prolog ####
 class Prolog:
@@ -89,7 +117,7 @@ class Prolog:
                 PL_cut_query(self.swipl_qid)
                 PL_discard_foreign_frame(self.swipl_fid)
                 raise PrologError("".join(["Caused by: '", query, "'."]))
-                
+        
         def __del__(self):
             if not self.error:
                 PL_close_query(self.swipl_qid)

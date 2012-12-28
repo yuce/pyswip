@@ -7,13 +7,13 @@ import os.path
 from distutils.core import setup
 
 setup(name="pyswip",
-		version="0.2.2",
-		url="http://code.google.com/p/pyswip/",
-		download_url="http://code.google.com/p/pyswip/downloads/list",
-		author="Yuce Tekol",
-		author_email="yucetekol@gmail.com",
-		description="PySWIP enables querying SWI-Prolog in your Python programs.",
-        long_description="""
+      version="0.2.2",
+      url="http://code.google.com/p/pyswip/",
+      download_url="http://code.google.com/p/pyswip/downloads/list",
+      author="Yuce Tekol",
+      author_email="yucetekol@gmail.com",
+      description="PySWIP enables querying SWI-Prolog in your Python programs.",
+      long_description="""
 PySWIP 0.2.2
 ============
 
@@ -101,17 +101,17 @@ Outputs:
     Hello, john
     Hello, gina
 """,
-		license="GPL",
-		packages=["pyswip"],
-		classifiers=[
-			'Development Status :: 3 - Alpha',
-			'Intended Audience :: Developers',
-			'Intended Audience :: Science/Research',
-			'License :: OSI Approved :: GNU General Public License (GPL)',
-			'Operating System :: OS Independent',
-			'Programming Language :: Python',
-			'Topic :: Scientific/Engineering :: Artificial Intelligence',
-			'Topic :: Software Development :: Libraries :: Python Modules'
-			],
-		)
+      license="GPL",
+      packages=["pyswip"],
+      classifiers=[
+                   'Development Status :: 3 - Alpha',
+                   'Intended Audience :: Developers',
+                   'Intended Audience :: Science/Research',
+                   'License :: OSI Approved :: GNU General Public License (GPL)',
+                   'Operating System :: OS Independent',
+                   'Programming Language :: Python',
+                   'Topic :: Scientific/Engineering :: Artificial Intelligence',
+                   'Topic :: Software Development :: Libraries :: Python Modules'
+                   ],
+    )
 
