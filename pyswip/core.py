@@ -60,8 +60,7 @@ def _findSwiplPathFromFindLib():
 def _findSwiplFromExec():
     """
     This function tries to use an executable on the path to find SWI-Prolog
-    SO/DLL and the resource file. This is used as a last resource, when
-    everything else fails.
+    SO/DLL and the resource file.
 
     :returns:
         A tuple of (path to the swipl DLL, path to the resource file)
@@ -76,7 +75,12 @@ def _findSwiplFromExec():
     swiHome = None
 
     try: # try to get library path from swipl executable.
-        cmd = Popen(['swipl', '--dump-runtime-variables'], stdout=PIPE)
+        
+        # We may have pl or swipl as the executable
+        try:
+            cmd = Popen(['swipl', '-dump-runtime-variables'], stdout=PIPE)
+        except OSError:
+            cmd = Popen(['pl', '-dump-runtime-variables'], stdout=PIPE)
         ret = cmd.communicate()
 
         # Parse the output into a dictionary
@@ -95,9 +99,19 @@ def _findSwiplFromExec():
                 swiHome = None
             
             # determine platform specific path
-            if platform in ("win", "cyg"):
+            if platform == "win":
                 dllName = rtvars['PLLIB'][:-4] + '.' + rtvars['PLSOEXT']
                 path = os.path.join(rtvars['PLBASE'], 'bin')
+                fullName = os.path.join(path, dllName)
+                
+                if not os.path.exists(fullName):
+                    fullName = None
+
+            elif platform == "cyg":
+                # e.g. /usr/lib/pl-5.6.36/bin/i686-cygwin/cygpl.dll
+                
+                dllName = 'cygpl.dll'
+                path = os.path.join(rtvars['PLBASE'], 'bin', rtvars['PLARCH'])
                 fullName = os.path.join(path, dllName)
                 
                 if not os.path.exists(fullName):
@@ -226,11 +240,13 @@ def _findSwiplLin():
     # Our last try: some hardcoded paths.
     paths = ['/lib', '/usr/lib', '/usr/local/lib', '.', './lib']
     names = ['libswipl.so', 'libpl.so']
- 
+
+    path = None
     for name in names:
-        for path in paths:
-            path = os.path.join(path, name)
-            if os.path.exists(path):
+        for try_ in paths:
+            try_ = os.path.join(try_, name)
+            if os.path.exists(try_):
+                path = try_
                 break
             
     if path is not None:
@@ -280,11 +296,11 @@ def _findSwipl():
 
     # Now begins the guesswork
     platform = sys.platform[:3]
-    if platform in ("win", "cyg"): # In Windows, we have the default installer
+    if platform == "win": # In Windows, we have the default installer
                                    # path and the registry to look
         (path, swiHome) = _findSwiplWin()
                           
-    elif platform == 'lin':
+    elif platform in ("lin", "cyg"):
         (path, swiHome) = _findSwiplLin()
                 
     elif platform == "dar":  # Help with MacOS is welcome!!
