@@ -138,6 +138,21 @@ class Prolog:
         
     assertz = classmethod(assertz)
     
+    def dynamic(cls, term, catcherrors=False):
+        cls.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors).next()
+        
+    dynamic = classmethod(dynamic)
+    
+    def retract(cls, term, catcherrors=False):
+        cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors).next()
+        
+    retract = classmethod(retract)
+    
+    def retractall(cls, term, catcherrors=False):
+        cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors).next()
+        
+    retractall = classmethod(retractall)
+    
     def consult(cls, filename, catcherrors=False):
         cls.query(filename.join(["consult('", "')"]), catcherrors=catcherrors).next()
     

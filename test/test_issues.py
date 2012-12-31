@@ -144,6 +144,32 @@ class TestIssues(unittest.TestCase):
         self.assertEqual(len(atomSet), 2)
         self.assertEqual(atomSet, set([a, b]))
         
+    def test_issue_4(self):
+        """
+       	Patch for a dynamic method
+
+        Ensures that the patch is working.
+
+        https://code.google.com/p/pyswip/issues/detail?id=4
+        """
+
+        from pyswip import Prolog
+        
+        Prolog.dynamic('test_issue_4_d/1')
+        Prolog.assertz('test_issue_4_d(test1)')
+        Prolog.assertz('test_issue_4_d(test1)')
+        Prolog.assertz('test_issue_4_d(test1)')
+        Prolog.assertz('test_issue_4_d(test2)')
+        results = list(Prolog.query('test_issue_4_d(X)'))
+        self.assertEqual(len(results), 4)
+        
+        Prolog.retract('test_issue_4_d(test1)')
+        results = list(Prolog.query('test_issue_4_d(X)'))
+        self.assertEqual(len(results), 3)
+        
+        Prolog.retractall('test_issue_4_d(test1)')
+        results = list(Prolog.query('test_issue_4_d(X)'))
+        self.assertEqual(len(results), 1)
 
 
 if __name__ == "__main__":
