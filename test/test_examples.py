@@ -68,8 +68,8 @@ class TestExamples(unittest.TestCase):
         PL_call(ta, None)
     
         result = list(prolog.query("animal(X,Y)", catcherrors=True))
-        self.assertEquals(len(result), 1)
-        self.assertEquals(result[0], {'X': 'gnu', 'Y': 50})
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], {'X': 'gnu', 'Y': 50})
 
 
     def test_knowledgebase(self):
@@ -98,7 +98,7 @@ class TestExamples(unittest.TestCase):
         while q.nextSolution():
             result.add(X.value.value)    # X.value is an Atom
         q.closeQuery()
-        self.assertEquals(result, set(["john", "jane"]))
+        self.assertEqual(result, set(["john", "jane"]))
          
         # Test knowledgebase module test2
          
@@ -107,7 +107,7 @@ class TestExamples(unittest.TestCase):
         while q.nextSolution():
             result.add(X.value.value)
         q.closeQuery()
-        self.assertEquals(result, set(["mike", "gina"]))
+        self.assertEqual(result, set(["mike", "gina"]))
 
     def test_father(self):
         """
@@ -137,15 +137,15 @@ class TestExamples(unittest.TestCase):
    
         # FIXME: For some reason, when using Query the iterator is repeating
         # solutions
-#        self.assertEquals(len(result), 1)
-#        self.assertEquals(result[0], {'Y': 'mich', 'Z': 'jane'})
+#        self.assertEqual(len(result), 1)
+#        self.assertEqual(result[0], {'Y': 'mich', 'Z': 'jane'})
 
         # Repeat the same query but using strings
         result = []
         for s in p.query("father(john,Y),mother(Z,Y)"):
             result.append(s)
-        self.assertEquals(len(result), 1)
-        self.assertEquals(result[0], {'Y': 'mich', 'Z': 'jane'})
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], {'Y': 'mich', 'Z': 'jane'})
      
     def test_coins(self):
         """
@@ -165,7 +165,7 @@ class TestExamples(unittest.TestCase):
             solutions.append(S.value)
         q.closeQuery()
  
-        self.assertEquals(len(solutions), 105)
+        self.assertEqual(len(solutions), 105)
 
      # FIXME: This example is always segfaulting. Deactivated until solved. The
      # reason is probably on the other tests
@@ -179,7 +179,7 @@ class TestExamples(unittest.TestCase):
 #        solutions = []
 #        for soln in prolog.query("solve(B)."):
 #            solutions.append(soln["B"])
-#        self.assertEquals(len(solutions), 37)
+#        self.assertEqual(len(solutions), 37)
 
      # FIXME: This example is always segfaulting. Deactivated until solved
 #    def test_hanoi(self):
@@ -199,10 +199,10 @@ class TestExamples(unittest.TestCase):
 #        prolog.consult("hanoi.pl")
 #        list(prolog.query("hanoi(%d)" % N)) # Forces the query to run completely
 # 
-#        self.assertEquals(len(result), 7)
-#        self.assertEquals(result[0], ('left', 'right'))
-#        self.assertEquals(result[1], ('left', 'center'))
-#        self.assertEquals(result[2], ('right', 'center'))
+#        self.assertEqual(len(result), 7)
+#        self.assertEqual(result[0], ('left', 'right'))
+#        self.assertEqual(result[1], ('left', 'center'))
+#        self.assertEqual(result[2], ('right', 'center'))
         
         
 

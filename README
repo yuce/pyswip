@@ -2,7 +2,7 @@ PySWIP README
 ============
 
 :Version: 
-	0.2.2
+	0.2.3
 
 :Author:
     Yuce Tekol. <yucetekol@gmail.com>
@@ -14,9 +14,13 @@ PySWIP README
 Introduction
 ------------
 
-PySWIP is a Python - SWI-Prolog bridge enabling to query SWI-Prolog in your Python programs. It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a Pythonic interface.
+PySWIP is a Python - SWI-Prolog bridge enabling to query SWI-Prolog in your
+Python programs. It features an (incomplete) SWI-Prolog foreign language
+interface, a utility class that makes it easy querying with Prolog and also a
+Pythonic interface.
 
-Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
+Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it, it
+doesn't require compilation to be installed.
 
 Note that this version of PySWIP is slightly incompatible with 0.1.x versions.
 
@@ -44,7 +48,8 @@ Example (Using Prolog):
     michael is the father of john
     michael is the father of gina
 
-Since version 0.1.3 of PySWIP, it is possible to register a Python function as a Prolog predicate through SWI-Prolog's foreign language interface.
+Since version 0.1.3 of PySWIP, it is possible to register a Python function as a
+Prolog predicate through SWI-Prolog's foreign language interface.
 
 Example (Foreign Functions):
 ----------------------------
@@ -66,7 +71,8 @@ Outputs:
     Hello, john
     Hello, gina
 
-Since version 0.2, PySWIP contains a 'Pythonic' interface which allows writing predicates in pure Python (*Note that interface is experimental.*)
+Since version 0.2, PySWIP contains a 'Pythonic' interface which allows writing
+predicates in pure Python (*Note that interface is experimental.*)
 
 Example (Pythonic interface):
 -----------------------------
@@ -89,7 +95,9 @@ Outputs:
     Hello, john
     Hello, gina
 
-The core functionality of ``Prolog.query`` is based on Nathan Denny's public domain prolog.py found at http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html	
+The core functionality of ``Prolog.query`` is based on Nathan Denny's public
+domain prolog.py found at
+http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html
 
 Install
 -------

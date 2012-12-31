@@ -94,8 +94,8 @@ class TestIssues(unittest.TestCase):
         p = prolog.query("parent(michael,X), hello(X)")
         result = list(p)   # Will run over the iterator
         
-        self.assertEquals(len(callsToHello), 2)  # ['john', 'gina']
-        self.assertEquals(len(result), 2) # [{'X': 'john'}, {'X': 'gina'}]
+        self.assertEqual(len(callsToHello), 2)  # ['john', 'gina']
+        self.assertEqual(len(result), 2) # [{'X': 'john'}, {'X': 'gina'}]
 
     def test_issue_15(self):
         """
@@ -111,12 +111,39 @@ class TestIssues(unittest.TestCase):
                           '-c',
                           'import sys; import pyswip; sys.exit(%d)' % code,]
             result = subprocess.call(parameters)
-            self.assertEquals(result, code)
+            self.assertEqual(result, code)
 
         runTestCode(0)
         runTestCode(1)
         runTestCode(2)
         runTestCode(127)
+
+    def test_issue_5(self):
+        """
+       	Patch: hash and eq methods for Atom class.
+
+        Ensures that the patch is working.
+
+        https://code.google.com/p/pyswip/issues/detail?id=5
+        """
+
+        from pyswip import Atom
+
+        a = Atom('test')
+        b = Atom('test2')
+        c = Atom('test')    # Should be equal to a
+
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(c, b)
+        self.assertEqual(a, c)
+
+        atomSet = set()
+        atomSet.add(a)
+        atomSet.add(b)
+        atomSet.add(c)  # This is equal to a
+        self.assertEqual(len(atomSet), 2)
+        self.assertEqual(atomSet, set([a, b]))
+        
 
 
 if __name__ == "__main__":

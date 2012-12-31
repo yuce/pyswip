@@ -1,6 +1,11 @@
 PySWIP CHANGELOG
 ================
 
++ 0.2.4
+
+  * Maintenance release of PySWIP
+  * Solved issue 5 "Patch: hash and eq methods for Atom class"
+
 + 0.2.3
 
   * Maintenance release of PySWIP

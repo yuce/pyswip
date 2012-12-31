@@ -73,6 +73,15 @@ class Atom(object):
 
     def __repr__(self):
         return str(self.handle).join(["Atom('", "')"])
+    
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        else:
+            return self.handle == other.handle
+
+    def __hash__(self):
+        return self.handle
 
 class Term(object):
     __slots__ = "handle","chars","__value","a0"
