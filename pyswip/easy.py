@@ -28,18 +28,28 @@ from pyswip.core import *
 
 class InvalidTypeError(TypeError):
     def __init__(self, *args):
-        type = args and args[0] or "Unknown"
-        msg = "Term is expected to be of type: '%s'" % type
+        type_ = args and args[0] or "Unknown"
+        msg = "Term is expected to be of type: '%s'" % type_
         Exception.__init__(self, msg, *args)
 
 
+class ArgumentTypeError(Exception):
+    """
+    Thrown when an argument has the wrong type.
+    """
+    def __init__(self, expected, got):
+        msg = "Expected an argument of type '%s' but got '%s'" % (expected, got)
+        Exception.__init__(self, msg)
+
+        
 class Atom(object):
-    __slots__ = "handle","chars"
+    __slots__ = "handle", "chars"
 
     def __init__(self, handleOrChars):
         """Create an atom.
         ``handleOrChars``: handle or string of the atom.
         """
+        
         if isinstance(handleOrChars, basestring):
             self.handle = PL_new_atom(handleOrChars)
             self.chars = handleOrChars
@@ -51,13 +61,15 @@ class Atom(object):
 
     def fromTerm(cls, term):
         """Create an atom from a Term or term handle."""
+        
         if isinstance(term, Term):
             term = term.handle
+        elif not isinstance(term, long):
+            raise ArgumentTypeError((str(Term), str(long)), str(type(term)))
 
         a = atom_t()
         if PL_get_atom(term, addressof(a)):
             return cls(a.value)
-
     fromTerm = classmethod(fromTerm)
 
     def __del__(self):
@@ -83,8 +95,10 @@ class Atom(object):
     def __hash__(self):
         return self.handle
 
+    
 class Term(object):
-    __slots__ = "handle","chars","__value","a0"
+    __slots__ = "handle", "chars", "__value", "a0"
+    
     def __init__(self, handle=None, a0=None):
         if handle:
             #self.handle = PL_copy_term_ref(handle)
@@ -100,8 +114,18 @@ class Term(object):
     def get_value(self):
         pass
 
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        else:
+            return PL_compare(self.handle, other.handle) == 0
+
+    def __hash__(self):
+        return self.handle
+
+    
 class Variable(object):
-    __slots__ = "handle","chars"
+    __slots__ = "handle", "chars"
 
     def __init__(self, handle=None, name=None):
         self.chars = None
@@ -137,7 +161,6 @@ class Variable(object):
 
     def get_value(self):
         return getTerm(self.handle)
-
     value = property(get_value, unify)
 
     def unified(self):
@@ -156,8 +179,18 @@ class Variable(object):
         #PL_put_variable(term)
         self.handle = term
 
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        else:
+            return PL_compare(self.handle, other.handle) == 0
+
+    def __hash__(self):
+        return self.handle
+
+    
 class Functor(object):
-    __slots__ = "handle","name","arity","args","__value","a0"
+    __slots__ = "handle", "name", "arity", "args", "__value", "a0"
     func = {}
 
     def __init__(self, handleOrName, arity=1, args=None, a0=None):
@@ -188,8 +221,11 @@ class Functor(object):
 
     def fromTerm(cls, term):
         """Create a functor from a Term or term handle."""
+        
         if isinstance(term, Term):
             term = term.handle
+        elif not isinstance(term, long):
+            raise ArgumentTypeError((str(Term), str(long)), str(type(term)))
 
         f = functor_t()
         if PL_get_functor(term, addressof(f)):
@@ -203,13 +239,12 @@ class Functor(object):
                     args.append(getTerm(a0 + i))
 
             return cls(f.value, args=args, a0=a0)
-
     fromTerm = classmethod(fromTerm)
 
     value = property(lambda s: s.__value)
 
     def __call__(self, *args):
-        assert self.arity == len(args)
+        assert self.arity == len(args)   # FIXME: Put a decent error message
         a = PL_new_term_refs(len(args))
         for i, arg in enumerate(args):
             putTerm(a + i, arg)
@@ -227,6 +262,16 @@ class Functor(object):
     def __repr__(self):
         return "".join(["Functor(", ",".join(str(x) for x in [self.handle,self.arity]+self.args), ")"])
 
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        else:
+            return PL_compare(self.handle, other.handle) == 0
+
+    def __hash__(self):
+        return self.handle
+
+    
 def _unifier(arity, *args):
     assert arity == 2
     #if PL_is_variable(args[0]):
@@ -240,6 +285,7 @@ _unify = Functor("=", 2)
 Functor.func[_unify.handle] = _unifier
 _not = Functor("not", 1)
 _comma = Functor(",", 2)
+
 
 def putTerm(term, value):
     if isinstance(value, Term):
@@ -259,14 +305,16 @@ def putTerm(term, value):
     else:
         raise Exception("Not implemented")
 
+    
 def putList(l, ls):
     PL_put_nil(l)
-    a = PL_new_term_ref()  #PL_new_term_refs(len(ls))
     for item in reversed(ls):
+        a = PL_new_term_ref()  #PL_new_term_refs(len(ls))
         putTerm(a, item)
         PL_cons_list(l, a, l)
     #PL_get_head(h, h)
 
+    
 # deprecated
 def getAtomChars(t):
     """If t is an atom, return it as a string, otherwise raise InvalidTypeError.
@@ -277,10 +325,12 @@ def getAtomChars(t):
     else:
         raise InvalidTypeError("atom")
 
+    
 def getAtom(t):
     """If t is an atom, return it , otherwise raise InvalidTypeError.
     """
     return Atom.fromTerm(t)
+
 
 def getBool(t):
     """If t is of type bool, return it, otherwise raise InvalidTypeError.
@@ -291,6 +341,7 @@ def getBool(t):
     else:
         raise InvalidTypeError("bool")
 
+    
 def getLong(t):
     """If t is of type long, return it, otherwise raise InvalidTypeError.
     """
@@ -300,7 +351,9 @@ def getLong(t):
     else:
         raise InvalidTypeError("long")
 
+
 getInteger = getLong  # just an alias for getLong
+
 
 def getFloat(t):
     """If t is of type float, return it, otherwise raise InvalidTypeError.
@@ -311,6 +364,7 @@ def getFloat(t):
     else:
         raise InvalidTypeError("float")
 
+    
 def getString(t):
     """If t is of type string, return it, otherwise raise InvalidTypeError.
     """
@@ -321,6 +375,7 @@ def getString(t):
     else:
         raise InvalidTypeError("string")
 
+    
 mappedTerms = {}
 def getTerm(t):
     global mappedTerms
@@ -338,30 +393,41 @@ def getTerm(t):
     mappedTerms[t] = res
     return res
 
+
 def getList(x):
-    """Return t as a list.
     """
+    Return t as a list.
+    """
+    
     t = PL_copy_term_ref(x)
     head = PL_new_term_ref()
     result = []
     while PL_get_list(t, head, t):
         result.append(getTerm(head))
+        head = PL_new_term_ref()
 
     return result
+
 
 def getFunctor(t):
     """Return t as a functor
     """
     return Functor.fromTerm(t)
 
+
 def getVariable(t):
     return Variable(t)
 
+
 _getterm_router = {
-                    PL_VARIABLE:getVariable, PL_ATOM:getAtom, PL_STRING:getString,
-                    PL_INTEGER:getInteger, PL_FLOAT:getFloat,
-                    PL_TERM:getTerm
-                    }
+                   PL_VARIABLE: getVariable,
+                   PL_ATOM: getAtom,
+                   PL_STRING: getString,
+                   PL_INTEGER: getInteger,
+                   PL_FLOAT: getFloat,
+                   PL_TERM: getTerm,
+                  }
+
 
 arities = {}
 def _callbackWrapper(arity=1):
@@ -372,6 +438,7 @@ def _callbackWrapper(arity=1):
         res = CFUNCTYPE(*([foreign_t] + [term_t]*arity))
         arities[arity] = res
     return res
+
 
 funwraps = {}
 def _foreignWrapper(fun):
@@ -387,7 +454,9 @@ def _foreignWrapper(fun):
         funwraps[fun] = res
     return res
 
+
 cwraps = []
+
 
 def registerForeign(func, name=None, arity=None, flags=0):
     """Register a Python predicate
@@ -414,11 +483,14 @@ def registerForeign(func, name=None, arity=None, flags=0):
     # return PL_register_foreign(name, arity,
     #            _callbackWrapper(arity)(_foreignWrapper(func)), flags)
 
+    
 newTermRef = PL_new_term_ref
+
 
 def newTermRefs(count):
     a = PL_new_term_refs(count)
     return range(a, a + count)
+
 
 def call(*terms, **kwargs):
     """Call term in module.
@@ -436,6 +508,7 @@ def call(*terms, **kwargs):
 
     return PL_call(t.handle, module)
 
+
 def newModule(name):
     """Create a new module.
     ``name``: An Atom or a string
@@ -444,6 +517,7 @@ def newModule(name):
         name = Atom(name)
 
     return PL_new_module(name.handle)
+
 
 class Query(object):
     qid = None

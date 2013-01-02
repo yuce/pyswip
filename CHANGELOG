@@ -6,6 +6,8 @@ PySWIP CHANGELOG
   * Maintenance release of PySWIP
   * Solved issue 4 "Patch for a dynamic method"
   * Solved issue 5 "Patch: hash and eq methods for Atom class"
+  * Solved issue 3: "Problem with variables in lists"
+  * Solved issue 17: "Can't find SWI-Prolog library in Homebrew's /usr/local"
 
 + 0.2.3
 

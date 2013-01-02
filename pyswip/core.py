@@ -786,6 +786,22 @@ PL_new_functor = _lib.PL_new_functor
 PL_new_functor.argtypes = [atom_t, c_int]
 PL_new_functor.restype = functor_t
 
+
+#        	 /*******************************
+#        	 *	     COMPARE		*
+#        	 *******************************/
+# 
+#PL_EXPORT(int)		PL_compare(term_t t1, term_t t2);
+#PL_EXPORT(int)		PL_same_compound(term_t t1, term_t t2);
+PL_compare = _lib.PL_compare
+PL_compare.argtypes = [term_t, term_t]
+PL_compare.restype = c_int
+
+PL_same_compound = _lib.PL_same_compound
+PL_same_compound.argtypes = [term_t, term_t]
+PL_same_compound.restype = c_int
+
+
 #		 /*******************************
 #		 *      RECORDED DATABASE	*
 #		 *******************************/

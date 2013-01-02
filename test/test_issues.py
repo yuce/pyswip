@@ -128,7 +128,7 @@ class TestIssues(unittest.TestCase):
         https://code.google.com/p/pyswip/issues/detail?id=5
         """
 
-        from pyswip import Atom
+        from pyswip import Atom, Variable
 
         a = Atom('test')
         b = Atom('test2')
@@ -144,6 +144,22 @@ class TestIssues(unittest.TestCase):
         atomSet.add(c)  # This is equal to a
         self.assertEqual(len(atomSet), 2)
         self.assertEqual(atomSet, set([a, b]))
+
+        # The same semantics should be valid for other classes
+        A = Variable()
+        B = Variable()
+        C = Variable(A.handle)   # This is equal to A
+        
+        self.assertNotEqual(A, B)
+        self.assertNotEqual(C, B)
+        self.assertEqual(A, C)
+        varSet = set()
+        varSet.add(A)
+        varSet.add(B)
+        varSet.add(C)  # This is equal to A
+        self.assertEqual(len(varSet), 2)
+        self.assertEqual(varSet, set([A, B]))
+        
         
     def test_issue_4(self):
         """
@@ -172,6 +188,55 @@ class TestIssues(unittest.TestCase):
         results = list(Prolog.query('test_issue_4_d(X)'))
         self.assertEqual(len(results), 1)
 
+    def test_issue_3(self):
+        """
+       	Problem with variables in lists
+
+        https://code.google.com/p/pyswip/issues/detail?id=3
+        """
+
+        from pyswip import Prolog, Functor, Variable, Atom
+        from deepstr import deep_str
+         
+        p = Prolog()
+         
+        f = Functor('f', 1)
+        A = Variable()
+        B = Variable()
+        C = Variable()
+         
+        x = f([A, B, C])
+        x = Functor.fromTerm(x)
+        args = x.args[0]
+
+        self.assertFalse(args[0] == args[1], "Var A equals var B")
+        self.assertFalse(args[0] == args[2], "Var A equals var C")
+        self.assertFalse(args[1] == args[2], "Var B equals var C")
+
+        self.assertFalse(A == B, "Var A equals var B")
+        self.assertFalse(B == C, "Var A equals var C")
+        self.assertFalse(A == C, "Var B equals var C")
+
+        # A more complex test
+        x = f([A, B, 'c'])
+        x = Functor.fromTerm(x)
+        args = x.args[0]
+        self.assertEqual(type(args[0]), Variable)
+        self.assertEqual(type(args[1]), Variable)
+        self.assertEqual(type(args[2]), Atom)
+
+        # A test with repeated variables
+        # FIXME: This test is deactivated because I do not know if it is valid
+        # in SWI-Prolog
+#        x = f([A, B, A])
+#        x = Functor.fromTerm(x)
+#        args = x.args[0]
+#        self.assertEqual(type(args[0]), Variable)
+#        self.assertEqual(type(args[1]), Variable)
+#        self.assertEqual(type(args[2]), Variable)
+#        self.assertTrue(args[0] == args[2], "The first and last var of "
+#                                            "f([A, B, A]) should be the same")
+        
 
 if __name__ == "__main__":
     unittest.main()
