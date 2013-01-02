@@ -119,6 +119,16 @@ def _findSwiplFromExec():
                 
                 if not os.path.exists(fullName):
                     fullName = None
+
+            elif platform == "dar":
+                dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + rtvars['PLSOEXT']
+                path = os.path.join(rtvars['PLBASE'], 'lib', rtvars['PLARCH'])
+                baseName = os.path.join(path, dllName)
+
+                if os.path.exists(baseName):
+                    fullName = baseName
+                else:  # We will search for versions
+                    fullName = None
                 
             else: # assume UNIX-like
                 # The SO name in some linuxes is of the form libswipl.so.5.10.2,
@@ -230,7 +240,7 @@ def _findSwiplLin():
         ({str, None}, {str, None})
     """
 
-    # May the exec is on path?
+    # Maybe the exec is on path?
     (path, swiHome) = _findSwiplFromExec()
     if path is not None:
         return (path, swiHome)
@@ -271,6 +281,18 @@ def _findSwiplDar():
     """
 
     # Help with MacOS is welcome!!
+    
+    # Maybe the exec is on path?
+    (path, swiHome) = _findSwiplFromExec()
+    if path is not None:
+        return (path, swiHome)
+
+    # If it is not, use  find_library
+    path = _findSwiplPathFromFindLib()
+    if path is not None:
+        return (path, swiHome)
+    
+    # Our last try: some hardcoded paths.
     paths = ['.', './lib']
     names = ['libswipl.dylib', 'libpl.dylib']
 

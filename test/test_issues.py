@@ -36,7 +36,7 @@ class TestIssues(unittest.TestCase):
        contains the link for the issue and the issue's description.
     """
 
-    def test_issue_13_and_6(self):
+    def test_issue_13_17_and_6(self):
         """
         Improve library loading.
 
@@ -49,6 +49,7 @@ class TestIssues(unittest.TestCase):
 
         http://code.google.com/p/pyswip/issues/detail?id=13
         http://code.google.com/p/pyswip/issues/detail?id=6
+        https://code.google.com/p/pyswip/issues/detail?id=17
         """
 
         import pyswip.core # This implicitly tests library loading code. It
