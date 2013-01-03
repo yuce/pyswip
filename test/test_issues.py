@@ -160,7 +160,6 @@ class TestIssues(unittest.TestCase):
         self.assertEqual(len(varSet), 2)
         self.assertEqual(varSet, set([A, B]))
         
-        
     def test_issue_4(self):
         """
        	Patch for a dynamic method
@@ -226,8 +225,6 @@ class TestIssues(unittest.TestCase):
         self.assertEqual(type(args[2]), Atom)
 
         # A test with repeated variables
-        # FIXME: This test is deactivated because I do not know if it is valid
-        # in SWI-Prolog
         x = f([A, B, A])
         x = Functor.fromTerm(x)
         args = x.args[0]

@@ -71,7 +71,6 @@ class TestExamples(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], {'X': 'gnu', 'Y': 50})
 
-
     def test_knowledgebase(self):
         """
         Tests usage of modules.
@@ -135,10 +134,8 @@ class TestExamples(unittest.TestCase):
             result.append({'Y': y, 'Z': z})
         q.closeQuery()
    
-        # FIXME: For some reason, when using Query the iterator is repeating
-        # solutions
-#        self.assertEqual(len(result), 1)
-#        self.assertEqual(result[0], {'Y': 'mich', 'Z': 'jane'})
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], {'Y': 'mich', 'Z': 'jane'})
 
         # Repeat the same query but using strings
         result = []
@@ -167,44 +164,117 @@ class TestExamples(unittest.TestCase):
  
         self.assertEqual(len(solutions), 105)
 
-     # FIXME: This example is always segfaulting. Deactivated until solved. The
-     # reason is probably on the other tests
-#    def test_draughts(self):
-#        """
-#        Runs the draughts example (uses clp library of SWI-Prolog).
-#        """
-#        
-#        prolog = Prolog()
-#        prolog.consult("draughts.pl")
-#        solutions = []
-#        for soln in prolog.query("solve(B)."):
-#            solutions.append(soln["B"])
-#        self.assertEqual(len(solutions), 37)
+    def test_draughts(self):
+        """
+        Runs the draughts example (uses clp library of SWI-Prolog).
+        """
+        
+        prolog = Prolog()
+        prolog.consult("draughts.pl")
+        solutions = []
+        for soln in prolog.query("solve(B)."):
+            solutions.append(soln["B"])
+        self.assertEqual(len(solutions), 37)
 
-     # FIXME: This example is always segfaulting. Deactivated until solved
-#    def test_hanoi(self):
-#        """
-#        Runs the hanoi example.
-#        """
-# 
-#        N = 3  # Number of disks
-# 
-#        result = []
-#        def notify(t):
-#            result.append((t[0].value, t[1].value))
-#        notify.arity = 1
-# 
-#        prolog = Prolog()
-#        registerForeign(notify)
-#        prolog.consult("hanoi.pl")
-#        list(prolog.query("hanoi(%d)" % N)) # Forces the query to run completely
-# 
-#        self.assertEqual(len(result), 7)
-#        self.assertEqual(result[0], ('left', 'right'))
-#        self.assertEqual(result[1], ('left', 'center'))
-#        self.assertEqual(result[2], ('right', 'center'))
+    def test_hanoi(self):
+        """
+        Runs the hanoi example.
+        """
+ 
+        N = 3  # Number of disks
+ 
+        result = []
+        def notify(t):
+            result.append((t[0].value, t[1].value))
+        notify.arity = 1
+ 
+        prolog = Prolog()
+        registerForeign(notify)
+        prolog.consult("hanoi.pl")
+        list(prolog.query("hanoi(%d)" % N)) # Forces the query to run completely
+ 
+        self.assertEqual(len(result), 7)
+        self.assertEqual(result[0], ('left', 'right'))
+        self.assertEqual(result[1], ('left', 'center'))
+        self.assertEqual(result[2], ('right', 'center'))
         
+    def test_sendmoremoney(self):
+        """
+        Runs the sendmoremoney example::
+
+            S E N D
+            M O R E
+          + -------
+          M O N E Y
+         
+        So, what should be the values of S, E, N, D, M, O, R, Y
+        if they are all distinct digits.
+        """
         
+        letters = "S E N D M O R Y".split()
+        prolog = Prolog()
+        sendmore = Functor("sendmore")
+        prolog.consult("money.pl")
+
+        X = Variable()
+        call(sendmore(X))
+        r = X.value
+        val = {}
+        for i, letter in enumerate(letters):
+            val[letter] = r[i]
+
+        self.assertEqual(len(val), 8)
+        
+        send = val['S']*1e3 + val['E']*1e2 + val['N']*1e1 + val['D']*1e0
+        more = val['M']*1e3 + val['O']*1e2 + val['R']*1e1 + val['E']*1e0
+        money = val['M']*1e4 + val['O']*1e3 + val['N']*1e2 + val['E']*1e1 + val['Y']*1e0
+        self.assertEqual(money, send + more)
+ 
+    def test_sudoku(self):
+        """
+        Runs the sudoku example (uses clp library of SWI-Prolog).
+        """
+        
+        _ = 0
+        puzzle1 = [
+            [_,6,_,1,_,4,_,5,_],
+            [_,_,8,3,_,5,6,_,_],
+            [2,_,_,_,_,_,_,_,1],
+            [8,_,_,4,_,7,_,_,6],
+            [_,_,6,_,_,_,3,_,_],
+            [7,_,_,9,_,1,_,_,4],
+            [5,_,_,_,_,_,_,_,2],
+            [_,_,7,2,_,6,9,_,_],
+            [_,4,_,5,_,8,_,7,_]
+            ]
+         
+        puzzle2 = [
+            [_,_,1,_,8,_,6,_,4],
+            [_,3,7,6,_,_,_,_,_],
+            [5,_,_,_,_,_,_,_,_],
+            [_,_,_,_,_,5,_,_,_],
+            [_,_,6,_,1,_,8,_,_],
+            [_,_,_,4,_,_,_,_,_],
+            [_,_,_,_,_,_,_,_,3],
+            [_,_,_,_,_,7,5,2,_],
+            [8,_,2,_,9,_,7,_,_]
+                  ]
+            
+        prolog = Prolog()
+        prolog.consult("sudoku.pl")
+
+        for i, problem in enumerate((puzzle1, puzzle2)):
+            p = str(problem).replace("0", "_")
+            result = list(prolog.query("L=%s,sudoku(L)" % p, maxresult=1))
+            if result:
+                # Does a simple check on the result
+                result = result[0]
+                for j, line in enumerate(result["L"]):
+                    self.assertEqual(len(set(line)), 9,
+                                     "Failure in line %d: %s" % (j, line))
+            else:
+                self.fail("Failed while running example number %d" % i)
+            
 
 if __name__ == "__main__":
     unittest.main()
