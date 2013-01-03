@@ -228,14 +228,14 @@ class TestIssues(unittest.TestCase):
         # A test with repeated variables
         # FIXME: This test is deactivated because I do not know if it is valid
         # in SWI-Prolog
-#        x = f([A, B, A])
-#        x = Functor.fromTerm(x)
-#        args = x.args[0]
-#        self.assertEqual(type(args[0]), Variable)
-#        self.assertEqual(type(args[1]), Variable)
-#        self.assertEqual(type(args[2]), Variable)
-#        self.assertTrue(args[0] == args[2], "The first and last var of "
-#                                            "f([A, B, A]) should be the same")
+        x = f([A, B, A])
+        x = Functor.fromTerm(x)
+        args = x.args[0]
+        self.assertEqual(type(args[0]), Variable)
+        self.assertEqual(type(args[1]), Variable)
+        self.assertEqual(type(args[2]), Variable)
+        self.assertTrue(args[0] == args[2], "The first and last var of "
+                                            "f([A, B, A]) should be the same")
         
 
 if __name__ == "__main__":

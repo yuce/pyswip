@@ -177,7 +177,7 @@ class Variable(object):
 
     def put(self, term):
         #PL_put_variable(term)
-        self.handle = term
+        PL_put_term(term, self.handle)
 
     def __eq__(self, other):
         if type(self) != type(other):
@@ -312,7 +312,6 @@ def putList(l, ls):
         a = PL_new_term_ref()  #PL_new_term_refs(len(ls))
         putTerm(a, item)
         PL_cons_list(l, a, l)
-    #PL_get_head(h, h)
 
     
 # deprecated
@@ -544,19 +543,16 @@ class Query(object):
 
     def nextSolution():
         return PL_next_solution(Query.qid)
-
     nextSolution = staticmethod(nextSolution)
 
     def cutQuery():
         PL_cut_query(Query.qid)
-
     cutQuery = staticmethod(cutQuery)
 
     def closeQuery():
         if Query.qid is not None:
             PL_close_query(Query.qid)
             Query.qid = None
-
     closeQuery = staticmethod(closeQuery)
 
 
@@ -588,6 +584,7 @@ def _test():
     q = Query(a(X))
     while q.nextSolution():
         print ">", X.value
+    q.closeQuery()
 
 if __name__ == "__main__":
     _test()
