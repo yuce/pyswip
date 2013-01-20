@@ -148,7 +148,7 @@ class TestExamples(unittest.TestCase):
         """
         Runs the coins example (uses clp library of SWI-Prolog).
         """
-        
+
         prolog = Prolog()
         prolog.consult("coins.pl")
         count = 100
@@ -164,6 +164,10 @@ class TestExamples(unittest.TestCase):
  
         self.assertEqual(len(solutions), 105)
 
+        # Now do the same test, but using the prolog.query interface
+        solutions = list(prolog.query("coins(S, %d, %d)." % (count,total)))
+        self.assertEqual(len(solutions), 105)
+
     def test_draughts(self):
         """
         Runs the draughts example (uses clp library of SWI-Prolog).
@@ -176,6 +180,10 @@ class TestExamples(unittest.TestCase):
             solutions.append(soln["B"])
         self.assertEqual(len(solutions), 37)
 
+        # Now do the same test, but using the prolog.query interface
+        solutions = list(prolog.query("solve(B)."))
+        self.assertEqual(len(solutions), 37)
+        
     def test_hanoi(self):
         """
         Runs the hanoi example.

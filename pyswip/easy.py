@@ -64,11 +64,11 @@ class Atom(object):
         
         if isinstance(term, Term):
             term = term.handle
-        elif not isinstance(term, long):
-            raise ArgumentTypeError((str(Term), str(long)), str(type(term)))
+        elif not isinstance(term, (c_void_p, int, long)):
+            raise ArgumentTypeError((str(Term), str(c_void_p)), str(type(term)))
 
         a = atom_t()
-        if PL_get_atom(term, addressof(a)):
+        if PL_get_atom(term, byref(a)):
             return cls(a.value)
     fromTerm = classmethod(fromTerm)
 
@@ -224,11 +224,11 @@ class Functor(object):
         
         if isinstance(term, Term):
             term = term.handle
-        elif not isinstance(term, long):
+        elif not isinstance(term, (c_void_p, int, long)):
             raise ArgumentTypeError((str(Term), str(long)), str(type(term)))
 
         f = functor_t()
-        if PL_get_functor(term, addressof(f)):
+        if PL_get_functor(term, byref(f)):
             # get args
             args = []
             arity = PL_functor_arity(f.value)
@@ -255,7 +255,7 @@ class Functor(object):
 
     def __str__(self):
         if self.name is not None and self.arity is not None:
-            return "%s(%d)" % (self.name,self.arity)
+            return "%s(%d)" % (self.name, self.arity)
         else:
             return self.__repr__()
 
@@ -319,7 +319,7 @@ def getAtomChars(t):
     """If t is an atom, return it as a string, otherwise raise InvalidTypeError.
     """
     s = c_char_p()
-    if PL_get_atom_chars(t, addressof(s)):
+    if PL_get_atom_chars(t, byref(s)):
         return s.value
     else:
         raise InvalidTypeError("atom")
@@ -335,7 +335,7 @@ def getBool(t):
     """If t is of type bool, return it, otherwise raise InvalidTypeError.
     """
     b = c_int()
-    if PL_get_long(t, addressof(b)):
+    if PL_get_long(t, byref(b)):
         return bool(b.value)
     else:
         raise InvalidTypeError("bool")
@@ -345,7 +345,7 @@ def getLong(t):
     """If t is of type long, return it, otherwise raise InvalidTypeError.
     """
     i = c_long()
-    if PL_get_long(t, addressof(i)):
+    if PL_get_long(t, byref(i)):
         return i.value
     else:
         raise InvalidTypeError("long")
@@ -358,7 +358,7 @@ def getFloat(t):
     """If t is of type float, return it, otherwise raise InvalidTypeError.
     """
     d = c_double()
-    if PL_get_float(t, addressof(d)):
+    if PL_get_float(t, byref(d)):
         return d.value
     else:
         raise InvalidTypeError("float")
@@ -369,7 +369,7 @@ def getString(t):
     """
     slen = c_int()
     s = c_char_p()
-    if PL_get_string_chars(t, addressof(s), addressof(slen)):
+    if PL_get_string_chars(t, byref(s), byref(slen)):
         return s.value
     else:
         raise InvalidTypeError("string")

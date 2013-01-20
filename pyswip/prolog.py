@@ -65,8 +65,8 @@ _initialize()
 
 # Since the program is terminated when we call PL_halt, we monkey patch sys.exit
 # to be able to intercept the exit status and ensure that PL_halt is the last
-# function called from those registered in atexit. What we do here is very, very
-# ugly. Any better way is welcome.
+# function called from those registered in atexit. FIXME: What we do here is
+# very, very ugly. Any better way is welcome.
 _original_sys_exit = sys.exit
 def _patched_sys_exit(code=0):
     # Since atexit process exit functions from last to first, we put PL_halt as
@@ -83,7 +83,7 @@ class Prolog:
     This is a singleton class
     """
     class _QueryWrapper(object):
-        __slots__ = "swipl_fid","swipl_qid","error"
+        __slots__ = "swipl_fid", "swipl_qid", "error"
         
         def __init__(self):
             self.error = False
@@ -100,7 +100,7 @@ class Prolog:
             
             swipl_predicate = PL_predicate("pyrun", 2, None)
             self.swipl_qid = swipl_qid = PL_open_query(None, plq,
-                    swipl_predicate, swipl_args)
+                                                       swipl_predicate, swipl_args)
             while maxresult and PL_next_solution(swipl_qid):
                 maxresult -= 1
                 bindings = []
@@ -126,36 +126,30 @@ class Prolog:
         def __del__(self):
             if not self.error:
                 PL_close_query(self.swipl_qid)
-                PL_discard_foreign_frame(self.swipl_fid)    
+                PL_discard_foreign_frame(self.swipl_fid)
     
     def asserta(cls, assertion, catcherrors=False):
         cls.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors).next()
-        
     asserta = classmethod(asserta)    
     
     def assertz(cls, assertion, catcherrors=False):
         cls.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors).next()
-        
     assertz = classmethod(assertz)
     
     def dynamic(cls, term, catcherrors=False):
         cls.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors).next()
-        
     dynamic = classmethod(dynamic)
     
     def retract(cls, term, catcherrors=False):
         cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors).next()
-        
     retract = classmethod(retract)
     
     def retractall(cls, term, catcherrors=False):
         cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors).next()
-        
     retractall = classmethod(retractall)
     
     def consult(cls, filename, catcherrors=False):
         cls.query(filename.join(["consult('", "')"]), catcherrors=catcherrors).next()
-    
     consult = classmethod(consult)
 
     def query(cls, query, maxresult=-1, catcherrors=True, normalize=True):
@@ -175,7 +169,6 @@ class Prolog:
         """
         #assert cls.initialized        
         return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)
-    
     query = classmethod(query)
     
         

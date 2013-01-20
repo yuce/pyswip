@@ -367,25 +367,21 @@ def _fixWindowsPath(dll):
         os.putenv('PATH', newPath)
 
         
-class c_void(Structure):
-    _fields_ = [('dummy', c_int)]
-
-    
-c_void_p = POINTER(c_void)
-
 # Find the path and resource file. SWI_HOME_DIR shall be treated as a constant
 # by users of this module
 (_path, SWI_HOME_DIR) = _findSwipl()
 _fixWindowsPath(_path)
+
 
 # Load the library
 _lib = CDLL(_path)
 
 # PySWIP constants
 PYSWIP_MAXSTR = 1024
-c_int_p = POINTER(c_int)
-c_long_p = POINTER(c_long)
-c_double_p = POINTER(c_double)
+c_int_p = c_void_p
+c_long_p = c_void_p
+c_double_p = c_void_p
+c_uint_p = c_void_p
     
 # constants (from SWI-Prolog.h)
 # PL_unify_term() arguments
@@ -400,7 +396,7 @@ PL_FUNCTOR = 10  # functor_t, arg ...
 PL_LIST = 11  # length, arg ...
 PL_CHARS = 12  # const char *
 PL_POINTER = 13  # void *
-    #               /* PlArg::PlArg(text, type) */
+#               /* PlArg::PlArg(text, type) */
 #define PL_CODE_LIST     (14)       /* [ascii...] */
 #define PL_CHAR_LIST     (15)       /* [h,e,l,l,o] */
 #define PL_BOOL      (16)       /* PL_set_feature() */
@@ -496,28 +492,42 @@ for i, arg in enumerate(sys.argv):
 argv[-1] = None
 argc = len(sys.argv)
 
-# types
+#                  /*******************************
+#                  *             TYPES            *
+#                  *******************************/
+#
+# typedef uintptr_t       atom_t;         /* Prolog atom */
+# typedef uintptr_t       functor_t;      /* Name/arity pair */
+# typedef void *          module_t;       /* Prolog module */
+# typedef void *          predicate_t;    /* Prolog procedure */
+# typedef void *          record_t;       /* Prolog recorded term */
+# typedef uintptr_t       term_t;         /* opaque term handle */
+# typedef uintptr_t       qid_t;          /* opaque query handle */
+# typedef uintptr_t       PL_fid_t;       /* opaque foreign context handle */
+# typedef void *          control_t;      /* non-deterministic control arg */
+# typedef void *          PL_engine_t;    /* opaque engine handle */
+# typedef uintptr_t       PL_atomic_t;    /* same a word */
+# typedef uintptr_t       foreign_t;      /* return type of foreign functions */
+# typedef wchar_t         pl_wchar_t;     /* Prolog wide character */
+# typedef foreign_t       (*pl_function_t)(); /* foreign language functions */
 
-atom_t = c_ulong
-term_t = c_ulong
-fid_t = c_ulong
+atom_t = c_uint_p
+functor_t = c_uint_p
 module_t = c_void_p
 predicate_t = c_void_p
 record_t = c_void_p
-qid_t = c_ulong
-PL_fid_t = c_ulong
+term_t = c_uint_p
+qid_t = c_uint_p
+PL_fid_t = c_uint_p
+fid_t = c_uint_p
 control_t = c_void_p
 PL_engine_t = c_void_p
-functor_t = c_ulong
-PL_atomic_t = c_ulong
-foreign_t = c_ulong
+PL_atomic_t = c_uint_p
+foreign_t = c_uint_p
 pl_wchar_t = c_wchar
 
-
-##_lib.PL_initialise(len(sys.argv), _argv)
-
 PL_initialise = _lib.PL_initialise
-##PL_initialise.argtypes = [c_int, c_c
+#PL_initialise.argtypes = [c_int, c_c??
 
 PL_open_foreign_frame = _lib.PL_open_foreign_frame
 PL_open_foreign_frame.restype = fid_t
@@ -526,45 +536,64 @@ PL_new_term_ref = _lib.PL_new_term_ref
 PL_new_term_ref.restype = term_t
 
 PL_new_term_refs = _lib.PL_new_term_refs
+PL_new_term_refs.argtypes = [c_int]
 PL_new_term_refs.restype = term_t
 
 PL_chars_to_term = _lib.PL_chars_to_term
 PL_chars_to_term.argtypes = [c_char_p, term_t]
+PL_chars_to_term.restype = c_int
 
 PL_call = _lib.PL_call
 PL_call.argtypes = [term_t, module_t]
+PL_call.restype = c_int
 
 PL_call_predicate = _lib.PL_call_predicate
 PL_call_predicate.argtypes = [module_t, c_int, predicate_t, term_t]
+PL_call_predicate.restype = c_int
 
 PL_discard_foreign_frame = _lib.PL_discard_foreign_frame
 PL_discard_foreign_frame.argtypes = [fid_t]
+PL_discard_foreign_frame.restype = None
 
 PL_put_list_chars = _lib.PL_put_list_chars
 PL_put_list_chars.argtypes = [term_t, c_char_p]
+PL_put_list_chars.restype = c_int
 
 #PL_EXPORT(void)		PL_register_atom(atom_t a);
 PL_register_atom = _lib.PL_register_atom
+PL_register_atom.argtypes = [atom_t]
+PL_register_atom.restype = None
 
 #PL_EXPORT(void)		PL_unregister_atom(atom_t a);
 PL_unregister_atom = _lib.PL_unregister_atom
+PL_unregister_atom.argtypes = [atom_t]
+PL_unregister_atom.restype = None
 
 #PL_EXPORT(atom_t)	PL_functor_name(functor_t f);
 PL_functor_name = _lib.PL_functor_name
+PL_functor_name.argtypes = [functor_t]
+PL_functor_name.restype = atom_t
 
 #PL_EXPORT(int)		PL_functor_arity(functor_t f);
 PL_functor_arity = _lib.PL_functor_arity
+PL_functor_arity.argtypes = [functor_t]
+PL_functor_arity.restype = c_int
 
 #			/* Get C-values from Prolog terms */
 #PL_EXPORT(int)		PL_get_atom(term_t t, atom_t *a);
 PL_get_atom = _lib.PL_get_atom
-PL_get_atom.argtypes = [term_t, c_ulong]
+PL_get_atom.argtypes = [term_t, POINTER(atom_t)]
+PL_get_atom.restype = c_int
 
 #PL_EXPORT(int)		PL_get_bool(term_t t, int *value);
 PL_get_bool = _lib.PL_get_bool
+PL_get_bool.argtypes = [term_t, POINTER(c_int)]
+PL_get_bool.restype = c_int
 
 #PL_EXPORT(int)		PL_get_atom_chars(term_t t, char **a);
 PL_get_atom_chars = _lib.PL_get_atom_chars  # FIXME
+PL_get_atom_chars.argtypes = [term_t, POINTER(c_char_p)]
+PL_get_atom_chars.restype = c_int
 
 ##define PL_get_string_chars(t, s, l) PL_get_string(t,s,l)
 #					/* PL_get_string() is depricated */
@@ -587,44 +616,58 @@ PL_get_chars = _lib.PL_get_chars  # FIXME:
 #				      unsigned int flags);
 #PL_EXPORT(int)		PL_get_integer(term_t t, int *i);
 PL_get_integer = _lib.PL_get_integer
-
-#PL_get_integer.argtypes = [term_t, c_int_p]
+PL_get_integer.argtypes = [term_t, POINTER(c_int)]
+PL_get_integer.restype = c_int
 
 #PL_EXPORT(int)		PL_get_long(term_t t, long *i);
 PL_get_long = _lib.PL_get_long
-
-#PL_get_long.argtypes = [term_t, c_long_p]
+PL_get_long.argtypes = [term_t, POINTER(c_long)]
+PL_get_long.restype = c_int
 
 #PL_EXPORT(int)		PL_get_pointer(term_t t, void **ptr);
 #PL_EXPORT(int)		PL_get_float(term_t t, double *f);
 PL_get_float = _lib.PL_get_float
-
-#PL_get_float.argtypes = [term_t, c_double_p]
+PL_get_float.argtypes = [term_t, c_double_p]
+PL_get_float.restype = c_int
 
 #PL_EXPORT(int)		PL_get_functor(term_t t, functor_t *f);
 PL_get_functor = _lib.PL_get_functor
-PL_get_functor.argtypes = [term_t, c_ulong]
-#PL_get_functor.argtypes = [term_t, POINTER(functor_t)]
+PL_get_functor.argtypes = [term_t, POINTER(functor_t)]
+PL_get_functor.restype = c_int
 
 #PL_EXPORT(int)		PL_get_name_arity(term_t t, atom_t *name, int *arity);
 PL_get_name_arity = _lib.PL_get_name_arity
+PL_get_name_arity.argtypes = [term_t, POINTER(atom_t), POINTER(c_int)]
+PL_get_name_arity.restype = c_int
 
 #PL_EXPORT(int)		PL_get_module(term_t t, module_t *module);
 #PL_EXPORT(int)		PL_get_arg(int index, term_t t, term_t a);
 PL_get_arg = _lib.PL_get_arg
+PL_get_arg.argtypes = [c_int, term_t, term_t]
+PL_get_arg.restype = c_int
 
 #PL_EXPORT(int)		PL_get_list(term_t l, term_t h, term_t t);
 #PL_EXPORT(int)		PL_get_head(term_t l, term_t h);
 PL_get_head = _lib.PL_get_head
+PL_get_head.argtypes = [term_t, term_t]
+PL_get_head.restype = c_int
+
 #PL_EXPORT(int)		PL_get_tail(term_t l, term_t t);
 PL_get_tail = _lib.PL_get_tail
+PL_get_tail.argtypes = [term_t, term_t]
+PL_get_tail.restype = c_int
+
 #PL_EXPORT(int)		PL_get_nil(term_t l);
 PL_get_nil = _lib.PL_get_nil
+PL_get_nil.argtypes = [term_t]
+PL_get_nil.restype = c_int
+
 #PL_EXPORT(int)		PL_get_term_value(term_t t, term_value_t *v);
 #PL_EXPORT(char *)	PL_quote(int chr, const char *data);
 
 PL_put_atom_chars = _lib.PL_put_atom_chars
 PL_put_atom_chars.argtypes = [term_t, c_char_p]
+PL_put_atom_chars.restype = c_int
 
 PL_atom_chars = _lib.PL_atom_chars
 PL_atom_chars.argtypes = [atom_t]
@@ -644,6 +687,7 @@ PL_open_query.restype = qid_t
 
 PL_next_solution = _lib.PL_next_solution
 PL_next_solution.argtypes = [qid_t]
+PL_next_solution.restype = c_int
 
 PL_copy_term_ref = _lib.PL_copy_term_ref
 PL_copy_term_ref.argtypes = [term_t]
@@ -651,27 +695,35 @@ PL_copy_term_ref.restype = term_t
 
 PL_get_list = _lib.PL_get_list
 PL_get_list.argtypes = [term_t, term_t, term_t]
+PL_get_list.restype = c_int
 
 PL_get_chars = _lib.PL_get_chars  # FIXME
 
 PL_close_query = _lib.PL_close_query
 PL_close_query.argtypes = [qid_t]
+PL_close_query.restype = None
 
 #void PL_cut_query(qid)
 PL_cut_query = _lib.PL_cut_query
 PL_cut_query.argtypes = [qid_t]
+PL_cut_query.restype = None
 
 PL_halt = _lib.PL_halt
 PL_halt.argtypes = [c_int]
+PL_halt.restype = None
 
 # PL_EXPORT(int)        PL_cleanup(int status);
 PL_cleanup = _lib.PL_cleanup
-
+PL_cleanup.restype = c_int
 
 PL_unify_integer = _lib.PL_unify_integer
 PL_unify = _lib.PL_unify
+PL_unify.restype = c_int
 
+#PL_EXPORT(int)          PL_unify_arg(int index, term_t t, term_t a) WUNUSED;
 PL_unify_arg = _lib.PL_unify_arg
+PL_unify_arg.argtypes = [c_int, term_t, term_t]
+PL_unify_arg.restype = c_int
 
 # Verify types
 
@@ -730,6 +782,9 @@ PL_is_number.restype = c_int
 #			/* Assign to term-references */
 #PL_EXPORT(void)		PL_put_variable(term_t t);
 PL_put_variable = _lib.PL_put_variable
+PL_put_variable.argtypes = [term_t]
+PL_put_variable.restype = None
+
 #PL_EXPORT(void)		PL_put_atom(term_t t, atom_t a);
 #PL_EXPORT(void)		PL_put_atom_chars(term_t t, const char *chars);
 #PL_EXPORT(void)		PL_put_string_chars(term_t t, const char *chars);
@@ -743,16 +798,28 @@ PL_put_variable = _lib.PL_put_variable
 PL_put_integer = _lib.PL_put_integer
 PL_put_integer.argtypes = [term_t, c_long]
 PL_put_integer.restype = None
+
 #PL_EXPORT(void)		PL_put_pointer(term_t t, void *ptr);
 #PL_EXPORT(void)		PL_put_float(term_t t, double f);
 #PL_EXPORT(void)		PL_put_functor(term_t t, functor_t functor);
 PL_put_functor = _lib.PL_put_functor
+PL_put_functor.argtypes = [term_t, functor_t]
+PL_put_functor.restype = None
+
 #PL_EXPORT(void)		PL_put_list(term_t l);
 PL_put_list = _lib.PL_put_list
+PL_put_list.argtypes = [term_t]
+PL_put_list.restype = None
+
 #PL_EXPORT(void)		PL_put_nil(term_t l);
 PL_put_nil = _lib.PL_put_nil
+PL_put_nil.argtypes = [term_t]
+PL_put_nil.restype = None     
+
 #PL_EXPORT(void)		PL_put_term(term_t t1, term_t t2);
 PL_put_term = _lib.PL_put_term
+PL_put_term.argtypes = [term_t, term_t]
+PL_put_term.restype = None     
 
 #			/* construct a functor or list-cell */
 #PL_EXPORT(void)		PL_cons_functor(term_t h, functor_t f, ...);
@@ -766,6 +833,8 @@ PL_cons_functor_v.restype = None
 
 #PL_EXPORT(void)		PL_cons_list(term_t l, term_t h, term_t t);
 PL_cons_list = _lib.PL_cons_list
+PL_cons_list.argtypes = [term_t, term_t, term_t]
+PL_cons_list.restype = None     
 
 #
 # term_t PL_exception(qid_t qid)
@@ -808,12 +877,19 @@ PL_same_compound.restype = c_int
 #
 #PL_EXPORT(record_t)	PL_record(term_t term);
 PL_record = _lib.PL_record
+PL_record.argtypes = [term_t]
+PL_record.restype = record_t
 
 #PL_EXPORT(void)		PL_recorded(record_t record, term_t term);
 PL_recorded = _lib.PL_recorded
+PL_recorded.argtypes = [record_t, term_t]
+PL_recorded.restype = None
 
 #PL_EXPORT(void)		PL_erase(record_t record);
 PL_erase = _lib.PL_erase
+PL_erase.argtypes = [record_t]
+PL_erase.restype = None
+
 #
 #PL_EXPORT(char *)	PL_record_external(term_t t, size_t *size);
 #PL_EXPORT(int)		PL_recorded_external(const char *rec, term_t term);
