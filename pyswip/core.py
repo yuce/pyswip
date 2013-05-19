@@ -270,7 +270,7 @@ def _findSwiplLin():
     
 def _findSwiplDar():
     """
-    This function uses several heuristics to gues where SWI-Prolog is
+    This function uses several heuristics to guess where SWI-Prolog is
     installed in MacOS.
 
     :returns:
@@ -280,9 +280,7 @@ def _findSwiplDar():
         ({str, None}, {str, None})
     """
 
-    # Help with MacOS is welcome!!
-    
-    # Maybe the exec is on path?
+    # If the exec is in path
     (path, swiHome) = _findSwiplFromExec()
     if path is not None:
         return (path, swiHome)
@@ -291,9 +289,9 @@ def _findSwiplDar():
     path = _findSwiplPathFromFindLib()
     if path is not None:
         return (path, swiHome)
-    
-    # Our last try: some hardcoded paths.
-    paths = ['.', './lib']
+
+    # Last guess, searching for the file
+    paths = ['.', './lib', '/usr/lib/', '/usr/local/lib', '/opt/local/lib']
     names = ['libswipl.dylib', 'libpl.dylib']
 
     for name in names:
