@@ -4,6 +4,10 @@ PySWIP CHANGELOG
 + 0.2.4
 
   * Maintenance release of PySWIP
+  * Added an error to avoid opening nested queries using PySWIP (SWI-Prolog does
+    not allow that). The error is NestedQueryError.
+  * Added Tomasz Gryszkiewicz's patch for better finding the SWI-Prolog lib in 
+    Darwin
   * Solved issue 4 "Patch for a dynamic method"
   * Solved issue 5 "Patch: hash and eq methods for Atom class"
   * Solved issue 3: "Problem with variables in lists"

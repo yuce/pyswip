@@ -31,13 +31,24 @@ from pyswip.core import *
 
 class PrologError(Exception):
     pass
-    
+
+
+class NestedQueryError(PrologError):
+    """
+    SWI-Prolog does not accept nested queries, that is, opening a query while
+    the previous one was not closed.
+
+    As this error may be somewhat difficult to debug in foreign code, it is
+    automatically treated inside pySWIP
+    """
+    pass
+
 
 def _initialize():
     args = []
     args.append("./")
-    args.append("-q")
-    args.append("-nosignals")
+    args.append("-q")         # --quiet
+    args.append("-nosignals") # "Inhibit any signal handling by Prolog"
     if SWI_HOME_DIR is not None:
         args.append("--home=%s" % SWI_HOME_DIR)
     
@@ -63,6 +74,7 @@ def _initialize():
     PL_discard_foreign_frame(swipl_fid)
 _initialize()
 
+
 # Since the program is terminated when we call PL_halt, we monkey patch sys.exit
 # to be able to intercept the exit status and ensure that PL_halt is the last
 # function called from those registered in atexit. FIXME: What we do here is
@@ -75,22 +87,27 @@ def _patched_sys_exit(code=0):
 sys.exit = _patched_sys_exit
 
 
+# NOTE: This import MUST be after _initialize is called!!
 from pyswip.easy import getTerm
 
-#### Prolog ####
+
 class Prolog:
     """Easily query SWI-Prolog.
     This is a singleton class
     """
+
+    # We keep track of open queries to avoid nested queries.
+    _queryIsOpen = False
+    
     class _QueryWrapper(object):
-        __slots__ = "swipl_fid", "swipl_qid", "error"
         
         def __init__(self):
-            self.error = False
+            if Prolog._queryIsOpen:
+                raise NestedQueryError("The last query was not closed")
     
         def __call__(self, query, maxresult, catcherrors, normalize):
-            plq = catcherrors and (PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
-            self.swipl_fid = PL_open_foreign_frame()
+            swipl_fid = PL_open_foreign_frame()
+            
             swipl_head = PL_new_term_ref()
             swipl_args = PL_new_term_refs(2)
             swipl_goalCharList = swipl_args
@@ -99,34 +116,38 @@ class Prolog:
             PL_put_list_chars(swipl_goalCharList, query)
             
             swipl_predicate = PL_predicate("pyrun", 2, None)
-            self.swipl_qid = swipl_qid = PL_open_query(None, plq,
-                                                       swipl_predicate, swipl_args)
-            while maxresult and PL_next_solution(swipl_qid):
-                maxresult -= 1
-                bindings = []
-                swipl_list = PL_copy_term_ref(swipl_bindingList)
-                t = getTerm(swipl_list)
-                if normalize:
-                    try:
-                        v = t.value
-                    except AttributeError:
-                        v = {}
-                        for r in [x.value for x in t]:
-                            v.update(r)
-                    yield v
-                else:
-                    yield t
+            
+            plq = catcherrors and (PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
+            swipl_qid = PL_open_query(None, plq, swipl_predicate, swipl_args)
+            
+            Prolog._queryIsOpen = True # From now on, the query will be considered open
+            try:
+                while maxresult and PL_next_solution(swipl_qid):
+                    maxresult -= 1
+                    bindings = []
+                    swipl_list = PL_copy_term_ref(swipl_bindingList)
+                    t = getTerm(swipl_list)
+                    if normalize:
+                        try:
+                            v = t.value
+                        except AttributeError:
+                            v = {}
+                            for r in [x.value for x in t]:
+                                v.update(r)
+                        yield v
+                    else:
+                        yield t
+
+                if PL_exception(swipl_qid):
+                    term = getTerm(PL_exception(swipl_qid))
+
+                    raise PrologError("".join(["Caused by: '", query, "'. ",
+                                               "Returned: '", str(term), "'."]))
                 
-            if PL_exception(self.swipl_qid):
-                self.error = True
-                PL_cut_query(self.swipl_qid)
-                PL_discard_foreign_frame(self.swipl_fid)
-                raise PrologError("".join(["Caused by: '", query, "'."]))
-        
-        def __del__(self):
-            if not self.error:
-                PL_close_query(self.swipl_qid)
-                PL_discard_foreign_frame(self.swipl_fid)
+            finally: # This ensures that, whatever happens, we close the query
+                PL_cut_query(swipl_qid)
+                PL_discard_foreign_frame(swipl_fid)
+                Prolog._queryIsOpen = False
     
     def asserta(cls, assertion, catcherrors=False):
         cls.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors).next()
