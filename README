@@ -2,10 +2,14 @@ PySWIP README
 ============
 
 :Version: 
-	0.2.3
+    0.2.3
+
+:Maintainer:
+    Rodrigo Starr <rodrigo.starr@gmail.com>
 
 :Author:
-    Yuce Tekol. <yucetekol@gmail.com>
+    Yuce Tekol <yucetekol@gmail.com>
+    Rodrigo Starr <rodrigo.starr@gmail.com>
 
 :Project Website:
    http://code.google.com/p/pyswip
