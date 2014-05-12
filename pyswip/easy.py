@@ -154,8 +154,11 @@ class Variable(object):
             fun = PL_unify_list
         else:
             raise
-
-        t = PL_new_term_ref()
+	
+	if self.handle is None:
+		t = PL_new_term_ref(self.handle)
+	else
+        	t = PL_copy_term_ref(self.handle)
         fun(t, value)
         self.handle = t
 
