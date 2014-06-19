@@ -155,10 +155,10 @@ class Variable(object):
         else:
             raise
 
-	if self.handle is None:
-		t = PL_new_term_ref(self.handle)
-	else
-        	t = PL_copy_term_ref(self.handle)
+        if self.handle is None:
+            t = PL_new_term_ref(self.handle)
+        else
+            t = PL_copy_term_ref(self.handle)
         fun(t, value)
         self.handle = t
 
