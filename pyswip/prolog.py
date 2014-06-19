@@ -58,11 +58,11 @@ def _initialize():
         plargs[i] = args[i]
 
     result = PL_initialise(s_plargs, plargs)
-    # For some reason, PL_initialise is returning 1, even though everything is
-    # working
-#    if result != 0:
-#        raise PrologError("Could not initialize Prolog environment."
-#                          "PL_initialise returned %d" % result)
+    # result is a boolean variable (i.e. 0 or 1) indicating whether the
+    # initialisation was successful or not.
+    if not result:
+        raise PrologError("Could not initialize Prolog environment."
+                          "PL_initialise returned %d" % result)
 
     swipl_fid = PL_open_foreign_frame()
     swipl_load = PL_new_term_ref()
