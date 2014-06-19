@@ -157,7 +157,7 @@ class Variable(object):
 
         if self.handle is None:
             t = PL_new_term_ref(self.handle)
-        else
+        else:
             t = PL_copy_term_ref(self.handle)
         fun(t, value)
         self.handle = t
