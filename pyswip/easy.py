@@ -50,7 +50,7 @@ class Atom(object):
         ``handleOrChars``: handle or string of the atom.
         """
 
-        if isinstance(handleOrChars, basestring):
+        if isinstance(handleOrChars, str):
             self.handle = PL_new_atom(handleOrChars)
             self.chars = handleOrChars
         else:
@@ -64,7 +64,7 @@ class Atom(object):
 
         if isinstance(term, Term):
             term = term.handle
-        elif not isinstance(term, (c_void_p, int, long)):
+        elif not isinstance(term, (c_void_p, int)):
             raise ArgumentTypeError((str(Term), str(c_void_p)), str(type(term)))
 
         a = atom_t()
@@ -205,7 +205,7 @@ class Functor(object):
         self.arity = arity
         self.a0 = a0
 
-        if isinstance(handleOrName, basestring):
+        if isinstance(handleOrName, str):
             self.name = Atom(handleOrName)
             self.handle = PL_new_functor(self.name.handle, arity)
             self.__value = "Functor%d" % self.handle
@@ -227,8 +227,8 @@ class Functor(object):
 
         if isinstance(term, Term):
             term = term.handle
-        elif not isinstance(term, (c_void_p, int, long)):
-            raise ArgumentTypeError((str(Term), str(long)), str(type(term)))
+        elif not isinstance(term, (c_void_p, int)):
+            raise ArgumentTypeError((str(Term), str(int)), str(type(term)))
 
         f = functor_t()
         if PL_get_functor(term, byref(f)):
@@ -293,7 +293,7 @@ _comma = Functor(",", 2)
 def putTerm(term, value):
     if isinstance(value, Term):
         PL_put_term(term, value.handle)
-    elif isinstance(value, basestring):
+    elif isinstance(value, str):
         PL_put_atom_chars(term, value)
     elif isinstance(value, int):
         PL_put_integer(term, value)
@@ -302,7 +302,7 @@ def putTerm(term, value):
     elif isinstance(value, list):
         putList(term, value)
     elif isinstance(value, Atom):
-        print "ATOM"
+        print("ATOM")
     elif isinstance(value, Functor):
         PL_put_functor(term, value.handle)
     else:
@@ -475,7 +475,7 @@ def registerForeign(func, name=None, arity=None, flags=0):
         arity = func.arity
 
     if name is None:
-        name = func.func_name
+        name = func.__name__
 
     cwrap = _callbackWrapper(arity)
     fwrap = _foreignWrapper(func)
@@ -491,7 +491,7 @@ newTermRef = PL_new_term_ref
 
 def newTermRefs(count):
     a = PL_new_term_refs(count)
-    return range(a, a + count)
+    return list(range(a, a + count))
 
 
 def call(*terms, **kwargs):
@@ -515,7 +515,7 @@ def newModule(name):
     """Create a new module.
     ``name``: An Atom or a string
     """
-    if isinstance(name, basestring):
+    if isinstance(name, str):
         name = Atom(name)
 
     return PL_new_module(name.handle)
@@ -586,7 +586,7 @@ def _test():
     #q = Query(_comma(a(X), b(X)))
     q = Query(a(X))
     while q.nextSolution():
-        print ">", X.value
+        print(">", X.value)
     q.closeQuery()
 
 if __name__ == "__main__":

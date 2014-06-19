@@ -150,27 +150,27 @@ class Prolog:
                 Prolog._queryIsOpen = False
 
     def asserta(cls, assertion, catcherrors=False):
-        cls.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors).next()
+        next(cls.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors))
     asserta = classmethod(asserta)
 
     def assertz(cls, assertion, catcherrors=False):
-        cls.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors).next()
+        next(cls.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors))
     assertz = classmethod(assertz)
 
     def dynamic(cls, term, catcherrors=False):
-        cls.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors).next()
+        next(cls.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors))
     dynamic = classmethod(dynamic)
 
     def retract(cls, term, catcherrors=False):
-        cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors).next()
+        next(cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors))
     retract = classmethod(retract)
 
     def retractall(cls, term, catcherrors=False):
-        cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors).next()
+        next(cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors))
     retractall = classmethod(retractall)
 
     def consult(cls, filename, catcherrors=False):
-        cls.query(filename.join(["consult('", "')"]), catcherrors=catcherrors).next()
+        next(cls.query(filename.join(["consult('", "')"]), catcherrors=catcherrors))
     consult = classmethod(consult)
 
     def query(cls, query, maxresult=-1, catcherrors=True, normalize=True):
@@ -204,11 +204,11 @@ def _test():
     prolog = Prolog()
 
     for code, comment in lines:
-        print "?-", code, "[", comment, "]"
-        print list(prolog.query(code))
+        print("?-", code, "[", comment, "]")
+        print(list(prolog.query(code)))
 
     for r in prolog.query("father(X,Y)"):
-        print r["X"], "is the father of", r["Y"]
+        print(r["X"], "is the father of", r["Y"])
 
 
 if __name__ == "__main__":
