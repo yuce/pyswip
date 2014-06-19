@@ -75,7 +75,13 @@ class Atom(object):
     def __del__(self):
         PL_unregister_atom(self.handle)
 
-    value = property(lambda s:s.chars)
+    def get_value(self):
+        ret = self.chars
+        if isinstance(ret, bytes):
+            ret = ret.decode()
+        return ret
+
+    value = property(get_value)
 
     def __str__(self):
         if self.chars is not None:
@@ -133,7 +139,7 @@ class Variable(object):
             self.chars = name
         if handle:
             self.handle = handle
-            s = create_string_buffer("\00"*64)  # FIXME:
+            s = create_string_buffer(b"\00"*64)  # FIXME:
             ptr = cast(s, c_char_p)
             if PL_get_chars(handle, byref(ptr), CVT_VARIABLE|BUF_RING):
                 self.chars = ptr.value
@@ -163,7 +169,11 @@ class Variable(object):
         self.handle = t
 
     def get_value(self):
-        return getTerm(self.handle)
+        ret = getTerm(self.handle)
+        if isinstance(ret,bytes):
+            ret = ret.decode()
+        return ret
+
     value = property(get_value, unify)
 
     def unified(self):
@@ -280,9 +290,9 @@ def _unifier(arity, *args):
     #if PL_is_variable(args[0]):
     #    args[0].unify(args[1])
     try:
-        return {args[0].chars:args[1].value}
+        return {args[0].value:args[1].value}
     except AttributeError:
-        return {args[0].chars:args[1]}
+        return {args[0].value:args[1]}
 
 _unify = Functor("=", 2)
 Functor.func[_unify.handle] = _unifier
