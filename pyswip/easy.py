@@ -73,7 +73,8 @@ class Atom(object):
     fromTerm = classmethod(fromTerm)
 
     def __del__(self):
-        PL_unregister_atom(self.handle)
+        if not cleaned:
+            PL_unregister_atom(self.handle)
 
     def get_value(self):
         ret = self.chars

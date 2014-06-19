@@ -24,7 +24,6 @@
 
 
 import sys
-import atexit
 
 from pyswip.core import *
 
@@ -68,18 +67,6 @@ def _initialize():
     PL_call(swipl_load, None)
     PL_discard_foreign_frame(swipl_fid)
 _initialize()
-
-
-# Since the program is terminated when we call PL_halt, we monkey patch sys.exit
-# to be able to intercept the exit status and ensure that PL_halt is the last
-# function called from those registered in atexit. FIXME: What we do here is
-# very, very ugly. Any better way is welcome.
-_original_sys_exit = sys.exit
-def _patched_sys_exit(code=0):
-    # Since atexit process exit functions from last to first, we put PL_halt as
-    # the first one, so it will run last
-    atexit._exithandlers.insert(0, (PL_halt, (code,), {}))
-sys.exit = _patched_sys_exit
 
 
 # NOTE: This import MUST be after _initialize is called!!

@@ -28,6 +28,7 @@ import re
 import sys
 import glob
 import warnings
+import atexit
 from subprocess import Popen, PIPE
 from ctypes import *
 from ctypes.util import find_library
@@ -380,7 +381,7 @@ def str_to_bytes(string):
         string = string.encode()
 
     if not isinstance(string, (bytes,type(None))):
-        raise TypeError(str(type(elem)).join(['invalid type ',
+        raise TypeError(str(type(string)).join(['invalid type ',
             ', must be str, bytes or None!']))
     return string
 
@@ -993,6 +994,8 @@ PL_new_module = _lib.PL_new_module
 PL_new_module.argtypes = [atom_t]
 PL_new_module.restype = module_t
 
+PL_is_initialised = _lib.PL_is_initialised
+
 intptr_t = c_long
 ssize_t = intptr_t
 wint_t = c_uint
@@ -1088,3 +1091,38 @@ Sclose.argtypes = [POINTER(IOSTREAM)]
 PL_unify_stream = _lib.PL_unify_stream
 PL_unify_stream.argtypes = [term_t, POINTER(IOSTREAM)]
 
+#create an exit hook which captures the exit code for our cleanup function
+class ExitHook(object):
+    def __init__(self):
+        self.exit_code = None
+        self.exception = None
+
+    def hook(self):
+        self._orig_exit = sys.exit
+        sys.exit = self.exit
+
+    def exit(self, code=0):
+        self.exit_code = code
+        self._orig_exit(code)
+
+_hook = ExitHook()
+_hook.hook()
+
+_isCleaned = False
+#create a property for Atom's delete method in order to avoid segmentation fault
+cleaned = property(_isCleaned)
+
+#register the cleanup function to be executed on system exit
+@atexit.register
+def cleanupProlog():
+    # only do something if prolog has been initialised
+    if PL_is_initialised(None,None):
+
+        # clean up the prolog system using the caught exit code
+        # if exit code is None, the program exits normally and we can use 0
+        # instead.
+        # TODO Prolog documentation says cleanup with code 0 may be interrupted
+        # If the program has come to an end the prolog system should not
+        # interfere with that. Therefore we may want to use 1 instead of 0.
+        PL_cleanup(int(_hook.exit_code or 0))
+        _isCleaned = True
