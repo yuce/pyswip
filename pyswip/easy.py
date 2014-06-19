@@ -85,7 +85,7 @@ class Atom(object):
 
     def __str__(self):
         if self.chars is not None:
-            return self.chars
+            return self.value
         else:
             return self.__repr__()
 
@@ -181,7 +181,7 @@ class Variable(object):
 
     def __str__(self):
         if self.chars is not None:
-            return self.chars
+            return self.value
         else:
             return self.__repr__()
 
