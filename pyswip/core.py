@@ -365,6 +365,11 @@ def _fixWindowsPath(dll):
         newPath = pathToDll + ';' + currentWindowsPath
         os.putenv('PATH', newPath)
 
+if sys.version_info.major < 3:
+    _strTypes = (str, unicode)
+else:
+    _strTypes = str
+
 def str_to_bytes(string):
     """
     Turns a string into a butes if necessary (i.e. if it is not already a bytes
@@ -377,12 +382,12 @@ def str_to_bytes(string):
     :rtype: bytes or None
     :raises: TypeError if string has the wrong type
     """
-    if isinstance(string, str):
+    if isinstance(string, _strTypes):
         string = string.encode()
 
-    if not isinstance(string, (bytes,type(None))):
+    if not isinstance(string, (bytes, type(None))):
         raise TypeError(str(type(string)).join(['invalid type ',
-            ', must be str, bytes or None!']))
+            ', must be str, unicode (py2 only), bytes or None!']))
     return string
 
 def str_list_to_bytes_list(strList):
