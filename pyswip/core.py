@@ -87,7 +87,7 @@ def _findSwiplFromExec():
         ret = cmd.communicate()
 
         # Parse the output into a dictionary
-        ret = ret[0].replace(';', '').splitlines()
+        ret = ret[0].decode().replace(';', '').splitlines()
         ret = [line.split('=', 1) for line in ret]
         rtvars = dict((name, value[1:-1]) for name, value in ret) # [1:-1] gets
                                                                   # rid of the
@@ -426,6 +426,7 @@ def check_strings(argsToCheck):
     # and turn them into the right datatype.
     def checker(func):
         def check_and_call(*args):
+            args = list(args)
             for i in argsToCheck:
                 arg = args[i]
 
@@ -601,6 +602,7 @@ foreign_t = c_uint_p
 pl_wchar_t = c_wchar
 
 PL_initialise = _lib.PL_initialise
+PL_initialise = check_strings(1)(PL_initialise)
 #PL_initialise.argtypes = [c_int, c_c??
 
 PL_open_foreign_frame = _lib.PL_open_foreign_frame
@@ -1033,7 +1035,7 @@ class IOFUNCTIONS(Structure):
                 ("reserved",intptr_t*2)]
 
 # IOENC
-ENC_UNKNOWN,ENC_OCTET,ENC_ASCII,ENC_ISO_LATIN_1,ENC_ANSI,ENC_UTF8,ENC_UNICODE_BE,ENC_UNICODE_LE,ENC_WCHAR = list(range(9))
+ENC_UNKNOWN,ENC_OCTET,ENC_ASCII,ENC_ISO_LATIN_1,ENC_ANSI,ENC_UTF8,ENC_UNICODE_BE,ENC_UNICODE_LE,ENC_WCHAR = tuple(range(9))
 IOENC = c_int
 
 # IOPOS

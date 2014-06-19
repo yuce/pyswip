@@ -52,12 +52,7 @@ def _initialize():
     if SWI_HOME_DIR is not None:
         args.append("--home=%s" % SWI_HOME_DIR)
 
-    s_plargs = len(args)
-    plargs = (c_char_p*s_plargs)()
-    for i in range(s_plargs):
-        plargs[i] = args[i]
-
-    result = PL_initialise(s_plargs, plargs)
+    result = PL_initialise(len(args),args)
     # result is a boolean variable (i.e. 0 or 1) indicating whether the
     # initialisation was successful or not.
     if not result:
