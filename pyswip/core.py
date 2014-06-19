@@ -3,17 +3,17 @@
 
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2012 Yüce Tekol
-#  
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#  
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#  
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -53,12 +53,12 @@ def _findSwiplPathFromFindLib():
     :returns type:
         {str, None}
     """
-    
-    path = (find_library('swipl') or 
-            find_library('pl') or 
+
+    path = (find_library('swipl') or
+            find_library('pl') or
             find_library('libswipl')) # This last one is for Windows
     return path
-    
+
 
 def _findSwiplFromExec():
     """
@@ -73,12 +73,12 @@ def _findSwiplFromExec():
     """
 
     platform = sys.platform[:3]
-    
+
     fullName = None
     swiHome = None
 
     try: # try to get library path from swipl executable.
-        
+
         # We may have pl or swipl as the executable
         try:
             cmd = Popen(['swipl', '-dump-runtime-variables'], stdout=PIPE)
@@ -100,23 +100,23 @@ def _findSwiplFromExec():
             swiHome = rtvars['PLBASE']   # The environment is in PLBASE
             if not os.path.exists(swiHome):
                 swiHome = None
-            
+
             # determine platform specific path
             if platform == "win":
                 dllName = rtvars['PLLIB'][:-4] + '.' + rtvars['PLSOEXT']
                 path = os.path.join(rtvars['PLBASE'], 'bin')
                 fullName = os.path.join(path, dllName)
-                
+
                 if not os.path.exists(fullName):
                     fullName = None
 
             elif platform == "cyg":
                 # e.g. /usr/lib/pl-5.6.36/bin/i686-cygwin/cygpl.dll
-                
+
                 dllName = 'cygpl.dll'
                 path = os.path.join(rtvars['PLBASE'], 'bin', rtvars['PLARCH'])
                 fullName = os.path.join(path, dllName)
-                
+
                 if not os.path.exists(fullName):
                     fullName = None
 
@@ -129,7 +129,7 @@ def _findSwiplFromExec():
                     fullName = baseName
                 else:  # We will search for versions
                     fullName = None
-                
+
             else: # assume UNIX-like
                 # The SO name in some linuxes is of the form libswipl.so.5.10.2,
                 # so we have to use glob to find the correct one
@@ -148,12 +148,12 @@ def _findSwiplFromExec():
                         fullName = files[0]
                     else:  # Will this ever happen?
                         fullName = None
-                
+
     except (OSError, KeyError): # KeyError from accessing rtvars
         pass
-    
+
     return (fullName, swiHome)
-    
+
 
 def _findSwiplWin():
     """
@@ -184,12 +184,12 @@ def _findSwiplWin():
     path = _findSwiplPathFromFindLib()
     if path is not None and os.path.exists(path):
         return (path, None)
-    
+
     # Third try: use reg.exe to find the installation path in the registry
     # (reg should be installed in all Windows XPs)
     try:
-        cmd = Popen(['reg', 'query', 
-            r'HKEY_LOCAL_MACHINE\Software\SWI\Prolog', 
+        cmd = Popen(['reg', 'query',
+            r'HKEY_LOCAL_MACHINE\Software\SWI\Prolog',
             '/v', 'home'], stdout=PIPE)
         ret = cmd.communicate()
 
@@ -205,13 +205,13 @@ def _findSwiplWin():
         match = pattern.match(ret[-1])
         if match is not None:
             path = match.group(2)
-            
+
             paths = [os.path.join(path, 'bin', dllName)
                      for dllName in dllNames]
             for path in paths:
                 if os.path.exists(path):
                     return (path, None)
-            
+
     except OSError:
         # reg.exe not found? Weird...
         pass
@@ -220,14 +220,14 @@ def _findSwiplWin():
     (path, swiHome) = _findSwiplFromExec()
     if path is not None:
         return (path, swiHome)
-    
+
     # Last try: maybe it is in the current dir
     for dllName in dllNames:
         if os.path.exists(dllName):
             return (dllName, None)
 
     return (None, None)
-    
+
 def _findSwiplLin():
     """
     This function uses several heuristics to guess where SWI-Prolog is
@@ -249,7 +249,7 @@ def _findSwiplLin():
     path = _findSwiplPathFromFindLib()
     if path is not None:
         return (path, swiHome)
-    
+
     # Our last try: some hardcoded paths.
     paths = ['/lib', '/usr/lib', '/usr/local/lib', '.', './lib']
     names = ['libswipl.so', 'libpl.so']
@@ -261,13 +261,13 @@ def _findSwiplLin():
             if os.path.exists(try_):
                 path = try_
                 break
-            
+
     if path is not None:
         return (path, swiHome)
-    
+
     return (None, None)
 
-    
+
 def _findSwiplDar():
     """
     This function uses several heuristics to guess where SWI-Prolog is
@@ -322,10 +322,10 @@ def _findSwipl():
     if platform == "win": # In Windows, we have the default installer
                                    # path and the registry to look
         (path, swiHome) = _findSwiplWin()
-                          
+
     elif platform in ("lin", "cyg"):
         (path, swiHome) = _findSwiplLin()
-                
+
     elif platform == "dar":  # Help with MacOS is welcome!!
         (path, swiHome) = _findSwiplDar()
 
@@ -342,7 +342,7 @@ def _findSwipl():
     else:
         return (path, swiHome)
 
-    
+
 def _fixWindowsPath(dll):
     """
     When the path to the DLL is not in Windows search path, Windows will not be
@@ -358,13 +358,13 @@ def _fixWindowsPath(dll):
 
     pathToDll = os.path.dirname(dll)
     currentWindowsPath = os.getenv('PATH')
-    
+
     if pathToDll not in currentWindowsPath:
         # We will prepend the path, to avoid conflicts between DLLs
         newPath = pathToDll + ';' + currentWindowsPath
         os.putenv('PATH', newPath)
 
-        
+
 # Find the path and resource file. SWI_HOME_DIR shall be treated as a constant
 # by users of this module
 (_path, SWI_HOME_DIR) = _findSwipl()
@@ -380,10 +380,10 @@ c_int_p = c_void_p
 c_long_p = c_void_p
 c_double_p = c_void_p
 c_uint_p = c_void_p
-    
+
 # constants (from SWI-Prolog.h)
 # PL_unify_term() arguments
-PL_VARIABLE = 1  # nothing 
+PL_VARIABLE = 1  # nothing
 PL_ATOM = 2  # const char
 PL_INTEGER = 3  # int
 PL_FLOAT = 4  # double
@@ -482,11 +482,11 @@ BUF_RING = 0x0100
 BUF_MALLOC = 0x0200
 
 CVT_EXCEPTION = 0x10000  # throw exception on error
-    
+
 argv = (c_char_p*(len(sys.argv) + 1))()
 for i, arg in enumerate(sys.argv):
     argv[i] = arg
-    
+
 argv[-1] = None
 argc = len(sys.argv)
 
@@ -812,18 +812,18 @@ PL_put_list.restype = None
 #PL_EXPORT(void)		PL_put_nil(term_t l);
 PL_put_nil = _lib.PL_put_nil
 PL_put_nil.argtypes = [term_t]
-PL_put_nil.restype = None     
+PL_put_nil.restype = None
 
 #PL_EXPORT(void)		PL_put_term(term_t t1, term_t t2);
 PL_put_term = _lib.PL_put_term
 PL_put_term.argtypes = [term_t, term_t]
-PL_put_term.restype = None     
+PL_put_term.restype = None
 
 #			/* construct a functor or list-cell */
 #PL_EXPORT(void)		PL_cons_functor(term_t h, functor_t f, ...);
 #class _PL_cons_functor(object):
 PL_cons_functor = _lib.PL_cons_functor  # FIXME:
-    
+
 #PL_EXPORT(void)		PL_cons_functor_v(term_t h, functor_t fd, term_t a0);
 PL_cons_functor_v = _lib.PL_cons_functor_v
 PL_cons_functor_v.argtypes = [term_t, functor_t, term_t]
@@ -832,7 +832,7 @@ PL_cons_functor_v.restype = None
 #PL_EXPORT(void)		PL_cons_list(term_t l, term_t h, term_t t);
 PL_cons_list = _lib.PL_cons_list
 PL_cons_list.argtypes = [term_t, term_t, term_t]
-PL_cons_list.restype = None     
+PL_cons_list.restype = None
 
 #
 # term_t PL_exception(qid_t qid)
@@ -857,7 +857,7 @@ PL_new_functor.restype = functor_t
 #        	 /*******************************
 #        	 *	     COMPARE		*
 #        	 *******************************/
-# 
+#
 #PL_EXPORT(int)		PL_compare(term_t t1, term_t t2);
 #PL_EXPORT(int)		PL_same_compound(term_t t1, term_t t2);
 PL_compare = _lib.PL_compare
