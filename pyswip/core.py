@@ -390,7 +390,7 @@ def str_to_bytes(string):
             ', must be str, unicode (py2 only), bytes or None!']))
     return string
 
-def str_list_to_bytes_list(strList):
+def list_to_bytes_list(strList):
     """
     This function turns an array of strings into a pointer array
     with pointers pointing to the encodings of those strings
@@ -399,8 +399,18 @@ def str_list_to_bytes_list(strList):
     :param strList: List of strings that shall be converted
     :type strList: List of strings
     :returns: Pointer array with pointers pointing to bytes
+    :raises: TypeError if strList is not list, set or tuple
     """
     pList = c_char_p * len(strList)
+
+    # if strList is already a pointerarray, there is nothing to do
+    if isinstance(strList, pList):
+        return strList
+
+    if not isinstance(strList, (list, set, tuple)):
+        raise TypeError("strList must be list, set or tuple, not " +
+                str(type(strList)))
+
     pList = pList()
     for i, elem in enumerate(strList):
         pList[i] = str_to_bytes(elem)
@@ -408,42 +418,58 @@ def str_list_to_bytes_list(strList):
 
 # create a decorator that turns the incoming strings into c_char_p compatible
 # butes or pointer arrays
-def check_strings(argsToCheck):
+def check_strings(strings, arrays):
     """
     Decorator function which can be used to automatically turn an incoming
-    string into a bytes object if necessary.
+    string into a bytes object and an incoming list to a pointer array if
+    necessary.
 
-    :param argsToCheck: The arguments that have to be bytes
-    :type argsToCheck: Iterable containing parameter indices or int being a
-                       single index
+    :param strings: Indices of the arguments must be pointers to bytes
+    :type strings: List of integers
+    :param arrays: Indices of the arguments must be arrays of pointers to bytes
+    :type arrays: List of integers
     """
 
     # if given a single element, turn it into a list
-    if isinstance(argsToCheck, int):
-        argsToCheck = [argsToCheck]
+    if isinstance(strings, int):
+        strings = [strings]
+    elif strings is None:
+        strings = []
 
     # check if all entries are integers
-    for i,k in enumerate(argsToCheck):
+    for i,k in enumerate(strings):
         if not isinstance(k, int):
             raise TypeError(('Wrong type for index at {0} '+
-                    'has to be int, not {1}!').format(i,k))
+                    'in strings. Must be int, not {1}!').format(i,k))
+
+    # if given a single element, turn it into a list
+    if isinstance(arrays, int):
+        arrays = [arrays]
+    elif arrays is None:
+        arrays = []
+
+    # check if all entries are integers
+    for i,k in enumerate(arrays):
+        if not isinstance(k, int):
+            raise TypeError(('Wrong type for index at {0} '+
+                    'in arrays. Must be int, not {1}!').format(i,k))
+
+    # check if some index occurs in both
+    if set(strings).intersection(arrays):
+        raise ValueError('One or more elements occur in both arrays and ' +
+                ' strings. One parameter cannot be both list and string!')
 
     # create the checker that will check all arguments given by argsToCheck
     # and turn them into the right datatype.
     def checker(func):
         def check_and_call(*args):
             args = list(args)
-            for i in argsToCheck:
+            for i in strings:
                 arg = args[i]
-
-                # if arg is a list make sure it turnes into a pointer array
-                # containing pointers that point to bytes
-                if isinstance(arg,list):
-                    args[i] = str_list_to_bytes_list(arg)
-
-                # turn all the strings into bytes
-                else:
-                    args[i] = str_to_bytes(arg)
+                args[i] = str_to_bytes(arg)
+            for i in arrays:
+                arg = args[i]
+                args[i] = list_to_bytes_list(arg)
 
             return func(*args)
 
@@ -570,7 +596,7 @@ BUF_MALLOC = 0x0200
 
 CVT_EXCEPTION = 0x10000  # throw exception on error
 
-argv = str_list_to_bytes_list(sys.argv + [None])
+argv = list_to_bytes_list(sys.argv + [None])
 argc = len(sys.argv)
 
 #                  /*******************************
@@ -608,7 +634,7 @@ foreign_t = c_uint_p
 pl_wchar_t = c_wchar
 
 PL_initialise = _lib.PL_initialise
-PL_initialise = check_strings(1)(PL_initialise)
+PL_initialise = check_strings(None, 1)(PL_initialise)
 #PL_initialise.argtypes = [c_int, c_c??
 
 PL_open_foreign_frame = _lib.PL_open_foreign_frame
@@ -625,7 +651,7 @@ PL_chars_to_term = _lib.PL_chars_to_term
 PL_chars_to_term.argtypes = [c_char_p, term_t]
 PL_chars_to_term.restype = c_int
 
-PL_chars_to_term = check_strings(0)(PL_chars_to_term)
+PL_chars_to_term = check_strings(0, None)(PL_chars_to_term)
 
 PL_call = _lib.PL_call
 PL_call.argtypes = [term_t, module_t]
@@ -643,7 +669,7 @@ PL_put_list_chars = _lib.PL_put_list_chars
 PL_put_list_chars.argtypes = [term_t, c_char_p]
 PL_put_list_chars.restype = c_int
 
-PL_put_list_chars = check_strings(1)(PL_put_list_chars)
+PL_put_list_chars = check_strings(1, None)(PL_put_list_chars)
 
 #PL_EXPORT(void)                PL_register_atom(atom_t a);
 PL_register_atom = _lib.PL_register_atom
@@ -681,14 +707,14 @@ PL_get_atom_chars = _lib.PL_get_atom_chars  # FIXME
 PL_get_atom_chars.argtypes = [term_t, POINTER(c_char_p)]
 PL_get_atom_chars.restype = c_int
 
-PL_get_atom_chars = check_strings(1)(PL_get_atom_chars)
+PL_get_atom_chars = check_strings(None, 1)(PL_get_atom_chars)
 
 ##define PL_get_string_chars(t, s, l) PL_get_string(t,s,l)
 #                                       /* PL_get_string() is depricated */
 #PL_EXPORT(int)         PL_get_string(term_t t, char **s, size_t *len);
 PL_get_string = _lib.PL_get_string
 
-PL_get_string = check_strings(1)(PL_get_string)
+PL_get_string = check_strings(None, 1)(PL_get_string)
 
 PL_get_string_chars = PL_get_string
 #PL_get_string_chars.argtypes = [term_t, POINTER(c_char_p), c_int_p]
@@ -696,7 +722,7 @@ PL_get_string_chars = PL_get_string
 #PL_EXPORT(int)         PL_get_chars(term_t t, char **s, unsigned int flags);
 PL_get_chars = _lib.PL_get_chars  # FIXME:
 
-PL_get_chars = check_strings(1)(PL_get_chars)
+PL_get_chars = check_strings(None, 1)(PL_get_chars)
 
 #PL_EXPORT(int)         PL_get_list_chars(term_t l, char **s,
 #                                         unsigned int flags);
@@ -762,7 +788,7 @@ PL_put_atom_chars = _lib.PL_put_atom_chars
 PL_put_atom_chars.argtypes = [term_t, c_char_p]
 PL_put_atom_chars.restype = c_int
 
-PL_put_atom_chars = check_strings(1)(PL_put_atom_chars)
+PL_put_atom_chars = check_strings(1, None)(PL_put_atom_chars)
 
 PL_atom_chars = _lib.PL_atom_chars
 PL_atom_chars.argtypes = [atom_t]
@@ -772,7 +798,7 @@ PL_predicate = _lib.PL_predicate
 PL_predicate.argtypes = [c_char_p, c_int, c_char_p]
 PL_predicate.restype = predicate_t
 
-PL_predicate = check_strings([0,2])(PL_predicate)
+PL_predicate = check_strings([0,2], None)(PL_predicate)
 
 PL_pred = _lib.PL_pred
 PL_pred.argtypes = [functor_t, module_t]
@@ -940,7 +966,7 @@ PL_exception.argtypes = [qid_t]
 PL_exception.restype = term_t
 #
 PL_register_foreign = _lib.PL_register_foreign
-PL_register_foreign = check_strings(0)(PL_register_foreign)
+PL_register_foreign = check_strings(0, None)(PL_register_foreign)
 
 #
 #PL_EXPORT(atom_t)      PL_new_atom(const char *s);
@@ -948,7 +974,7 @@ PL_new_atom = _lib.PL_new_atom
 PL_new_atom.argtypes = [c_char_p]
 PL_new_atom.restype = atom_t
 
-PL_new_atom = check_strings(0)(PL_new_atom)
+PL_new_atom = check_strings(0, None)(PL_new_atom)
 
 #PL_EXPORT(functor_t)   PL_new_functor(atom_t f, int a);
 PL_new_functor = _lib.PL_new_functor
