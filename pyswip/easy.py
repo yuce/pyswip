@@ -78,7 +78,7 @@ class Atom(object):
 
     def get_value(self):
         ret = self.chars
-        if isinstance(ret, bytes):
+        if not isinstance(ret, str):
             ret = ret.decode()
         return ret
 
@@ -147,6 +147,8 @@ class Variable(object):
         else:
             self.handle = PL_new_term_ref()
             #PL_put_variable(self.handle)
+        if (self.chars is not None) and not isinstance(self.chars, str):
+            self.chars = self.chars.decode()
 
     def unify(self, value):
         if type(value) == str:
@@ -170,10 +172,7 @@ class Variable(object):
         self.handle = t
 
     def get_value(self):
-        ret = getTerm(self.handle)
-        if isinstance(ret,bytes):
-            ret = ret.decode()
-        return ret
+        return getTerm(self.handle)
 
     value = property(get_value, unify)
 
@@ -182,7 +181,7 @@ class Variable(object):
 
     def __str__(self):
         if self.chars is not None:
-            return self.value
+            return self.chars
         else:
             return self.__repr__()
 
@@ -274,7 +273,8 @@ class Functor(object):
             return self.__repr__()
 
     def __repr__(self):
-        return "".join(["Functor(", ",".join(str(x) for x in [self.handle,self.arity]+self.args), ")"])
+        return "".join(["Functor(", ",".join(str(x) for x
+            in [self.handle,self.arity]+self.args), ")"])
 
     def __eq__(self, other):
         if type(self) != type(other):

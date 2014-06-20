@@ -365,29 +365,26 @@ def _fixWindowsPath(dll):
         newPath = pathToDll + ';' + currentWindowsPath
         os.putenv('PATH', newPath)
 
-if sys.version_info.major < 3:
-    _strTypes = (str, unicode)
-else:
-    _strTypes = str
-
+_stringMap = {}
 def str_to_bytes(string):
     """
-    Turns a string into a butes if necessary (i.e. if it is not already a bytes
+    Turns a string into a bytes if necessary (i.e. if it is not already a bytes
     object or None).
-    If string is None, it won't be transformed.
+    If string is None, int or c_char_p it will be returned directly.
 
     :param string: The string that shall be transformed
     :type string: str, bytes or type(None)
     :return: Transformed string
-    :rtype: bytes or None
-    :raises: TypeError if string has the wrong type
+    :rtype: c_char_p compatible object (bytes, c_char_p, int or None)
     """
-    if isinstance(string, _strTypes):
-        string = string.encode()
+    if string is None or isinstance(string, (int, c_char_p)):
+        return string
 
-    if not isinstance(string, (bytes, type(None))):
-        raise TypeError(str(type(string)).join(['invalid type ',
-            ', must be str, unicode (py2 only), bytes or None!']))
+    if not isinstance(string, bytes):
+        if string not in _stringMap:
+            _stringMap[string] = string.encode()
+        string = _stringMap[string]
+
     return string
 
 def list_to_bytes_list(strList):
@@ -403,8 +400,8 @@ def list_to_bytes_list(strList):
     """
     pList = c_char_p * len(strList)
 
-    # if strList is already a pointerarray, there is nothing to do
-    if isinstance(strList, pList):
+    # if strList is already a pointerarray or None, there is nothing to do
+    if isinstance(strList, (pList, type(None))):
         return strList
 
     if not isinstance(strList, (list, set, tuple)):
