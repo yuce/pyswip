@@ -3,17 +3,17 @@
 
 # pyswip.easy -- PySWIP helper functions
 # Copyright (c) 2007-2012 Yüce Tekol
-#  
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#  
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#  
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -41,7 +41,7 @@ class ArgumentTypeError(Exception):
         msg = "Expected an argument of type '%s' but got '%s'" % (expected, got)
         Exception.__init__(self, msg)
 
-        
+
 class Atom(object):
     __slots__ = "handle", "chars"
 
@@ -49,8 +49,8 @@ class Atom(object):
         """Create an atom.
         ``handleOrChars``: handle or string of the atom.
         """
-        
-        if isinstance(handleOrChars, basestring):
+
+        if isinstance(handleOrChars, str):
             self.handle = PL_new_atom(handleOrChars)
             self.chars = handleOrChars
         else:
@@ -61,10 +61,10 @@ class Atom(object):
 
     def fromTerm(cls, term):
         """Create an atom from a Term or term handle."""
-        
+
         if isinstance(term, Term):
             term = term.handle
-        elif not isinstance(term, (c_void_p, int, long)):
+        elif not isinstance(term, (c_void_p, int)):
             raise ArgumentTypeError((str(Term), str(c_void_p)), str(type(term)))
 
         a = atom_t()
@@ -73,19 +73,26 @@ class Atom(object):
     fromTerm = classmethod(fromTerm)
 
     def __del__(self):
-        PL_unregister_atom(self.handle)
+        if not cleaned:
+            PL_unregister_atom(self.handle)
 
-    value = property(lambda s:s.chars)
+    def get_value(self):
+        ret = self.chars
+        if not isinstance(ret, str):
+            ret = ret.decode()
+        return ret
+
+    value = property(get_value)
 
     def __str__(self):
         if self.chars is not None:
-            return self.chars
+            return self.value
         else:
             return self.__repr__()
 
     def __repr__(self):
         return str(self.handle).join(["Atom('", "')"])
-    
+
     def __eq__(self, other):
         if type(self) != type(other):
             return False
@@ -95,10 +102,10 @@ class Atom(object):
     def __hash__(self):
         return self.handle
 
-    
+
 class Term(object):
     __slots__ = "handle", "chars", "__value", "a0"
-    
+
     def __init__(self, handle=None, a0=None):
         if handle:
             #self.handle = PL_copy_term_ref(handle)
@@ -123,7 +130,7 @@ class Term(object):
     def __hash__(self):
         return self.handle
 
-    
+
 class Variable(object):
     __slots__ = "handle", "chars"
 
@@ -133,13 +140,15 @@ class Variable(object):
             self.chars = name
         if handle:
             self.handle = handle
-            s = create_string_buffer("\00"*64)  # FIXME:
+            s = create_string_buffer(b"\00"*64)  # FIXME:
             ptr = cast(s, c_char_p)
             if PL_get_chars(handle, byref(ptr), CVT_VARIABLE|BUF_RING):
                 self.chars = ptr.value
         else:
             self.handle = PL_new_term_ref()
             #PL_put_variable(self.handle)
+        if (self.chars is not None) and not isinstance(self.chars, str):
+            self.chars = self.chars.decode()
 
     def unify(self, value):
         if type(value) == str:
@@ -154,16 +163,17 @@ class Variable(object):
             fun = PL_unify_list
         else:
             raise
-	
-	if self.handle is None:
-		t = PL_new_term_ref(self.handle)
-	else
-        	t = PL_copy_term_ref(self.handle)
+
+        if self.handle is None:
+            t = PL_new_term_ref(self.handle)
+        else:
+            t = PL_copy_term_ref(self.handle)
         fun(t, value)
         self.handle = t
 
     def get_value(self):
         return getTerm(self.handle)
+
     value = property(get_value, unify)
 
     def unified(self):
@@ -191,7 +201,7 @@ class Variable(object):
     def __hash__(self):
         return self.handle
 
-    
+
 class Functor(object):
     __slots__ = "handle", "name", "arity", "args", "__value", "a0"
     func = {}
@@ -205,7 +215,7 @@ class Functor(object):
         self.arity = arity
         self.a0 = a0
 
-        if isinstance(handleOrName, basestring):
+        if isinstance(handleOrName, str):
             self.name = Atom(handleOrName)
             self.handle = PL_new_functor(self.name.handle, arity)
             self.__value = "Functor%d" % self.handle
@@ -224,11 +234,11 @@ class Functor(object):
 
     def fromTerm(cls, term):
         """Create a functor from a Term or term handle."""
-        
+
         if isinstance(term, Term):
             term = term.handle
-        elif not isinstance(term, (c_void_p, int, long)):
-            raise ArgumentTypeError((str(Term), str(long)), str(type(term)))
+        elif not isinstance(term, (c_void_p, int)):
+            raise ArgumentTypeError((str(Term), str(int)), str(type(term)))
 
         f = functor_t()
         if PL_get_functor(term, byref(f)):
@@ -263,7 +273,8 @@ class Functor(object):
             return self.__repr__()
 
     def __repr__(self):
-        return "".join(["Functor(", ",".join(str(x) for x in [self.handle,self.arity]+self.args), ")"])
+        return "".join(["Functor(", ",".join(str(x) for x
+            in [self.handle,self.arity]+self.args), ")"])
 
     def __eq__(self, other):
         if type(self) != type(other):
@@ -274,15 +285,15 @@ class Functor(object):
     def __hash__(self):
         return self.handle
 
-    
+
 def _unifier(arity, *args):
     assert arity == 2
     #if PL_is_variable(args[0]):
     #    args[0].unify(args[1])
     try:
-        return {args[0].chars:args[1].value}
+        return {args[0].value:args[1].value}
     except AttributeError:
-        return {args[0].chars:args[1]}
+        return {args[0].value:args[1]}
 
 _unify = Functor("=", 2)
 Functor.func[_unify.handle] = _unifier
@@ -293,7 +304,7 @@ _comma = Functor(",", 2)
 def putTerm(term, value):
     if isinstance(value, Term):
         PL_put_term(term, value.handle)
-    elif isinstance(value, basestring):
+    elif isinstance(value, str):
         PL_put_atom_chars(term, value)
     elif isinstance(value, int):
         PL_put_integer(term, value)
@@ -302,13 +313,13 @@ def putTerm(term, value):
     elif isinstance(value, list):
         putList(term, value)
     elif isinstance(value, Atom):
-        print "ATOM"
+        print("ATOM")
     elif isinstance(value, Functor):
         PL_put_functor(term, value.handle)
     else:
         raise Exception("Not implemented")
 
-    
+
 def putList(l, ls):
     PL_put_nil(l)
     for item in reversed(ls):
@@ -316,7 +327,7 @@ def putList(l, ls):
         putTerm(a, item)
         PL_cons_list(l, a, l)
 
-    
+
 # deprecated
 def getAtomChars(t):
     """If t is an atom, return it as a string, otherwise raise InvalidTypeError.
@@ -327,7 +338,7 @@ def getAtomChars(t):
     else:
         raise InvalidTypeError("atom")
 
-    
+
 def getAtom(t):
     """If t is an atom, return it , otherwise raise InvalidTypeError.
     """
@@ -343,7 +354,7 @@ def getBool(t):
     else:
         raise InvalidTypeError("bool")
 
-    
+
 def getLong(t):
     """If t is of type long, return it, otherwise raise InvalidTypeError.
     """
@@ -366,7 +377,7 @@ def getFloat(t):
     else:
         raise InvalidTypeError("float")
 
-    
+
 def getString(t):
     """If t is of type string, return it, otherwise raise InvalidTypeError.
     """
@@ -377,7 +388,7 @@ def getString(t):
     else:
         raise InvalidTypeError("string")
 
-    
+
 mappedTerms = {}
 def getTerm(t):
     global mappedTerms
@@ -400,7 +411,7 @@ def getList(x):
     """
     Return t as a list.
     """
-    
+
     t = PL_copy_term_ref(x)
     head = PL_new_term_ref()
     result = []
@@ -475,7 +486,7 @@ def registerForeign(func, name=None, arity=None, flags=0):
         arity = func.arity
 
     if name is None:
-        name = func.func_name
+        name = func.__name__
 
     cwrap = _callbackWrapper(arity)
     fwrap = _foreignWrapper(func)
@@ -485,13 +496,13 @@ def registerForeign(func, name=None, arity=None, flags=0):
     # return PL_register_foreign(name, arity,
     #            _callbackWrapper(arity)(_foreignWrapper(func)), flags)
 
-    
+
 newTermRef = PL_new_term_ref
 
 
 def newTermRefs(count):
     a = PL_new_term_refs(count)
-    return range(a, a + count)
+    return list(range(a, a + count))
 
 
 def call(*terms, **kwargs):
@@ -515,7 +526,7 @@ def newModule(name):
     """Create a new module.
     ``name``: An Atom or a string
     """
-    if isinstance(name, basestring):
+    if isinstance(name, str):
         name = Atom(name)
 
     return PL_new_module(name.handle)
@@ -586,7 +597,7 @@ def _test():
     #q = Query(_comma(a(X), b(X)))
     q = Query(a(X))
     while q.nextSolution():
-        print ">", X.value
+        print(">", X.value)
     q.closeQuery()
 
 if __name__ == "__main__":

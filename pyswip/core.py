@@ -3,17 +3,17 @@
 
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2012 Yüce Tekol
-#  
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#  
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#  
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,7 @@ import re
 import sys
 import glob
 import warnings
+import atexit
 from subprocess import Popen, PIPE
 from ctypes import *
 from ctypes.util import find_library
@@ -53,12 +54,12 @@ def _findSwiplPathFromFindLib():
     :returns type:
         {str, None}
     """
-    
-    path = (find_library('swipl') or 
-            find_library('pl') or 
+
+    path = (find_library('swipl') or
+            find_library('pl') or
             find_library('libswipl')) # This last one is for Windows
     return path
-    
+
 
 def _findSwiplFromExec():
     """
@@ -73,12 +74,12 @@ def _findSwiplFromExec():
     """
 
     platform = sys.platform[:3]
-    
+
     fullName = None
     swiHome = None
 
     try: # try to get library path from swipl executable.
-        
+
         # We may have pl or swipl as the executable
         try:
             cmd = Popen(['swipl', '-dump-runtime-variables'], stdout=PIPE)
@@ -87,7 +88,7 @@ def _findSwiplFromExec():
         ret = cmd.communicate()
 
         # Parse the output into a dictionary
-        ret = ret[0].replace(';', '').splitlines()
+        ret = ret[0].decode().replace(';', '').splitlines()
         ret = [line.split('=', 1) for line in ret]
         rtvars = dict((name, value[1:-1]) for name, value in ret) # [1:-1] gets
                                                                   # rid of the
@@ -100,23 +101,23 @@ def _findSwiplFromExec():
             swiHome = rtvars['PLBASE']   # The environment is in PLBASE
             if not os.path.exists(swiHome):
                 swiHome = None
-            
+
             # determine platform specific path
             if platform == "win":
                 dllName = rtvars['PLLIB'][:-4] + '.' + rtvars['PLSOEXT']
                 path = os.path.join(rtvars['PLBASE'], 'bin')
                 fullName = os.path.join(path, dllName)
-                
+
                 if not os.path.exists(fullName):
                     fullName = None
 
             elif platform == "cyg":
                 # e.g. /usr/lib/pl-5.6.36/bin/i686-cygwin/cygpl.dll
-                
+
                 dllName = 'cygpl.dll'
                 path = os.path.join(rtvars['PLBASE'], 'bin', rtvars['PLARCH'])
                 fullName = os.path.join(path, dllName)
-                
+
                 if not os.path.exists(fullName):
                     fullName = None
 
@@ -129,7 +130,7 @@ def _findSwiplFromExec():
                     fullName = baseName
                 else:  # We will search for versions
                     fullName = None
-                
+
             else: # assume UNIX-like
                 # The SO name in some linuxes is of the form libswipl.so.5.10.2,
                 # so we have to use glob to find the correct one
@@ -148,12 +149,12 @@ def _findSwiplFromExec():
                         fullName = files[0]
                     else:  # Will this ever happen?
                         fullName = None
-                
+
     except (OSError, KeyError): # KeyError from accessing rtvars
         pass
-    
+
     return (fullName, swiHome)
-    
+
 
 def _findSwiplWin():
     """
@@ -184,12 +185,12 @@ def _findSwiplWin():
     path = _findSwiplPathFromFindLib()
     if path is not None and os.path.exists(path):
         return (path, None)
-    
+
     # Third try: use reg.exe to find the installation path in the registry
     # (reg should be installed in all Windows XPs)
     try:
-        cmd = Popen(['reg', 'query', 
-            r'HKEY_LOCAL_MACHINE\Software\SWI\Prolog', 
+        cmd = Popen(['reg', 'query',
+            r'HKEY_LOCAL_MACHINE\Software\SWI\Prolog',
             '/v', 'home'], stdout=PIPE)
         ret = cmd.communicate()
 
@@ -205,13 +206,13 @@ def _findSwiplWin():
         match = pattern.match(ret[-1])
         if match is not None:
             path = match.group(2)
-            
+
             paths = [os.path.join(path, 'bin', dllName)
                      for dllName in dllNames]
             for path in paths:
                 if os.path.exists(path):
                     return (path, None)
-            
+
     except OSError:
         # reg.exe not found? Weird...
         pass
@@ -220,14 +221,14 @@ def _findSwiplWin():
     (path, swiHome) = _findSwiplFromExec()
     if path is not None:
         return (path, swiHome)
-    
+
     # Last try: maybe it is in the current dir
     for dllName in dllNames:
         if os.path.exists(dllName):
             return (dllName, None)
 
     return (None, None)
-    
+
 def _findSwiplLin():
     """
     This function uses several heuristics to guess where SWI-Prolog is
@@ -249,7 +250,7 @@ def _findSwiplLin():
     path = _findSwiplPathFromFindLib()
     if path is not None:
         return (path, swiHome)
-    
+
     # Our last try: some hardcoded paths.
     paths = ['/lib', '/usr/lib', '/usr/local/lib', '.', './lib']
     names = ['libswipl.so', 'libpl.so']
@@ -261,13 +262,13 @@ def _findSwiplLin():
             if os.path.exists(try_):
                 path = try_
                 break
-            
+
     if path is not None:
         return (path, swiHome)
-    
+
     return (None, None)
 
-    
+
 def _findSwiplDar():
     """
     This function uses several heuristics to guess where SWI-Prolog is
@@ -322,10 +323,10 @@ def _findSwipl():
     if platform == "win": # In Windows, we have the default installer
                                    # path and the registry to look
         (path, swiHome) = _findSwiplWin()
-                          
+
     elif platform in ("lin", "cyg"):
         (path, swiHome) = _findSwiplLin()
-                
+
     elif platform == "dar":  # Help with MacOS is welcome!!
         (path, swiHome) = _findSwiplDar()
 
@@ -342,7 +343,7 @@ def _findSwipl():
     else:
         return (path, swiHome)
 
-    
+
 def _fixWindowsPath(dll):
     """
     When the path to the DLL is not in Windows search path, Windows will not be
@@ -358,13 +359,122 @@ def _fixWindowsPath(dll):
 
     pathToDll = os.path.dirname(dll)
     currentWindowsPath = os.getenv('PATH')
-    
+
     if pathToDll not in currentWindowsPath:
         # We will prepend the path, to avoid conflicts between DLLs
         newPath = pathToDll + ';' + currentWindowsPath
         os.putenv('PATH', newPath)
 
-        
+_stringMap = {}
+def str_to_bytes(string):
+    """
+    Turns a string into a bytes if necessary (i.e. if it is not already a bytes
+    object or None).
+    If string is None, int or c_char_p it will be returned directly.
+
+    :param string: The string that shall be transformed
+    :type string: str, bytes or type(None)
+    :return: Transformed string
+    :rtype: c_char_p compatible object (bytes, c_char_p, int or None)
+    """
+    if string is None or isinstance(string, (int, c_char_p)):
+        return string
+
+    if not isinstance(string, bytes):
+        if string not in _stringMap:
+            _stringMap[string] = string.encode()
+        string = _stringMap[string]
+
+    return string
+
+def list_to_bytes_list(strList):
+    """
+    This function turns an array of strings into a pointer array
+    with pointers pointing to the encodings of those strings
+    Possibly contained bytes are kept as they are.
+
+    :param strList: List of strings that shall be converted
+    :type strList: List of strings
+    :returns: Pointer array with pointers pointing to bytes
+    :raises: TypeError if strList is not list, set or tuple
+    """
+    pList = c_char_p * len(strList)
+
+    # if strList is already a pointerarray or None, there is nothing to do
+    if isinstance(strList, (pList, type(None))):
+        return strList
+
+    if not isinstance(strList, (list, set, tuple)):
+        raise TypeError("strList must be list, set or tuple, not " +
+                str(type(strList)))
+
+    pList = pList()
+    for i, elem in enumerate(strList):
+        pList[i] = str_to_bytes(elem)
+    return pList
+
+# create a decorator that turns the incoming strings into c_char_p compatible
+# butes or pointer arrays
+def check_strings(strings, arrays):
+    """
+    Decorator function which can be used to automatically turn an incoming
+    string into a bytes object and an incoming list to a pointer array if
+    necessary.
+
+    :param strings: Indices of the arguments must be pointers to bytes
+    :type strings: List of integers
+    :param arrays: Indices of the arguments must be arrays of pointers to bytes
+    :type arrays: List of integers
+    """
+
+    # if given a single element, turn it into a list
+    if isinstance(strings, int):
+        strings = [strings]
+    elif strings is None:
+        strings = []
+
+    # check if all entries are integers
+    for i,k in enumerate(strings):
+        if not isinstance(k, int):
+            raise TypeError(('Wrong type for index at {0} '+
+                    'in strings. Must be int, not {1}!').format(i,k))
+
+    # if given a single element, turn it into a list
+    if isinstance(arrays, int):
+        arrays = [arrays]
+    elif arrays is None:
+        arrays = []
+
+    # check if all entries are integers
+    for i,k in enumerate(arrays):
+        if not isinstance(k, int):
+            raise TypeError(('Wrong type for index at {0} '+
+                    'in arrays. Must be int, not {1}!').format(i,k))
+
+    # check if some index occurs in both
+    if set(strings).intersection(arrays):
+        raise ValueError('One or more elements occur in both arrays and ' +
+                ' strings. One parameter cannot be both list and string!')
+
+    # create the checker that will check all arguments given by argsToCheck
+    # and turn them into the right datatype.
+    def checker(func):
+        def check_and_call(*args):
+            args = list(args)
+            for i in strings:
+                arg = args[i]
+                args[i] = str_to_bytes(arg)
+            for i in arrays:
+                arg = args[i]
+                args[i] = list_to_bytes_list(arg)
+
+            return func(*args)
+
+        return check_and_call
+
+    return checker
+
+
 # Find the path and resource file. SWI_HOME_DIR shall be treated as a constant
 # by users of this module
 (_path, SWI_HOME_DIR) = _findSwipl()
@@ -380,10 +490,10 @@ c_int_p = c_void_p
 c_long_p = c_void_p
 c_double_p = c_void_p
 c_uint_p = c_void_p
-    
+
 # constants (from SWI-Prolog.h)
 # PL_unify_term() arguments
-PL_VARIABLE = 1  # nothing 
+PL_VARIABLE = 1  # nothing
 PL_ATOM = 2  # const char
 PL_INTEGER = 3  # int
 PL_FLOAT = 4  # double
@@ -482,12 +592,8 @@ BUF_RING = 0x0100
 BUF_MALLOC = 0x0200
 
 CVT_EXCEPTION = 0x10000  # throw exception on error
-    
-argv = (c_char_p*(len(sys.argv) + 1))()
-for i, arg in enumerate(sys.argv):
-    argv[i] = arg
-    
-argv[-1] = None
+
+argv = list_to_bytes_list(sys.argv + [None])
 argc = len(sys.argv)
 
 #                  /*******************************
@@ -525,6 +631,7 @@ foreign_t = c_uint_p
 pl_wchar_t = c_wchar
 
 PL_initialise = _lib.PL_initialise
+PL_initialise = check_strings(None, 1)(PL_initialise)
 #PL_initialise.argtypes = [c_int, c_c??
 
 PL_open_foreign_frame = _lib.PL_open_foreign_frame
@@ -540,6 +647,8 @@ PL_new_term_refs.restype = term_t
 PL_chars_to_term = _lib.PL_chars_to_term
 PL_chars_to_term.argtypes = [c_char_p, term_t]
 PL_chars_to_term.restype = c_int
+
+PL_chars_to_term = check_strings(0, None)(PL_chars_to_term)
 
 PL_call = _lib.PL_call
 PL_call.argtypes = [term_t, module_t]
@@ -557,115 +666,126 @@ PL_put_list_chars = _lib.PL_put_list_chars
 PL_put_list_chars.argtypes = [term_t, c_char_p]
 PL_put_list_chars.restype = c_int
 
-#PL_EXPORT(void)		PL_register_atom(atom_t a);
+PL_put_list_chars = check_strings(1, None)(PL_put_list_chars)
+
+#PL_EXPORT(void)                PL_register_atom(atom_t a);
 PL_register_atom = _lib.PL_register_atom
 PL_register_atom.argtypes = [atom_t]
 PL_register_atom.restype = None
 
-#PL_EXPORT(void)		PL_unregister_atom(atom_t a);
+#PL_EXPORT(void)                PL_unregister_atom(atom_t a);
 PL_unregister_atom = _lib.PL_unregister_atom
 PL_unregister_atom.argtypes = [atom_t]
 PL_unregister_atom.restype = None
 
-#PL_EXPORT(atom_t)	PL_functor_name(functor_t f);
+#PL_EXPORT(atom_t)      PL_functor_name(functor_t f);
 PL_functor_name = _lib.PL_functor_name
 PL_functor_name.argtypes = [functor_t]
 PL_functor_name.restype = atom_t
 
-#PL_EXPORT(int)		PL_functor_arity(functor_t f);
+#PL_EXPORT(int)         PL_functor_arity(functor_t f);
 PL_functor_arity = _lib.PL_functor_arity
 PL_functor_arity.argtypes = [functor_t]
 PL_functor_arity.restype = c_int
 
-#			/* Get C-values from Prolog terms */
-#PL_EXPORT(int)		PL_get_atom(term_t t, atom_t *a);
+#                       /* Get C-values from Prolog terms */
+#PL_EXPORT(int)         PL_get_atom(term_t t, atom_t *a);
 PL_get_atom = _lib.PL_get_atom
 PL_get_atom.argtypes = [term_t, POINTER(atom_t)]
 PL_get_atom.restype = c_int
 
-#PL_EXPORT(int)		PL_get_bool(term_t t, int *value);
+#PL_EXPORT(int)         PL_get_bool(term_t t, int *value);
 PL_get_bool = _lib.PL_get_bool
 PL_get_bool.argtypes = [term_t, POINTER(c_int)]
 PL_get_bool.restype = c_int
 
-#PL_EXPORT(int)		PL_get_atom_chars(term_t t, char **a);
+#PL_EXPORT(int)         PL_get_atom_chars(term_t t, char **a);
 PL_get_atom_chars = _lib.PL_get_atom_chars  # FIXME
 PL_get_atom_chars.argtypes = [term_t, POINTER(c_char_p)]
 PL_get_atom_chars.restype = c_int
 
+PL_get_atom_chars = check_strings(None, 1)(PL_get_atom_chars)
+
 ##define PL_get_string_chars(t, s, l) PL_get_string(t,s,l)
-#					/* PL_get_string() is depricated */
-#PL_EXPORT(int)		PL_get_string(term_t t, char **s, size_t *len);
+#                                       /* PL_get_string() is depricated */
+#PL_EXPORT(int)         PL_get_string(term_t t, char **s, size_t *len);
 PL_get_string = _lib.PL_get_string
+
+PL_get_string = check_strings(None, 1)(PL_get_string)
+
 PL_get_string_chars = PL_get_string
 #PL_get_string_chars.argtypes = [term_t, POINTER(c_char_p), c_int_p]
 
-#PL_EXPORT(int)		PL_get_chars(term_t t, char **s, unsigned int flags);
+#PL_EXPORT(int)         PL_get_chars(term_t t, char **s, unsigned int flags);
 PL_get_chars = _lib.PL_get_chars  # FIXME:
 
-#PL_EXPORT(int)		PL_get_list_chars(term_t l, char **s,
-#					  unsigned int flags);
-#PL_EXPORT(int)		PL_get_atom_nchars(term_t t, size_t *len, char **a);
-#PL_EXPORT(int)		PL_get_list_nchars(term_t l,
-#					   size_t *len, char **s,
-#					   unsigned int flags);
-#PL_EXPORT(int)		PL_get_nchars(term_t t,
-#				      size_t *len, char **s,
-#				      unsigned int flags);
-#PL_EXPORT(int)		PL_get_integer(term_t t, int *i);
+PL_get_chars = check_strings(None, 1)(PL_get_chars)
+
+#PL_EXPORT(int)         PL_get_list_chars(term_t l, char **s,
+#                                         unsigned int flags);
+#PL_EXPORT(int)         PL_get_atom_nchars(term_t t, size_t *len, char **a);
+#PL_EXPORT(int)         PL_get_list_nchars(term_t l,
+#                                          size_t *len, char **s,
+#                                          unsigned int flags);
+#PL_EXPORT(int)         PL_get_nchars(term_t t,
+#                                     size_t *len, char **s,
+#                                     unsigned int flags);
+#PL_EXPORT(int)         PL_get_integer(term_t t, int *i);
 PL_get_integer = _lib.PL_get_integer
 PL_get_integer.argtypes = [term_t, POINTER(c_int)]
 PL_get_integer.restype = c_int
 
-#PL_EXPORT(int)		PL_get_long(term_t t, long *i);
+#PL_EXPORT(int)         PL_get_long(term_t t, long *i);
 PL_get_long = _lib.PL_get_long
 PL_get_long.argtypes = [term_t, POINTER(c_long)]
 PL_get_long.restype = c_int
 
-#PL_EXPORT(int)		PL_get_pointer(term_t t, void **ptr);
-#PL_EXPORT(int)		PL_get_float(term_t t, double *f);
+#PL_EXPORT(int)         PL_get_pointer(term_t t, void **ptr);
+#PL_EXPORT(int)         PL_get_float(term_t t, double *f);
 PL_get_float = _lib.PL_get_float
 PL_get_float.argtypes = [term_t, c_double_p]
 PL_get_float.restype = c_int
 
-#PL_EXPORT(int)		PL_get_functor(term_t t, functor_t *f);
+#PL_EXPORT(int)         PL_get_functor(term_t t, functor_t *f);
 PL_get_functor = _lib.PL_get_functor
 PL_get_functor.argtypes = [term_t, POINTER(functor_t)]
 PL_get_functor.restype = c_int
 
-#PL_EXPORT(int)		PL_get_name_arity(term_t t, atom_t *name, int *arity);
+#PL_EXPORT(int)         PL_get_name_arity(term_t t, atom_t *name, int *arity);
 PL_get_name_arity = _lib.PL_get_name_arity
 PL_get_name_arity.argtypes = [term_t, POINTER(atom_t), POINTER(c_int)]
 PL_get_name_arity.restype = c_int
 
-#PL_EXPORT(int)		PL_get_module(term_t t, module_t *module);
-#PL_EXPORT(int)		PL_get_arg(int index, term_t t, term_t a);
+#PL_EXPORT(int)         PL_get_module(term_t t, module_t *module);
+#PL_EXPORT(int)         PL_get_arg(int index, term_t t, term_t a);
 PL_get_arg = _lib.PL_get_arg
 PL_get_arg.argtypes = [c_int, term_t, term_t]
 PL_get_arg.restype = c_int
 
-#PL_EXPORT(int)		PL_get_list(term_t l, term_t h, term_t t);
-#PL_EXPORT(int)		PL_get_head(term_t l, term_t h);
+#PL_EXPORT(int)         PL_get_list(term_t l, term_t h, term_t t);
+#PL_EXPORT(int)         PL_get_head(term_t l, term_t h);
 PL_get_head = _lib.PL_get_head
 PL_get_head.argtypes = [term_t, term_t]
 PL_get_head.restype = c_int
 
-#PL_EXPORT(int)		PL_get_tail(term_t l, term_t t);
+#PL_EXPORT(int)         PL_get_tail(term_t l, term_t t);
 PL_get_tail = _lib.PL_get_tail
 PL_get_tail.argtypes = [term_t, term_t]
 PL_get_tail.restype = c_int
 
-#PL_EXPORT(int)		PL_get_nil(term_t l);
+#PL_EXPORT(int)         PL_get_nil(term_t l);
 PL_get_nil = _lib.PL_get_nil
 PL_get_nil.argtypes = [term_t]
 PL_get_nil.restype = c_int
 
-#PL_EXPORT(int)		PL_get_term_value(term_t t, term_value_t *v);
-#PL_EXPORT(char *)	PL_quote(int chr, const char *data);
+#PL_EXPORT(int)         PL_get_term_value(term_t t, term_value_t *v);
+#PL_EXPORT(char *)      PL_quote(int chr, const char *data);
 
 PL_put_atom_chars = _lib.PL_put_atom_chars
 PL_put_atom_chars.argtypes = [term_t, c_char_p]
 PL_put_atom_chars.restype = c_int
+
+PL_put_atom_chars = check_strings(1, None)(PL_put_atom_chars)
 
 PL_atom_chars = _lib.PL_atom_chars
 PL_atom_chars.argtypes = [atom_t]
@@ -674,6 +794,8 @@ PL_atom_chars.restype = c_char_p
 PL_predicate = _lib.PL_predicate
 PL_predicate.argtypes = [c_char_p, c_int, c_char_p]
 PL_predicate.restype = predicate_t
+
+PL_predicate = check_strings([0,2], None)(PL_predicate)
 
 PL_pred = _lib.PL_pred
 PL_pred.argtypes = [functor_t, module_t]
@@ -777,62 +899,62 @@ PL_is_number = _lib.PL_is_number
 PL_is_number.argtypes = [term_t]
 PL_is_number.restype = c_int
 
-#			/* Assign to term-references */
-#PL_EXPORT(void)		PL_put_variable(term_t t);
+#                       /* Assign to term-references */
+#PL_EXPORT(void)                PL_put_variable(term_t t);
 PL_put_variable = _lib.PL_put_variable
 PL_put_variable.argtypes = [term_t]
 PL_put_variable.restype = None
 
-#PL_EXPORT(void)		PL_put_atom(term_t t, atom_t a);
-#PL_EXPORT(void)		PL_put_atom_chars(term_t t, const char *chars);
-#PL_EXPORT(void)		PL_put_string_chars(term_t t, const char *chars);
-#PL_EXPORT(void)		PL_put_list_chars(term_t t, const char *chars);
-#PL_EXPORT(void)		PL_put_list_codes(term_t t, const char *chars);
-#PL_EXPORT(void)		PL_put_atom_nchars(term_t t, size_t l, const char *chars);
-#PL_EXPORT(void)		PL_put_string_nchars(term_t t, size_t len, const char *chars);
-#PL_EXPORT(void)		PL_put_list_nchars(term_t t, size_t l, const char *chars);
-#PL_EXPORT(void)		PL_put_list_ncodes(term_t t, size_t l, const char *chars);
-#PL_EXPORT(void)		PL_put_integer(term_t t, long i);
+#PL_EXPORT(void)                PL_put_atom(term_t t, atom_t a);
+#PL_EXPORT(void)                PL_put_atom_chars(term_t t, const char *chars);
+#PL_EXPORT(void)                PL_put_string_chars(term_t t, const char *chars);
+#PL_EXPORT(void)                PL_put_list_chars(term_t t, const char *chars);
+#PL_EXPORT(void)                PL_put_list_codes(term_t t, const char *chars);
+#PL_EXPORT(void)                PL_put_atom_nchars(term_t t, size_t l, const char *chars);
+#PL_EXPORT(void)                PL_put_string_nchars(term_t t, size_t len, const char *chars);
+#PL_EXPORT(void)                PL_put_list_nchars(term_t t, size_t l, const char *chars);
+#PL_EXPORT(void)                PL_put_list_ncodes(term_t t, size_t l, const char *chars);
+#PL_EXPORT(void)                PL_put_integer(term_t t, long i);
 PL_put_integer = _lib.PL_put_integer
 PL_put_integer.argtypes = [term_t, c_long]
 PL_put_integer.restype = None
 
-#PL_EXPORT(void)		PL_put_pointer(term_t t, void *ptr);
-#PL_EXPORT(void)		PL_put_float(term_t t, double f);
-#PL_EXPORT(void)		PL_put_functor(term_t t, functor_t functor);
+#PL_EXPORT(void)                PL_put_pointer(term_t t, void *ptr);
+#PL_EXPORT(void)                PL_put_float(term_t t, double f);
+#PL_EXPORT(void)                PL_put_functor(term_t t, functor_t functor);
 PL_put_functor = _lib.PL_put_functor
 PL_put_functor.argtypes = [term_t, functor_t]
 PL_put_functor.restype = None
 
-#PL_EXPORT(void)		PL_put_list(term_t l);
+#PL_EXPORT(void)                PL_put_list(term_t l);
 PL_put_list = _lib.PL_put_list
 PL_put_list.argtypes = [term_t]
 PL_put_list.restype = None
 
-#PL_EXPORT(void)		PL_put_nil(term_t l);
+#PL_EXPORT(void)                PL_put_nil(term_t l);
 PL_put_nil = _lib.PL_put_nil
 PL_put_nil.argtypes = [term_t]
-PL_put_nil.restype = None     
+PL_put_nil.restype = None
 
-#PL_EXPORT(void)		PL_put_term(term_t t1, term_t t2);
+#PL_EXPORT(void)                PL_put_term(term_t t1, term_t t2);
 PL_put_term = _lib.PL_put_term
 PL_put_term.argtypes = [term_t, term_t]
-PL_put_term.restype = None     
+PL_put_term.restype = None
 
-#			/* construct a functor or list-cell */
-#PL_EXPORT(void)		PL_cons_functor(term_t h, functor_t f, ...);
+#                       /* construct a functor or list-cell */
+#PL_EXPORT(void)                PL_cons_functor(term_t h, functor_t f, ...);
 #class _PL_cons_functor(object):
 PL_cons_functor = _lib.PL_cons_functor  # FIXME:
-    
-#PL_EXPORT(void)		PL_cons_functor_v(term_t h, functor_t fd, term_t a0);
+
+#PL_EXPORT(void)                PL_cons_functor_v(term_t h, functor_t fd, term_t a0);
 PL_cons_functor_v = _lib.PL_cons_functor_v
 PL_cons_functor_v.argtypes = [term_t, functor_t, term_t]
 PL_cons_functor_v.restype = None
 
-#PL_EXPORT(void)		PL_cons_list(term_t l, term_t h, term_t t);
+#PL_EXPORT(void)                PL_cons_list(term_t l, term_t h, term_t t);
 PL_cons_list = _lib.PL_cons_list
 PL_cons_list.argtypes = [term_t, term_t, term_t]
-PL_cons_list.restype = None     
+PL_cons_list.restype = None
 
 #
 # term_t PL_exception(qid_t qid)
@@ -841,25 +963,28 @@ PL_exception.argtypes = [qid_t]
 PL_exception.restype = term_t
 #
 PL_register_foreign = _lib.PL_register_foreign
+PL_register_foreign = check_strings(0, None)(PL_register_foreign)
 
 #
-#PL_EXPORT(atom_t)	PL_new_atom(const char *s);
+#PL_EXPORT(atom_t)      PL_new_atom(const char *s);
 PL_new_atom = _lib.PL_new_atom
 PL_new_atom.argtypes = [c_char_p]
 PL_new_atom.restype = atom_t
 
-#PL_EXPORT(functor_t)	PL_new_functor(atom_t f, int a);
+PL_new_atom = check_strings(0, None)(PL_new_atom)
+
+#PL_EXPORT(functor_t)   PL_new_functor(atom_t f, int a);
 PL_new_functor = _lib.PL_new_functor
 PL_new_functor.argtypes = [atom_t, c_int]
 PL_new_functor.restype = functor_t
 
 
-#        	 /*******************************
-#        	 *	     COMPARE		*
-#        	 *******************************/
-# 
-#PL_EXPORT(int)		PL_compare(term_t t1, term_t t2);
-#PL_EXPORT(int)		PL_same_compound(term_t t1, term_t t2);
+#                /*******************************
+#                *           COMPARE            *
+#                *******************************/
+#
+#PL_EXPORT(int)         PL_compare(term_t t1, term_t t2);
+#PL_EXPORT(int)         PL_same_compound(term_t t1, term_t t2);
 PL_compare = _lib.PL_compare
 PL_compare.argtypes = [term_t, term_t]
 PL_compare.restype = c_int
@@ -869,33 +994,35 @@ PL_same_compound.argtypes = [term_t, term_t]
 PL_same_compound.restype = c_int
 
 
-#		 /*******************************
-#		 *      RECORDED DATABASE	*
-#		 *******************************/
+#                /*******************************
+#                *      RECORDED DATABASE       *
+#                *******************************/
 #
-#PL_EXPORT(record_t)	PL_record(term_t term);
+#PL_EXPORT(record_t)    PL_record(term_t term);
 PL_record = _lib.PL_record
 PL_record.argtypes = [term_t]
 PL_record.restype = record_t
 
-#PL_EXPORT(void)		PL_recorded(record_t record, term_t term);
+#PL_EXPORT(void)                PL_recorded(record_t record, term_t term);
 PL_recorded = _lib.PL_recorded
 PL_recorded.argtypes = [record_t, term_t]
 PL_recorded.restype = None
 
-#PL_EXPORT(void)		PL_erase(record_t record);
+#PL_EXPORT(void)                PL_erase(record_t record);
 PL_erase = _lib.PL_erase
 PL_erase.argtypes = [record_t]
 PL_erase.restype = None
 
 #
-#PL_EXPORT(char *)	PL_record_external(term_t t, size_t *size);
-#PL_EXPORT(int)		PL_recorded_external(const char *rec, term_t term);
-#PL_EXPORT(int)		PL_erase_external(char *rec);
+#PL_EXPORT(char *)      PL_record_external(term_t t, size_t *size);
+#PL_EXPORT(int)         PL_recorded_external(const char *rec, term_t term);
+#PL_EXPORT(int)         PL_erase_external(char *rec);
 
 PL_new_module = _lib.PL_new_module
 PL_new_module.argtypes = [atom_t]
 PL_new_module.restype = module_t
+
+PL_is_initialised = _lib.PL_is_initialised
 
 intptr_t = c_long
 ssize_t = intptr_t
@@ -940,7 +1067,7 @@ class IOFUNCTIONS(Structure):
                 ("reserved",intptr_t*2)]
 
 # IOENC
-ENC_UNKNOWN,ENC_OCTET,ENC_ASCII,ENC_ISO_LATIN_1,ENC_ANSI,ENC_UTF8,ENC_UNICODE_BE,ENC_UNICODE_LE,ENC_WCHAR = range(9)
+ENC_UNKNOWN,ENC_OCTET,ENC_ASCII,ENC_ISO_LATIN_1,ENC_ANSI,ENC_UTF8,ENC_UNICODE_BE,ENC_UNICODE_LE,ENC_WCHAR = tuple(range(9))
 IOENC = c_int
 
 # IOPOS
@@ -978,17 +1105,52 @@ IOSTREAM._fields_.extend([("tee",IOSTREAM),
 
 
 
-#PL_EXPORT(IOSTREAM *)	Sopen_string(IOSTREAM *s, char *buf, size_t sz, const char *m);
+#PL_EXPORT(IOSTREAM *)  Sopen_string(IOSTREAM *s, char *buf, size_t sz, const char *m);
 Sopen_string = _lib.Sopen_string
 Sopen_string.argtypes = [POINTER(IOSTREAM), c_char_p, c_size_t, c_char_p]
 Sopen_string.restype = POINTER(IOSTREAM)
 
-#PL_EXPORT(int)		Sclose(IOSTREAM *s);
+#PL_EXPORT(int)         Sclose(IOSTREAM *s);
 Sclose = _lib.Sclose
 Sclose.argtypes = [POINTER(IOSTREAM)]
 
 
-#PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
+#PL_EXPORT(int)         PL_unify_stream(term_t t, IOSTREAM *s);
 PL_unify_stream = _lib.PL_unify_stream
 PL_unify_stream.argtypes = [term_t, POINTER(IOSTREAM)]
 
+#create an exit hook which captures the exit code for our cleanup function
+class ExitHook(object):
+    def __init__(self):
+        self.exit_code = None
+        self.exception = None
+
+    def hook(self):
+        self._orig_exit = sys.exit
+        sys.exit = self.exit
+
+    def exit(self, code=0):
+        self.exit_code = code
+        self._orig_exit(code)
+
+_hook = ExitHook()
+_hook.hook()
+
+_isCleaned = False
+#create a property for Atom's delete method in order to avoid segmentation fault
+cleaned = property(_isCleaned)
+
+#register the cleanup function to be executed on system exit
+@atexit.register
+def cleanupProlog():
+    # only do something if prolog has been initialised
+    if PL_is_initialised(None,None):
+
+        # clean up the prolog system using the caught exit code
+        # if exit code is None, the program exits normally and we can use 0
+        # instead.
+        # TODO Prolog documentation says cleanup with code 0 may be interrupted
+        # If the program has come to an end the prolog system should not
+        # interfere with that. Therefore we may want to use 1 instead of 0.
+        PL_cleanup(int(_hook.exit_code or 0))
+        _isCleaned = True

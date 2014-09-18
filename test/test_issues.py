@@ -195,7 +195,6 @@ class TestIssues(unittest.TestCase):
         """
 
         from pyswip import Prolog, Functor, Variable, Atom
-        from deepstr import deep_str
          
         p = Prolog()
          
