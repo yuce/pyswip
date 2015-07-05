@@ -232,8 +232,50 @@ class TestIssues(unittest.TestCase):
         self.assertEqual(type(args[2]), Variable)
         self.assertTrue(args[0] == args[2], "The first and last var of "
                                             "f([A, B, A]) should be the same")
-        
 
+    def test_functor_return(self):
+        """
+        pyswip should generate string representations of query results
+        that are at least meaningful, preferably equal to what
+        SWI-Prolog would generate. This test checks if this is true for
+        `Functor` instance results.
+
+        Not a formal issue, but see forum topic:
+        https://groups.google.com/forum/#!topic/pyswip/Mpnfq4DH-mI
+        """
+        
+        import pyswip.prolog as pl
+        
+        p = pl.Prolog()
+
+        # Add a simple grammar to the base
+        p.consult("test_functor_return.pl")
+
+        query = "sentence(Parse_tree, [the,bat,eats,a,cat], [])"
+        expectedTree = "s(np(d(the), n(bat)), vp(v(eats), np(d(a), n(cat))))"
+
+        # This should not throw an exception
+        results = list(p.query(query))
+        self.assertEqual(len(results), 1,
+                         "Query should return exactly one result")
+        
+        ptree = results[0]["Parse_tree"]
+        self.assertEqual(ptree, expectedTree)
+
+        # A second test, based on what was posted in the forum
+        p.assertz("friend(john,son(miki))")
+        p.assertz("friend(john,son(kiwi))")
+        p.assertz("friend(john,son(wiki))")
+        p.assertz("friend(john,son(tiwi))")
+        p.assertz("father(son(miki),kur)")
+        p.assertz("father(son(kiwi),kur)")
+        p.assertz("father(son(wiki),kur)")
+        
+        soln = [s["Y"] for s in p.query("friend(john,Y), father(Y,kur)",
+                                         maxresult=1)]
+        self.assertEqual(soln[0], "son(miki)")
+
+        
 if __name__ == "__main__":
     unittest.main()
     

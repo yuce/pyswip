@@ -230,7 +230,7 @@ class Functor(object):
             try:
                 self.__value = self.func[self.handle](self.arity, *self.args)
             except KeyError:
-                self.__value = "Functor%d" % self.handle
+                self.__value = str(self)
 
     def fromTerm(cls, term):
         """Create a functor from a Term or term handle."""
@@ -268,7 +268,8 @@ class Functor(object):
 
     def __str__(self):
         if self.name is not None and self.arity is not None:
-            return "%s(%d)" % (self.name, self.arity)
+            return "%s(%s)" % (self.name,
+                               ', '.join([str(arg) for arg in self.args]))
         else:
             return self.__repr__()
 
