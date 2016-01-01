@@ -1,11 +1,3 @@
-This fork of PySWIP is a modifiaction to be able to use swi-prolog with python3.
-You are free to use but be aware that this is not meant to be an official python3 version or so...
-The tests ran successfully on my machine (ubuntu 14.04 x64 with python 3.2.5 and 3.4.0).
-However this doesn't mean there are no bugs anymore. I will try to maintain this fork but only for my personal use.
-Issues are therefore not guaranteed to be considered and/or investigated by me.
-
-Here is the original README:
-
 PySWIP README
 ============
 
