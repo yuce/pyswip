@@ -1,5 +1,5 @@
 PySWIP INSTALL
-==============
+=============
 
 PySWIP requires SWI-Prolog as a shared library since it uses ctypes to access
 SWI-Prolog/C functions. The shared library is present in the Win32 installer,
