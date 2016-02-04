@@ -269,6 +269,89 @@ def _findSwiplLin():
     return (None, None)
 
 
+def walk(path, name):
+    """
+    This function is a 2-time recursive func,
+    that findin file in dirs
+    
+    :parameters:
+      -  `path` (str) - Directory path
+      -  `name` (str) - Name of file, that we lookin for
+      
+    :returns:
+        Path to the swipl so, path to the resource file
+
+    :returns type:
+        (str)
+    """
+    back_path = path[:]
+    path = os.path.join(path, name)
+    
+    if os.path.exists(path):
+        return path
+    else:
+        for dir_ in os.listdir(back_path):
+            path = os.path.join(back_path, dir_)
+
+            if os.path.isdir(path):
+                res_path = walk(path, name)
+                if res_path is not None:
+                    return (res_path, back_path)
+
+    return None
+
+
+def get_swi_ver():
+    swi_ver = raw_input(
+                'Please enter you SWI-Prolog version in format "X.Y.Z": ')
+    match = re.match(r'[0-9]\.[0-9]\.[0-9]')
+    if match is None:
+        raise InputError('Error, type normal version')
+    
+    return swi_ver
+
+
+def _findSwiplMacOSHome():
+    """
+    This function is guesing where SWI-Prolog is
+    installed in MacOS via .app.
+    
+    :parameters:
+      -  `swi_ver` (str) - Version of SWI-Prolog in '[0-9].[0-9].[0-9]' format
+      
+    :returns:
+        A tuple of (path to the swipl so, path to the resource file)
+
+    :returns type:
+        ({str, None}, {str, None})
+    """
+
+    # Need more help with MacOS
+    # That way works, but need more work
+    names = ['libswipl.dylib', 'libpl.dylib']
+    
+    path = os.environ.get('SWI_HOME_DIR')
+    if path is None:
+        path = os.environ.get('SWI_LIB_DIR')
+        if path is None:
+            path = os.environ.get('PLBASE')
+            if path is None:
+                swi_ver = get_swi_ver()
+                path = '/Applications/SWI-Prolog.app/Contents/swipl-' + swi_ver + '/lib/'
+    
+    paths = [path]
+
+    for name in names:
+        for path in paths:
+            (path_res, back_path) = walk(path, name)
+
+            if path_res is not None:
+                os.environ['SWI_LIB_DIR'] = back_path
+                return (path_res, None)
+
+    return (None, None)
+
+
 def _findSwiplDar():
     """
     This function uses several heuristics to guess where SWI-Prolog is
@@ -329,6 +412,9 @@ def _findSwipl():
 
     elif platform == "dar":  # Help with MacOS is welcome!!
         (path, swiHome) = _findSwiplDar()
+        
+        if path is None:
+            (path, swiHome) = _findSwiplMacOSHome()
 
     else:
         raise EnvironmentError('The platform %s is not supported by this '
