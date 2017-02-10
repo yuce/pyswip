@@ -23,7 +23,7 @@ modifications for your environment.
 2) Extract the archive and cd into it:
 	
 	$ tar xzvf pl-6.0.2.tar.gz
-	$ cd pl-6.0.2.tar.gz
+	$ cd pl-6.0.2
 
 3) Configure the source with shared library enabled:
 
