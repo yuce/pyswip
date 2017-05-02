@@ -8,6 +8,15 @@ but missing by default from the builds made directly from the source.
 Installing on Linux
 -------------------
 
+Some distro packages of swi-prolog already include the shared library or offer
+a devel version of the package, that way you can skip compiling the package from
+source. A quick way to check if you have the library already installed is by running
+
+``$ find /usr/lib* -name lib*pl.so``
+
+If no files are listed with the name ``libswipl.so`` or ``libpl.so`` you'll need 
+to proceed building from source.
+
 These instructions are tested on a Linux system, but should also work for POSIX
 systems. Also, you may want to install development packages for readline,
 libncurses, and libgmp.
