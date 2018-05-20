@@ -28,6 +28,10 @@ doesn't require compilation to be installed.
 * libpl as a shared library.
 * Works on Linux and Win32, should work for all POSIX.
 
+## Install
+
+Please see ``INSTALL`` for detailed instructions.
+
 ## Examples
 
 ### Using Prolog
@@ -88,9 +92,50 @@ q.closeQuery()
 The core functionality of ``Prolog.query`` is based on Nathan Denny's public domain prolog.py found at
 http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html
 
-## Install
+## Help!
 
-Please see ``INSTALL`` for detailed instructions.
+* [Support Forum](https://groups.google.com/forum/#!forum/pyswip)
+* [Stack Overflow](https://stackoverflow.com/search?q=pyswip)
+
+## Resources that Use or Reference PySWIP
+
+**Do you have a project, video or publication that uses/mentions PySWIP? [Please let me know](mailto:yucetekol@gmail.com) and I'll add it to the list below.**
+
+### Books
+
+* [Beginning Artificial Intelligence with the Raspberry Pi](https://www.apress.com/gp/book/9781484227428)
+
+### Publications
+
+* [Assessment of Graph Databases as a Viable Materiel Solution for the Army's Dynamic Force Structure (DFS) Portal Implementation: Part 3, Risks, Mitigation Approach, and Roadmap](https://www.researchgate.net/publication/321977892_Assessment_of_Graph_Databases_as_a_Viable_Materiel_Solution_for_the_Army's_Dynamic_Force_Structure_DFS_Portal_Implementation_Part_3_Risks_Mitigation_Approach_and_Roadmap_Assessment_of_Graph_Databases_)
+* [Tackling Complexity in High Performance Computing Applications](https://link.springer.com/article/10.1007/s10766-016-0422-9)
+* [Social Human-Robot Interaction: A New Cognitive and Affective Interaction-Oriented Architecture](https://www.springer.com/gp/book/9783319474366)
+* [A Planning Module for a ROS-Based Ubiquitous Robot Control System](https://dspace.library.uu.nl/bitstream/handle/1874/292669/2014-03-27%20MSc%20Thesis%20Pieterjan%20van%20Gastel.pdf) (PDF)
+* [A pilot framework developed as a common platform integrating diverse elements of computer aided fixture design](https://www.tandfonline.com/doi/full/10.1080/00207543.2013.832000)
+* [Integration von Prolog und ClioPatria in Python](http://www1.pub.informatik.uni-wuerzburg.de/pub/theses/2017-bodenlos-master.pdf) (PDF, German)
+
+### Videos
+
+* [AI - blocks world solver interactive planner](https://www.youtube.com/watch?v=p1m8htUEHrc)
+* [PySwip, Prolog, JAVA SCRIPT and HTML](https://www.youtube.com/watch?v=Oj8xsW2vaLA) (Spanish)
+* [GET OUT OF THE MAZE WITH PROLOG AND PYTHON](https://www.youtube.com/watch?v=MW3S0Jfa0LU) (Spanish)
+
+### Projects
+
+* [noworkflow](https://github.com/gems-uff/noworkflow) Supporting infrastructure to run scientific experiments without a scientific workflow management system. http://gems-uff.github.io/noworkflow
+* [Super Pacman](https://github.com/kajornsakp/prologProject)
+* [Pokemon Weak Detector](https://github.com/ReiiYuki/PokemonWeakDetector)
+* [Food Recommendations in Hyderabad, India](https://github.com/cindyleowtt/prolog_food) Food Recommendation AI Expert System using a GUI hosted on Flask and a backend developed with PYSWIP and native Prolog
+* [pyswip_envctrl](https://github.com/2rs2ts/pyswip_envctrl) An environment control module expert system written in PySWIP.
+* [tic-tac-toe](https://github.com/ivpusic/tic-tac-toe) Tic-tac-toe game with AI in Prolog and GUI in Python (kivy framework + pyswip)
+* [TBM1 - "Getting to Know My Home"](http://thewiki.rockinrobotchallenge.eu/index.php?title=TBM1_-_“Getting_to_Know_My_Home”)
+* [A script that enables use of a Prolog natural language parsing component to control a Scribbler II robot over bluetooth](http://justinmangue.com/blog/scribpro-py/)
+
+### Blog Posts
+
+* [Calling Prolog from Python](http://fernmac.blogspot.com.tr/2013/07/calling-prolog-from-python.html)
+* [Python v. Prolog: Round 1: Fight!](http://www.kuliniewicz.org/blog/archives/2007/10/21/python-v-prolog-round-1-fight/)
+
 
 ## License
 
