@@ -1,4 +1,7 @@
-# PySWIP README
+<a href="https://travis-ci.org/yuce/pyswip"><img src="https://api.travis-ci.org/yuce/pyswip.svg?branch=master"></a>
+<a href="https://coveralls.io/github/yuce/pyswip"><img src="https://coveralls.io/repos/github/yuce/pyswip/badge.svg?branch=master"></a>
+
+# PySWIP
 
 ## What's New?
 
