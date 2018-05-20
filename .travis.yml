@@ -4,7 +4,6 @@ python:
   - "3.5"
   - "3.6"
   - "nightly"
-  - "pypy"
 sudo: required
 before_install:
   - sudo apt update && sudo apt install -y swi-prolog-nox

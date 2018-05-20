@@ -16,7 +16,8 @@ doesn't require compilation to be installed.
 
 ## Requirements:
 
-* Python 3.5 and higher.
+* Python 3.4 and higher.
+    * PyPy is currently not supported.
 * SWI-Prolog 7.6.x and higher (most probably other versions will also work).
 * libpl as a shared library.
 * Works on Linux and Win32, should work for all POSIX.
