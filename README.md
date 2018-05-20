@@ -47,10 +47,18 @@ Example (Using Prolog):
     >>> list(prolog.query("father(michael,X)"))
     [{'X': 'john'}, {'X': 'gina'}]
     >>> for soln in prolog.query("father(X,Y)"):
-    ...     print soln["X"], "is the father of", soln["Y"]
+    ...     print(soln["X"], "is the father of", soln["Y"])
     ...
     michael is the father of john
     michael is the father of gina
+
+An existing knowledge base stored in a Prolog file can also be consulted,
+and queried. Assuming the filename "knowledge_base.pl" and the Python is 
+being run in the same working directory, it is consulted like so:
+
+    >>> from pyswip import Prolog
+    >>> prolog = Prolog()
+    >>> prolog.consult("knowledge_base.pl")
 
 Since version 0.1.3 of PySWIP, it is possible to register a Python function as a
 Prolog predicate through SWI-Prolog's foreign language interface.
@@ -61,7 +69,7 @@ Example (Foreign Functions):
     from pyswip import Prolog, registerForeign
 
     def hello(t):
-        print "Hello,", t
+        print("Hello,", t)
     hello.arity = 1
 
     registerForeign(hello)
@@ -81,9 +89,9 @@ predicates in pure Python (*Note that interface is experimental.*)
 Example (Pythonic interface):
 -----------------------------
 
-    from pyswip import Functor, Variable, Query
+    from pyswip import call, Functor, Variable, Query
 
-    assertz = Functor("assertz", 2)
+    assertz = Functor("assertz", 1)
     father = Functor("father", 2)
 
     call(assertz(father("michael","john")))
@@ -92,7 +100,7 @@ Example (Pythonic interface):
     X = Variable()
     q = Query(father("michael",X))
     while q.nextSolution():
-        print "Hello,", X.value
+        print("Hello,", X.value)
     q.closeQuery()
 
 Outputs:
