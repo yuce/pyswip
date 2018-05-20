@@ -1,10 +1,7 @@
-.PHONY: cover test test-all
+.PHONY: cover test
 
 cover:
-	py.test --cov=pyswip tests integration_tests
+	py.test --cov=pyswip tests
 
 test:
 	py.test tests --verbose
-
-test-all:
-	py.test tests integration_tests --verbose
