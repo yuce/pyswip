@@ -32,17 +32,25 @@ prolog.assertz("father(michael,john)")
 prolog.assertz("father(michael,gina)")
 list(prolog.query("father(michael,X)")) == [{'X': 'john'}, {'X': 'gina'}]
 for soln in prolog.query("father(X,Y)"):
-    print soln["X"], "is the father of", soln["Y"]
+    print(soln["X"], "is the father of", soln["Y"])
 # michael is the father of john
 # michael is the father of gina
 ```
+
+An existing knowledge base stored in a Prolog file can also be consulted,
+and queried. Assuming the filename "knowledge_base.pl" and the Python is 
+being run in the same working directory, it is consulted like so:
+
+    >>> from pyswip import Prolog
+    >>> prolog = Prolog()
+    >>> prolog.consult("knowledge_base.pl")
 
 ### Foreign Functions
 
 ```python
 from pyswip import Prolog, registerForeign
 def hello(t):
-    print "Hello,", t
+    print("Hello,", t)
 hello.arity = 1
 registerForeign(hello)
 prolog = Prolog()
