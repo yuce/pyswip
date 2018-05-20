@@ -55,7 +55,7 @@ def _initialize():
     # result is a boolean variable (i.e. 0 or 1) indicating whether the
     # initialisation was successful or not.
     if not result:
-        raise PrologError("Could not initialize Prolog environment."
+        raise PrologError("Could not initialize the Prolog environment."
                           "PL_initialise returned %d" % result)
 
     swipl_fid = PL_open_foreign_frame()
@@ -131,30 +131,31 @@ class Prolog:
                 PL_discard_foreign_frame(swipl_fid)
                 Prolog._queryIsOpen = False
 
+    @classmethod
     def asserta(cls, assertion, catcherrors=False):
         next(cls.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors))
-    asserta = classmethod(asserta)
 
+    @classmethod
     def assertz(cls, assertion, catcherrors=False):
         next(cls.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors))
-    assertz = classmethod(assertz)
 
+    @classmethod
     def dynamic(cls, term, catcherrors=False):
         next(cls.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors))
-    dynamic = classmethod(dynamic)
 
+    @classmethod
     def retract(cls, term, catcherrors=False):
         next(cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors))
-    retract = classmethod(retract)
 
+    @classmethod
     def retractall(cls, term, catcherrors=False):
         next(cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors))
-    retractall = classmethod(retractall)
 
+    @classmethod
     def consult(cls, filename, catcherrors=False):
         next(cls.query(filename.join(["consult('", "')"]), catcherrors=catcherrors))
-    consult = classmethod(consult)
 
+    @classmethod
     def query(cls, query, maxresult=-1, catcherrors=True, normalize=True):
         """Run a prolog query and return a generator.
         If the query is a yes/no question, returns {} for yes, and nothing for no.
@@ -170,31 +171,5 @@ class Prolog:
         >>> print sorted(prolog.query("father(michael,X)"))
         [{'X': 'gina'}, {'X': 'john'}]
         """
-        #assert cls.initialized
         return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)
-    query = classmethod(query)
-
-
-def _test():
-    lines = [("assertz(father(michael,john)).","Michael is the father of John"),
-            ("assertz(father(michael,gina)).","Michael is the father of Gina"),
-            ("father(michael,john).","Is Michael father of John?"),
-            ("father(michael,olivia).","Is Michael father of Olivia?"),
-            ("father(michael,X).","Michael is the father of whom?"),
-            ("father(X,Y).","Who is the father of whom?")]
-
-    prolog = Prolog()
-
-    for code, comment in lines:
-        print("?-", code, "[", comment, "]")
-        print(list(prolog.query(code)))
-
-    for r in prolog.query("father(X,Y)"):
-        print(r["X"], "is the father of", r["Y"])
-
-
-if __name__ == "__main__":
-    #import doctest
-    #doctest.testmod()
-    _test()
 

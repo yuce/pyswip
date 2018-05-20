@@ -60,9 +60,9 @@ class TestProlog(unittest.TestCase):
         otherquery = "mother(jane, X)"
 
         # This should not throw an exception
-        for q in p.query(somequery):
+        for _ in p.query(somequery):
             pass
-        for q in p.query(otherquery):
+        for _ in p.query(otherquery):
             pass
         
         with self.assertRaises(pl.NestedQueryError):

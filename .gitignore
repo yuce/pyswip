@@ -1,3 +1,6 @@
 __pycache__
 *.swp
 *.pyc
+.coverage
+*.BAC
+.pytest_cache

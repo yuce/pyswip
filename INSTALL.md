@@ -1,20 +1,20 @@
-PySWIP INSTALL
-===============
+# PySWIP INSTALL
 
 PySWIP requires SWI-Prolog as a shared library since it uses ctypes to access
 SWI-Prolog/C functions. The shared library is present in the Win32 installer,
 but missing by default from the builds made directly from the source.
 
-Installing on Linux
--------------------
+## Installing on Linux
 
 Some distro packages of swi-prolog already include the shared library or offer
 a devel version of the package, that way you can skip compiling the package from
 source. A quick way to check if you have the library already installed is by running
 
-``$ find /usr/lib* -name lib*pl.so``
+```
+$ find /usr/lib* -name lib*pl.so
+```
 
-If no files are listed with the name ``libswipl.so`` or ``libpl.so`` you'll need 
+If no files are listed with the name `libswipl.so` or `libpl.so` you'll need 
 to proceed building from source.
 
 These instructions are tested on a Linux system, but should also work for POSIX
@@ -26,55 +26,63 @@ SWI-Prolog. We use version 6.0.2 of SWI-Prolog. Please make the necessary
 modifications for your environment.
 
 1) Get the source from http://www.swi-prolog.org/download/stable:
-
-	$ wget http://www.swi-prolog.org/download/stable/src/pl-6.0.2.tar.gz
+```
+wget http://www.swi-prolog.org/download/stable/src/pl-6.0.2.tar.gz
+```
 
 2) Extract the archive and cd into it:
-	
-	$ tar xzvf pl-6.0.2.tar.gz
-	$ cd pl-6.0.2
+```	
+tar xzvf pl-6.0.2.tar.gz
+cd pl-6.0.2
+```
 
 3) Configure the source with shared library enabled:
+```
+./configure --enable-shared
+```
+*** If using a 64-bit system, you may have to compile with the -ggdb flag in
+	order to get PySWIP to work with SWI-Prolog without segfaults (But not
+	necessarily.  YMMV.):
 
-	$ ./configure --enable-shared
-	
-   *** If using a 64-bit system, you may have to compile with the -ggdb flag in
-       order to get PySWIP to work with SWI-Prolog without segfaults (But not
-       necessarily.  YMMV.):
-   
-	$ CFLAGS=-ggdb ./configure --enable-shared
+```
+CFLAGS=-ggdb ./configure --enable-shared
+```
 
 4) Compile the source:
-
-	$ make
+```
+make
+```
 
 5) Install the source:
-	
-	$ sudo make install
+```	
+sudo make install
+```
 	
 6) *** This is perhaps no longer relevant, as it appears clp is installed by
 	default with SWI-Prolog clp library is useful for constraint handling
 	problems, so let's install that too:
-
-	$ cd cd packages/clpqr
-	$ ./configure --enable-shared
-	$ make && make install
+```
+cd packages/clpqr
+./configure --enable-shared
+make && make install
+```
 
 7) If you are not using Python 2.5 or later, you should install ctypes, or get a
    new version of Python (apt-get is fine if you're using Ubuntu).
 
-8) Unpack PySwIP package and install it with, ``python setup.py install``.
+8) Unpack PySwIP package and install it with, `python setup.py install`.
 
-9) After you install it, you can test it with the following at your Python shell::
-
-	>>> from pyswip import Prolog
-	>>> prolog = Prolog()
-	>>> prolog.assertz("father(michael,john)")
+9) After you install it, you can test it with the following at your Python shell:
+```python
+from pyswip import Prolog
+prolog = Prolog()
+prolog.assertz("father(michael,john)")
+```
 	
 If you get an error, such as "libpl (shared) not found." or "FATAL ERROR:
 Resource not found" be sure you have installed SWI-Prolog as a shared
-library. Check your default library directory (usually ``/usr/lib``) for
-``libswipl.so``.
+library. Check your default library directory (usually `/usr/lib`) for
+`libswipl.so`.
 
 
 Installing on Win32
@@ -91,10 +99,10 @@ http://vlaurie.com/computers2/Articles/environment.htm
 3) Get a Windows installer version of PySWIP and install it.
 
 4) After you install it, you can test it with the following at your Python
-   console::
-
-	>>> from pyswip import Prolog
-	>>> prolog = Prolog()
-	>>> prolog.assertz("father(michael,john)")
-
+   console:
+```python
+from pyswip import Prolog
+prolog = Prolog()
+prolog.assertz("father(michael,john)")
+```
 

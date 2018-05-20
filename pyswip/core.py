@@ -2,7 +2,7 @@
 
 
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2018 Yüce Tekol
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@
 from __future__ import print_function
 
 import os
-import re
 import sys
 import glob
 import warnings
@@ -158,6 +157,8 @@ def _findSwiplFromExec():
 
 
 def _findSwiplWin():
+    import re
+
     """
     This function uses several heuristics to gues where SWI-Prolog is installed
     in Windows. It always returns None as the path of the resource file because,
@@ -303,9 +304,10 @@ def walk(path, name):
 
 
 def get_swi_ver():
-    swi_ver = raw_input(
+    import re
+    swi_ver = input(
                 'Please enter you SWI-Prolog version in format "X.Y.Z": ')
-    match = re.match(r'[0-9]\.[0-9]\.[0-9]')
+    match = re.search(r'[0-9]\.[0-9]\.[0-9]')
     if match is None:
         raise InputError('Error, type normal version')
     

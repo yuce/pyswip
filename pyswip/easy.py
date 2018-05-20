@@ -2,7 +2,7 @@
 
 
 # pyswip.easy -- PySWIP helper functions
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2018 Yüce Tekol
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -569,38 +569,3 @@ class Query(object):
             PL_close_query(Query.qid)
             Query.qid = None
     closeQuery = staticmethod(closeQuery)
-
-
-def _test():
-    #from pyswip.prolog import Prolog
-    #p = Prolog()
-
-    #p = _prolog
-
-    assertz = Functor("assertz")
-    a = Functor("a_")
-    b = Functor("b_")
-
-    call(assertz(a(10)))
-    call(assertz(a([1,2,3])))
-    call(assertz(a(11)))
-    call(assertz(b(11)))
-    call(assertz(b(12)))
-
-    X = Variable()
-
-    #q = Query(a(X), ~b(X))
-    #q = Query(b(X), a(X))
-    #while q.nextSolution():
-    #    print X.value
-    #print call(a(X),b(X))
-    #print call(_comma(~a(X),a(X)))
-    #q = Query(_comma(a(X), b(X)))
-    q = Query(a(X))
-    while q.nextSolution():
-        print(">", X.value)
-    q.closeQuery()
-
-if __name__ == "__main__":
-    _test()
-
