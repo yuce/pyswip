@@ -247,10 +247,7 @@ class TestIssues(unittest.TestCase):
         import pyswip.prolog as pl
         
         p = pl.Prolog()
-
-        # Add a simple grammar to the base
-        p.consult("test_functor_return.pl")
-
+        p.consult("integration_tests/test_functor_return.pl", catcherrors=True)
         query = "sentence(Parse_tree, [the,bat,eats,a,cat], [])"
         expectedTree = "s(np(d(the), n(bat)), vp(v(eats), np(d(a), n(cat))))"
 

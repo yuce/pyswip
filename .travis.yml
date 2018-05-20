@@ -1,0 +1,16 @@
+language: python
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "nightly"
+  - "pypy"
+sudo: required
+before_install:
+  - sudo apt update && sudo apt install -y swi-prolog-nox
+install:
+  - pip install test-requirements.txt coveralls
+script:
+  - make cover
+after_success:
+  - coveralls
