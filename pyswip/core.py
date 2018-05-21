@@ -203,7 +203,7 @@ def _findSwiplWin():
         #    home        REG_SZ  C:\Program Files\pl
         # (Note: spaces may be \t or spaces in the output)
         ret = ret[0].splitlines()
-        ret = [line for line in ret if len(line) > 0]
+        ret = [line.decode("utf-8") for line in ret if len(line) > 0]
         pattern = re.compile('[^h]*home[^R]*REG_SZ( |\t)*(.*)$')
         match = pattern.match(ret[-1])
         if match is not None:
