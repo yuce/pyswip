@@ -9,7 +9,7 @@ See the [CHANGELOG](CHANGELOG.md).
 
 **This library is being refactored. Expect API breakage and incompatibility with previous versions.**
 
-Thanks to all [contributors](CONTRIBUTORS.txt). If you have contributed to PySWIP in the past and your name does not appear on that list, please let [me](mailto:yucetekol@gmail.com) know so I can add your name.
+Thanks to all [contributors](CONTRIBUTORS.txt). If you have contributed to PySWIP in the past and your name does not appear on that list, please [let me know](mailto:yucetekol@gmail.com) so I can add your name.
 
 ## Introduction
 
@@ -26,11 +26,11 @@ doesn't require compilation to be installed.
     * PyPy is currently not supported.
 * SWI-Prolog 7.6.x and higher (most probably other versions will also work).
 * libpl as a shared library.
-* Works on Linux and Win32, should work for all POSIX.
+* Works on Linux, Windows and MacOS. Should work on other POSIX.
 
 ## Install
 
-Please see ``INSTALL`` for detailed instructions.
+See [INSTALL](INSTALL.md) for instructions. **That file is out of date and is being revamped.**
 
 ## Examples
 
@@ -135,6 +135,11 @@ http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html
 
 * [Calling Prolog from Python](http://fernmac.blogspot.com.tr/2013/07/calling-prolog-from-python.html)
 * [Python v. Prolog: Round 1: Fight!](http://www.kuliniewicz.org/blog/archives/2007/10/21/python-v-prolog-round-1-fight/)
+
+## Contact
+
+* `yucetekol@gmail.com`
+* https://twitter.com/tklx
 
 
 ## License
