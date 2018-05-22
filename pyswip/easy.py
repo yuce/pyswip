@@ -390,13 +390,7 @@ def getString(t):
         raise InvalidTypeError("string")
 
 
-mappedTerms = {}
 def getTerm(t):
-    global mappedTerms
-    #print 'mappedTerms', mappedTerms
-
-    #if t in mappedTerms:
-    #    return mappedTerms[t]
     p = PL_term_type(t)
     if p < PL_TERM:
         res = _getterm_router[p](t)
@@ -404,7 +398,6 @@ def getTerm(t):
         res = getList(t)
     else:
         res = getFunctor(t)
-    mappedTerms[t] = res
     return res
 
 

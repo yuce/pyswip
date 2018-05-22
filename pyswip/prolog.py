@@ -43,30 +43,30 @@ class NestedQueryError(PrologError):
     pass
 
 
-def _initialize():
-    args = []
-    args.append("./")
-    args.append("-q")         # --quiet
-    args.append("-nosignals") # "Inhibit any signal handling by Prolog"
-    if SWI_HOME_DIR is not None:
-        args.append("--home=%s" % SWI_HOME_DIR)
+def _initialize(lib, swi_home):
+    args = [
+        "./",
+        "-q",  # quiet
+        "-nosignals", # Inhibit signal handling by SWI
+    ]
+    if swi_home:
+        args.append("--home=%s" % swi_home)
 
-    result = PL_initialise(len(args),args)
+    result = lib.initialise(len(args),args)
     # result is a boolean variable (i.e. 0 or 1) indicating whether the
     # initialisation was successful or not.
     if not result:
         raise PrologError("Could not initialize the Prolog environment."
                           "PL_initialise returned %d" % result)
 
-    swipl_fid = PL_open_foreign_frame()
-    swipl_load = PL_new_term_ref()
-    PL_chars_to_term("asserta(pyrun(GoalString,BindingList) :- "
+    swipl_fid = lib.open_foreign_frame()
+    swipl_load = lib.new_term_ref()
+    lib.chars_to_term("asserta(pyrun(GoalString,BindingList) :- "
                      "(atom_chars(A,GoalString),"
                      "atom_to_term(A,Goal,BindingList),"
                      "call(Goal))).", swipl_load)
-    PL_call(swipl_load, None)
-    PL_discard_foreign_frame(swipl_fid)
-_initialize()
+    lib.call(swipl_load, None)
+    lib.discard_foreign_frame(swipl_fid)
 
 
 # NOTE: This import MUST be after _initialize is called!!
@@ -83,31 +83,33 @@ class Prolog:
 
     class _QueryWrapper(object):
 
-        def __init__(self):
+        def __init__(self, lib):
             if Prolog._queryIsOpen:
                 raise NestedQueryError("The last query was not closed")
+            self.lib = lib
 
         def __call__(self, query, maxresult, catcherrors, normalize):
-            swipl_fid = PL_open_foreign_frame()
+            lib = self.lib
+            swipl_fid = lib.open_foreign_frame()
 
-            swipl_head = PL_new_term_ref()
-            swipl_args = PL_new_term_refs(2)
+            swipl_head = lib.new_term_ref()
+            swipl_args = lib.new_term_refs(2)
             swipl_goalCharList = swipl_args
             swipl_bindingList = swipl_args + 1
 
-            PL_put_list_chars(swipl_goalCharList, query)
+            lib.put_list_chars(swipl_goalCharList, query)
 
-            swipl_predicate = PL_predicate("pyrun", 2, None)
+            swipl_predicate = lib.predicate("pyrun", 2, None)
 
             plq = catcherrors and (PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
-            swipl_qid = PL_open_query(None, plq, swipl_predicate, swipl_args)
+            swipl_qid = lib.open_query(None, plq, swipl_predicate, swipl_args)
 
             Prolog._queryIsOpen = True # From now on, the query will be considered open
             try:
-                while maxresult and PL_next_solution(swipl_qid):
+                while maxresult and lib.next_solution(swipl_qid):
                     maxresult -= 1
                     bindings = []
-                    swipl_list = PL_copy_term_ref(swipl_bindingList)
+                    swipl_list = lib.copy_term_ref(swipl_bindingList)
                     t = getTerm(swipl_list)
                     if normalize:
                         try:
@@ -120,15 +122,15 @@ class Prolog:
                     else:
                         yield t
 
-                if PL_exception(swipl_qid):
-                    term = getTerm(PL_exception(swipl_qid))
+                if lib.exception(swipl_qid):
+                    term = getTerm(lib.exception(swipl_qid))
 
                     raise PrologError("".join(["Caused by: '", query, "'. ",
                                                "Returned: '", str(term), "'."]))
 
             finally: # This ensures that, whatever happens, we close the query
-                PL_cut_query(swipl_qid)
-                PL_discard_foreign_frame(swipl_fid)
+                lib.cut_query(swipl_qid)
+                lib.discard_foreign_frame(swipl_fid)
                 Prolog._queryIsOpen = False
 
     @classmethod
