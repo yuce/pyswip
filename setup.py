@@ -28,19 +28,25 @@
 import sys
 import os
 import os.path
-from distutils.core import setup
+from setuptools import setup
+
+with open("README.md") as f:
+    long_description = f.read()
 
 
 setup(name="pyswip",
-      version="0.3.0",
+      version="0.2.4",
       url="https://github.com/yuce/pyswip",
       download_url="https://github.com/yuce/pyswip/releases",
       author="Yuce Tekol",
       author_email="yucetekol@gmail.com",
       description="PySWIP enables querying SWI-Prolog in your Python programs.",
-      long_description="",
+      long_description=long_description,
+      long_description_content_type="text/markdown",
       license="MIT",
       packages=["pyswip"],
+      keywords=["prolog", "artificial intelligence", "ai", "ffi", "ctypes"],
+      tests_require=['pytest', 'coverage', 'pytest-cov'],
       classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

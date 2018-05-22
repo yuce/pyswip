@@ -4,3 +4,5 @@ __pycache__
 .coverage
 *.BAC
 .pytest_cache
+dist/
+pyswip.egg-info/
