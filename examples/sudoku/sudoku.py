@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2018 Yüce Tekol
 #  
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +20,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 
 from pyswip.prolog import Prolog
 from pyswip.easy import *
@@ -55,10 +53,10 @@ puzzle2 = [
 
 
 def pretty_print(table):
-    print "".join(["/---", "----"*8, "\\"])
+    print("".join(["/---", "----"*8, "\\"]))
     for row in table:
-        print "".join(["|", "|".join(" %s " % (i or " ") for i in row), "|"])
-    print "".join(["\\---", "----"*8, "/"])        
+        print("".join(["|", "|".join(" %s " % (i or " ") for i in row), "|"]))
+    print("".join(["\\---", "----"*8, "/"]))
 
     
 def solve(problem):
@@ -74,15 +72,15 @@ def solve(problem):
     
 def main():
     puzzle = puzzle1
-    print "-- PUZZLE --"
-    pretty_print(puzzle)    
-    print
-    print " -- SOLUTION --"
+    print("-- PUZZLE --")
+    pretty_print(puzzle)
+    print()
+    print(" -- SOLUTION --")
     solution = solve(puzzle)
     if solution:
         pretty_print(solution)
     else:
-        print "This puzzle has no solutions [is it valid?]"
+        print("This puzzle has no solutions [is it valid?]")
 
         
 if __name__ == "__main__":

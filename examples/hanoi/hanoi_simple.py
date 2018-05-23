@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2018 Yüce Tekol
 #  
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,17 +21,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from pyswip.prolog import Prolog
 from pyswip.easy import getList, registerForeign
 
-
 N = 3  # Number of disks
-
 
 def main():
     def notify(t):
-        print "move disk from %s pole to %s pole." % tuple(t)
+        print("move disk from %s pole to %s pole." % tuple(t))
     notify.arity = 1
         
     prolog = Prolog()

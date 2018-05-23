@@ -1,8 +1,7 @@
 # -*- coding:utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2018 Yüce Tekol
 #  
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +21,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from pyswip.core import *
 from pyswip.prolog import Prolog
 
@@ -39,13 +37,11 @@ def main():
 
     PL_put_atom_chars(a1, "gnu")
     PL_put_integer(a2, 50)
-    #PL_cons_functor(t, animal2, a1, a2)
     PL_cons_functor_v(t, animal2, a1)
     PL_cons_functor_v(ta, assertz, t)
     PL_call(ta, None)
     
-#    prolog.assertz("animal(gnu, 50)")
-    print list(prolog.query("animal(X,Y)", catcherrors=True))
+    print(list(prolog.query("animal(X,Y)", catcherrors=True)))
 
     
 if __name__ == "__main__":
