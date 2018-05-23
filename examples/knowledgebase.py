@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2018 Yüce Tekol
 #  
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,35 +21,37 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from pyswip import *
 
 
-p = Prolog()
+def main():
+    p = Prolog()
 
-assertz = Functor("assertz")
-parent = Functor("parent", 2)
-test1 = newModule("test1")
-test2 = newModule("test2")
+    assertz = Functor("assertz")
+    parent = Functor("parent", 2)
+    test1 = newModule("test1")
+    test2 = newModule("test2")
 
-call(assertz(parent("john", "bob")), module=test1)
-call(assertz(parent("jane", "bob")), module=test1)
+    call(assertz(parent("john", "bob")), module=test1)
+    call(assertz(parent("jane", "bob")), module=test1)
 
-call(assertz(parent("mike", "bob")), module=test2)
-call(assertz(parent("gina", "bob")), module=test2)
+    call(assertz(parent("mike", "bob")), module=test2)
+    call(assertz(parent("gina", "bob")), module=test2)
 
-print "knowledgebase test1"
+    print("knowledgebase test1")
 
-X = Variable()
-q = Query(parent(X, "bob"), module=test1)
-while q.nextSolution():
-    print X.value
-q.closeQuery()
+    X = Variable()
+    q = Query(parent(X, "bob"), module=test1)
+    while q.nextSolution():
+        print(X.value)
+    q.closeQuery()
 
-print "knowledgebase test2"
+    print("knowledgebase test2")
 
-q = Query(parent(X, "bob"), module=test2)
-while q.nextSolution():
-    print X.value
-q.closeQuery()
+    q = Query(parent(X, "bob"), module=test2)
+    while q.nextSolution():
+        print(X.value)
+    q.closeQuery()
 
+if __name__ == "__main__":
+    main()

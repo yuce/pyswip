@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2018 Yüce Tekol
 #  
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +21,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from pyswip import Prolog, registerForeign, Atom
 
 
@@ -36,4 +34,4 @@ def atom_checksum(*a):
 
 p = Prolog()
 registerForeign(atom_checksum, arity=2)
-print list(p.query("X='Python', atom_checksum(X, Y)", catcherrors=False))
+print(list(p.query("X='Python', atom_checksum(X, Y)", catcherrors=False)))
