@@ -1,8 +1,9 @@
-# PySWIP CHANGELOG
+# CHANGELOG
 
-+ 0.3.0
++ 0.2.5
 
-  * ...
+  * Project cleanup
+  * Updated the examples for Python 3.
 
 + 0.2.4
 

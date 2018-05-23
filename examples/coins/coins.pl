@@ -35,8 +35,4 @@ coins(S, Count, Total) :-
 	VA + VB + VC + VD + VE #= Total,
 	
 	label(S).
-
-%  :- findall(S, coins(S, 100, 500), Ss), halt.
- %:- coins(S, 100, 500), writeln(S), fail.
-
 	

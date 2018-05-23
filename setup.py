@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2012 Yüce Tekol
 #  
@@ -22,20 +21,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# PySWIP setup script
-
-
 import sys
 import os
+import io
 import os.path
 from setuptools import setup
 
-with open("README.md") as f:
+with io.open("README.md", encoding="utf-8") as f:
     long_description = f.read()
 
 
 setup(name="pyswip",
-      version="0.2.4",
+      version="0.2.5",
       url="https://github.com/yuce/pyswip",
       download_url="https://github.com/yuce/pyswip/releases",
       author="Yuce Tekol",

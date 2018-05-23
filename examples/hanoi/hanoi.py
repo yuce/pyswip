@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2018 Yüce Tekol
 #  
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +21,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
+from __future__ import print_function
 from collections import deque
 
 from pyswip.prolog import Prolog
 from pyswip.easy import getList, registerForeign
+
+try:
+    input = raw_input
+except NameError:
+    pass
 
 
 class Notifier:
@@ -34,7 +38,6 @@ class Notifier:
         self.fun = fun
         
     def notify(self, t):
-        #return not self.fun(getList(t))
         return not self.fun(t)
     notify.arity = 1
 
@@ -52,7 +55,8 @@ class Tower:
     def move(self, r):
         if not self.started:
             self.step += 1
-            self.draw()
+            if self.draw():
+                return True
             self.started = True
         disks = self.disks
         disks[str(r[1])].append(disks[str(r[0])].pop())
@@ -61,22 +65,22 @@ class Tower:
         
     def draw(self):
         disks = self.disks
-        print "\n Step", self.step
+        print("\n Step", self.step)
         for i in range(self.N):
             n = self.N - i - 1
-            print " ",
+            print(" ", end=" ")
             for pole in ["left", "center", "right"]:
                 if len(disks[pole]) - n > 0:
-                    print disks[pole][n],
+                    print(disks[pole][n], end=" ")
                 else:
-                    print " ",
-            print
-        print "-"*9
-        print " ", "L", "C", "R"        
+                    print(" ", end=" ")
+            print()
+        print("-" * 9)
+        print(" ", "L", "C", "R")
         if self.interactive:
-            cont = raw_input("Press 'n' to finish: ")
+            cont = input("Press 'n' to finish: ")
             return cont.lower() == "n"
-                    
+
 
 def main():
     N = 3
