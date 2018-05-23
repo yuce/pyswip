@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2018 Yüce Tekol
 #  
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,15 +25,19 @@
 # Sudoku auto-solver. Get today's sudoku at http://www.sudoku.org.uk/daily.asp
 # and solve it
 
-
-import urllib
-from HTMLParser import HTMLParser, HTMLParseError
-
+from __future__ import print_function
 from pyswip.prolog import Prolog
 from pyswip.easy import *
 
+try:
+    from html.parser import HTMLParser
+except:
+    from HTMLParser import HTMLParser
 
-URL = "http://www.sudoku.org.uk/daily.asp"
+try:
+    import urllib.request as urllib_request
+except ImportError:
+    import urllib as urllib_request
 
 
 class DailySudokuPuzzle(HTMLParser):
@@ -59,23 +62,20 @@ class DailySudokuPuzzle(HTMLParser):
             
     def handle_data(self, data):
         if self.__in_td:
-            self.puzzle.append(int(data))        
+            self.puzzle.append(int(data))
 
             
 def pretty_print(table):
-    print "".join(["/---", "----"*8, "\\"])
+    print("".join(["/---", "----"*8, "\\"]))
     for row in table:
-        print "".join(["|", "|".join(" %s " % (i or " ") for i in row), "|"])
-    print "".join(["\\---", "----"*8, "/"])        
+        print("".join(["|", "|".join(" %s " % (i or " ") for i in row), "|"]))
+    print("".join(["\\---", "----"*8, "/"]))
 
     
 def get_daily_sudoku(url):
     puzzle = DailySudokuPuzzle()
-    f = urllib.urlopen(url)
-    try:
-        puzzle.feed(f.read())
-    except HTMLParseError:
-        pass
+    f = urllib_request.urlopen(url)
+    puzzle.feed(f.read().decode("latin-1"))
     puzzle = puzzle.puzzle
     return [puzzle[i*9:i*9+9] for i in range(9)]
 
@@ -90,20 +90,20 @@ def solve(problem):
     else:
         return False    
 
-    
+
 if __name__ == "__main__":
+    URL = "http://www.sudoku.org.uk/daily.asp"
+
     prolog = Prolog()  # having this in `solve` bites! because of __del__
-    
-    print "Getting puzzle from:", URL
-    
+    print("Getting puzzle from:", URL)    
     puzzle = get_daily_sudoku(URL)
-    print "-- PUZZLE --"
-    pretty_print(puzzle)    
-    print
-    print " -- SOLUTION --"
+    print("-- PUZZLE --")
+    pretty_print(puzzle)
+    print()
+    print(" -- SOLUTION --")
     solution = solve(puzzle)
     if solution:
         pretty_print(solution)
     else:
-        print "This puzzle has no solutions [is it valid?]"
+        print("This puzzle has no solutions [is it valid?]")
 

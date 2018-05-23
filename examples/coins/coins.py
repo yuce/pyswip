@@ -23,8 +23,13 @@
 
 # 100 coins must sum to $5.00
 
+from __future__ import print_function
 from pyswip.prolog import Prolog
 
+try:
+    input = raw_input
+except NameError:
+    pass
 
 def main():
     prolog = Prolog()

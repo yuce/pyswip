@@ -29,8 +29,8 @@
 # So, what should be the values of S, E, N, D, M, O, R, Y
 # if they are all distinct digits.
 
+from __future__ import print_function
 from pyswip import Prolog
-
 
 letters = "S E N D M O R Y".split()
 prolog = Prolog()

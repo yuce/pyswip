@@ -7,7 +7,7 @@
 
 See the [CHANGELOG](CHANGELOG.md).
 
-**This library is being refactored. Expect API breakage and incompatibility with previous versions.**
+**This library is being cleaned up and refactored. Expect API breakage and incompatibility with previous versions.**
 
 Thanks to all [contributors](CONTRIBUTORS.txt). If you have contributed to PySWIP in the past and your name does not appear on that list, please [let me know](mailto:yucetekol@gmail.com) so I can add your name.
 
@@ -22,7 +22,7 @@ doesn't require compilation to be installed.
 
 ## Requirements:
 
-* Python 3.4 and higher.
+* Python 2.7 or 3.4 and higher.
     * PyPy is currently not supported.
 * SWI-Prolog 7.6.x and higher (most probably other versions will also work).
 * libpl as a shared library.

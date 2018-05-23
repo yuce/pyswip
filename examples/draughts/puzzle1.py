@@ -35,7 +35,14 @@
 # are four guards watching each wall.  How can they be rearranged such
 # that there are five watching each wall?"
 
+from __future__ import print_function
 from pyswip.prolog import Prolog
+
+
+try:
+    input = raw_input
+except NameError:
+    pass
 
 
 def main():
