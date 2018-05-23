@@ -35,7 +35,7 @@ with open("README.md") as f:
 
 
 setup(name="pyswip",
-      version="0.2.4",
+      version="0.2.5",
       url="https://github.com/yuce/pyswip",
       download_url="https://github.com/yuce/pyswip/releases",
       author="Yuce Tekol",
