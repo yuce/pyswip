@@ -6,7 +6,9 @@ python:
   - "nightly"
 sudo: required
 before_install:
-  - sudo apt update && sudo apt install -y swi-prolog-nox
+  - sudo apt-add-repository -y ppa:swi-prolog/stable
+  - sudo apt-get update
+  - sudo apt-get install -y swi-prolog-nox
 install:
   - pip install -r test-requirements.txt coveralls
 script:
