@@ -11,7 +11,7 @@ cover:
 	py.test --cov=pyswip tests
 
 clean:
-	rm -rf dist build
+	rm -rf dist build pyswip.egg-info
 
 test:
 	py.test tests --verbose
