@@ -4,8 +4,6 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-  - "3.7"
-  - "nightly"
 sudo: required
 before_install:
   - sudo apt-add-repository -y ppa:swi-prolog/stable
