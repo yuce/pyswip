@@ -1,4 +1,4 @@
-.PHONY: build_posix build_win cover test
+.PHONY: build_posix build_win clean cover test
 
 build_posix:
 	python setup.py sdist
@@ -10,6 +10,11 @@ build_win:
 cover:
 	py.test --cov=pyswip tests
 
+clean:
+	rm -rf dist build
+
 test:
 	py.test tests --verbose
 
+upload:
+	twine upload dist/*
