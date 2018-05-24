@@ -19,12 +19,11 @@ prolog = Prolog()
 prolog.assertz("father(michael,john)")
 ```
 
-
 ## Windows
 
 1) Get a recent version of SWI-Prolog from http://www.swi-prolog.org/Download.html and install it.
 
-2) `pip install pyswip` (*recommended*) or [download](https://pypi.org/project/pyswip/#files) a Windows installer version of PySWIP and install it.
+2) `pip install pyswip`
 
 3) Run a quick test by running following code at your Python console:
 ```python
@@ -32,7 +31,6 @@ from pyswip import Prolog
 prolog = Prolog()
 prolog.assertz("father(michael,john)")
 ```
-
 
 ## MacOS
 
