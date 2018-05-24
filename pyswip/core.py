@@ -571,7 +571,7 @@ _fixWindowsPath(_path)
 
 
 # Load the library
-_lib = CDLL(_path)
+_lib = CDLL(_path, mode=RTLD_GLOBAL)
 
 # PySWIP constants
 PYSWIP_MAXSTR = 1024
