@@ -795,15 +795,8 @@ PL_get_atom_chars.restype = c_int
 
 PL_get_atom_chars = check_strings(None, 1)(PL_get_atom_chars)
 
-##define PL_get_string_chars(t, s, l) PL_get_string(t,s,l)
-#                                       /* PL_get_string() is depricated */
-#PL_EXPORT(int)         PL_get_string(term_t t, char **s, size_t *len);
-PL_get_string = _lib.PL_get_string
-
-PL_get_string = check_strings(None, 1)(PL_get_string)
-
-PL_get_string_chars = PL_get_string
-#PL_get_string_chars.argtypes = [term_t, POINTER(c_char_p), c_int_p]
+PL_get_string_chars = _lib.PL_get_string
+PL_get_string_chars.argtypes = [term_t, POINTER(c_char_p), c_int_p]
 
 #PL_EXPORT(int)         PL_get_chars(term_t t, char **s, unsigned int flags);
 PL_get_chars = _lib.PL_get_chars  # FIXME:

@@ -1,12 +1,15 @@
 language: python
 python:
+  - "2.7"
   - "3.4"
   - "3.5"
   - "3.6"
   - "nightly"
 sudo: required
 before_install:
-  - sudo apt update && sudo apt install -y swi-prolog-nox
+  - sudo apt-add-repository -y ppa:swi-prolog/stable
+  - sudo apt-get update
+  - sudo apt-get install -y swi-prolog-nox
 install:
   - pip install -r test-requirements.txt coveralls
 script:
