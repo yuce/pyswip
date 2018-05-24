@@ -72,6 +72,15 @@ class TestProlog(unittest.TestCase):
                     # query
                     pass
 
+    def test_prolog_strings(self):
+        """
+        See: https://github.com/yuce/pyswip/issues/9
+        """
+
+        import pyswip
+        p = pyswip.Prolog()
+        p.assertz('some_string_fact("abc")')
+        self.assertEqual([{"S": b"abc"}], list(p.query("some_string_fact(S)")))
 
 if __name__ == "__main__":
     unittest.main()
