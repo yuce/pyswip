@@ -588,7 +588,8 @@ PL_INTEGER = 3  # int
 PL_FLOAT = 4  # double
 PL_STRING = 5  # const char *
 PL_TERM = 6  #
-# PL_unify_term()
+PL_NIL = 7
+PL_LIST_PAIR = 9
 PL_FUNCTOR = 10  # functor_t, arg ...
 PL_LIST = 11  # length, arg ...
 PL_CHARS = 12  # const char *
@@ -965,12 +966,20 @@ PL_is_compound = _lib.PL_is_compound
 PL_is_compound.argtypes = [term_t]
 PL_is_compound.restype = c_int
 
+PL_is_callable = _lib.PL_is_callable
+PL_is_callable.argtypes = [term_t]
+PL_is_callable.restype = c_int
+
 PL_is_functor = _lib.PL_is_functor
 PL_is_functor.argtypes = [term_t, functor_t]
 PL_is_functor.restype = c_int
 
 PL_is_list = _lib.PL_is_list
 PL_is_list.argtypes = [term_t]
+PL_is_list.restype = c_int
+
+PL_is_pair = _lib.PL_is_pair
+PL_is_pair.argtypes = [term_t]
 PL_is_list.restype = c_int
 
 PL_is_atomic = _lib.PL_is_atomic

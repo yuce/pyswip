@@ -390,29 +390,29 @@ def getString(t):
         raise InvalidTypeError("string")
 
 
-mappedTerms = {}
 def getTerm(t):
-    global mappedTerms
-    #print 'mappedTerms', mappedTerms
-
-    #if t in mappedTerms:
-    #    return mappedTerms[t]
     p = PL_term_type(t)
-    if p < PL_TERM:
-        res = _getterm_router[p](t)
-    elif PL_is_list(t):
-        res = getList(t)
-    else:
-        res = getFunctor(t)
-    mappedTerms[t] = res
-    return res
+    if p == PL_TERM:
+        if PL_is_list(t):
+            return getList(t)
+        elif PL_is_pair(t):
+            return getTuple(t)
+        elif PL_is_callable(t):
+            return getFunctor(t)
+    elif p <= PL_LIST:
+        return _getterm_router[p](t)
+    
+    raise InvalidTypeError("%s is not a recognized type", t)
+
+
+def getNil(t):
+    return []
 
 
 def getList(x):
     """
     Return t as a list.
     """
-
     t = PL_copy_term_ref(x)
     head = PL_new_term_ref()
     result = []
@@ -423,8 +423,16 @@ def getList(x):
     return result
 
 
+def getTuple(t):
+    """
+    Return t as a list.
+    """
+    return tuple(getList(t))
+
+
 def getFunctor(t):
-    """Return t as a functor
+    """
+    Return t as a functor
     """
     return Functor.fromTerm(t)
 
@@ -434,13 +442,16 @@ def getVariable(t):
 
 
 _getterm_router = {
-                   PL_VARIABLE: getVariable,
-                   PL_ATOM: getAtom,
-                   PL_STRING: getString,
-                   PL_INTEGER: getInteger,
-                   PL_FLOAT: getFloat,
-                   PL_TERM: getTerm,
-                  }
+    PL_VARIABLE: getVariable,
+    PL_ATOM: getAtom,
+    PL_STRING: getString,
+    PL_INTEGER: getInteger,
+    PL_FLOAT: getFloat,
+    PL_TERM: getTerm,
+    PL_NIL: getNil,
+    PL_LIST_PAIR: getList,
+    PL_LIST: getList,
+}
 
 
 arities = {}

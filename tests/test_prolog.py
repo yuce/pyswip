@@ -84,9 +84,22 @@ class TestProlog(unittest.TestCase):
         """
         See: https://github.com/yuce/pyswip/issues/10
         """
-        prolog = pl.Prolog()
-        prolog.consult("tests/test_read.pl")
-        list(prolog.query('read_file("tests/test_read.pl", S)'))
+        p = pl.Prolog()
+        p.consult("tests/test_read.pl")
+        target = [{"S": [b"Hello, World!"]}]
+        result = list(p.query('read_file("tests/fixtures/hello.txt", S)'))
+        self.assertEquals(target, result)
+
+    def test_prolog_tuple(self):
+        """
+        See: https://github.com/yuce/pyswip/issues/8
+        """
+        from pyswip.easy import Atom
+        p = pl.Prolog()
+        p.assertz("parents((michael,mary), peter)")
+        target = [{"X": (Atom("michael"), Atom("mary"))}]
+        result = list(p.query("parents(X, peter)"))
+        self.assertEquals(target, result)
 
 if __name__ == "__main__":
     unittest.main()
