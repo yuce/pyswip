@@ -23,9 +23,9 @@
 # SOFTWARE.
 
 
-import sys
-
-from pyswip.core import *
+from .swipl import Swipl, c_char_p
+from .const import PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_Q_NORMAL
+from .term import Term
 
 
 class PrologError(Exception):
@@ -43,135 +43,146 @@ class NestedQueryError(PrologError):
     pass
 
 
-def _initialize(lib, swi_home):
-    args = [
-        "./",
-        "-q",  # quiet
-        "-nosignals", # Inhibit signal handling by SWI
-    ]
-    if swi_home:
-        args.append("--home=%s" % swi_home)
+class _Singleton(type):
 
-    result = lib.initialise(len(args),args)
-    # result is a boolean variable (i.e. 0 or 1) indicating whether the
-    # initialisation was successful or not.
-    if not result:
-        raise PrologError("Could not initialize the Prolog environment."
-                          "PL_initialise returned %d" % result)
+    _instances = {}
 
-    swipl_fid = lib.open_foreign_frame()
-    swipl_load = lib.new_term_ref()
-    lib.chars_to_term("asserta(pyrun(GoalString,BindingList) :- "
-                     "(atom_chars(A,GoalString),"
-                     "atom_to_term(A,Goal,BindingList),"
-                     "call(Goal))).", swipl_load)
-    lib.call(swipl_load, None)
-    lib.discard_foreign_frame(swipl_fid)
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(_Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
-# NOTE: This import MUST be after _initialize is called!!
-from pyswip.easy import getTerm
-
-
-class Prolog:
-    """Easily query SWI-Prolog.
-    This is a singleton class
-    """
+class Prolog(metaclass=_Singleton):
 
     # We keep track of open queries to avoid nested queries.
-    _queryIsOpen = False
+    # _queryIsOpen = False
 
-    class _QueryWrapper(object):
+    def __init__(self, lib_path="", swi_home=""):
+        if not lib_path:
+            lib_path, swi_home = self._discover_lib()
+        self._initialize(lib_path, swi_home)
 
-        def __init__(self, lib):
-            if Prolog._queryIsOpen:
-                raise NestedQueryError("The last query was not closed")
-            self.lib = lib
+    @classmethod
+    def _discover_lib(self):
+        from .discover  import _findSwipl
+        return _findSwipl()
 
-        def __call__(self, query, maxresult, catcherrors, normalize):
-            lib = self.lib
-            swipl_fid = lib.open_foreign_frame()
+    @classmethod
+    def _initialize(self, lib_path, swi_home):
+        from .swipl import open_lib
+        open_lib(lib_path)
 
+        args = [
+            "./",
+            "-q",  # quiet
+            "-nosignals", # Inhibit signal handling by SWI
+        ]
+        if swi_home:
+            args.append("--home=%s" % swi_home)
+
+        lib = Swipl.lib
+        result = lib.initialise(len(args),args)
+        # result is a boolean variable (i.e. 0 or 1) indicating whether the
+        # initialisation was successful or not.
+        if not result:
+            raise PrologError("Could not initialize the Prolog environment."
+                              "PL_initialise returned %d" % result)
+
+        with Frame():
+            swipl_load = lib.new_term_ref()
+            lib.chars_to_term(
+                """
+                asserta(pyrun(GoalString, BindingList) :- (
+                    atom_chars(A, GoalString),
+                    atom_to_term(A, Goal, BindingList),
+                    call(Goal))).
+                """, swipl_load)
+            lib.call(swipl_load, None)
+
+    def asserta(self, assertion, catcherrors=False):
+        return next(self.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors))
+
+    def assertz(self, assertion, catcherrors=False):
+        return next(self.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors))
+
+    # @classmethod
+    # def dynamic(cls, term, catcherrors=False):
+    #     next(cls.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors))
+    #
+    # @classmethod
+    # def retract(cls, term, catcherrors=False):
+    #     next(cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors))
+    #
+    # @classmethod
+    # def retractall(cls, term, catcherrors=False):
+    #     next(cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors))
+    #
+
+    def consult(self, filename, catcherrors=True):
+        return next(self.query(filename.join(["consult('", "')"]), catcherrors=catcherrors))
+
+    @classmethod
+    def query(cls, query, maxresult=-1, catcherrors=True, normalize=True):
+        return _QueryWrapper()(query, maxresult, catcherrors, normalize)
+
+
+class _QueryWrapper(object):
+
+    @classmethod
+    def __call__(cls, query, maxresult, catcherrors, normalize):
+        lib = Swipl.lib
+
+        with Frame():
             swipl_head = lib.new_term_ref()
             swipl_args = lib.new_term_refs(2)
-            swipl_goalCharList = swipl_args
-            swipl_bindingList = swipl_args + 1
-
-            lib.put_list_chars(swipl_goalCharList, query)
-
-            swipl_predicate = lib.predicate("pyrun", 2, None)
-
+            swipl_goal_char_list = swipl_args
+            swipl_binding_list = swipl_args + 1
+            lib.put_list_chars(swipl_goal_char_list, query)
+            swipl_predicate = lib.predicate(c_char_p(b"pyrun"), 2, None)
             plq = catcherrors and (PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
             swipl_qid = lib.open_query(None, plq, swipl_predicate, swipl_args)
 
-            Prolog._queryIsOpen = True # From now on, the query will be considered open
+            # Prolog._queryIsOpen = True # From now on, the query will be considered open
             try:
                 while maxresult and lib.next_solution(swipl_qid):
                     maxresult -= 1
                     bindings = []
-                    swipl_list = lib.copy_term_ref(swipl_bindingList)
-                    t = getTerm(swipl_list)
+                    swipl_list = lib.copy_term_ref(swipl_binding_list)
+                    # t = getTerm(swipl_list)
+                    t = Term.decode(swipl_list)
                     if normalize:
-                        try:
-                            v = t.value
-                        except AttributeError:
-                            v = {}
-                            for r in [x.value for x in t]:
-                                v.update(r)
-                        yield v
+                        yield t.norm_value
+                    #     try:
+                    #         v = t.value
+                    #     except AttributeError:
+                    #         v = {}
+                    #         for r in [x.value for x in t]:
+                    #             v.update(r)
+                    #     yield v
                     else:
                         yield t
 
                 if lib.exception(swipl_qid):
-                    term = getTerm(lib.exception(swipl_qid))
+                    raise PrologError("error: %s", swipl_qid)
+                    # term = getTerm(lib.exception(swipl_qid))
+                    #
+                    # raise PrologError("".join(["Caused by: '", query, "'. ",
+                    #                             "Returned: '", str(term), "'."]))
 
-                    raise PrologError("".join(["Caused by: '", query, "'. ",
-                                               "Returned: '", str(term), "'."]))
-
-            finally: # This ensures that, whatever happens, we close the query
+            finally:
                 lib.cut_query(swipl_qid)
-                lib.discard_foreign_frame(swipl_fid)
-                Prolog._queryIsOpen = False
+                # Prolog._queryIsOpen = False
 
-    @classmethod
-    def asserta(cls, assertion, catcherrors=False):
-        next(cls.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors))
 
-    @classmethod
-    def assertz(cls, assertion, catcherrors=False):
-        next(cls.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors))
+class Frame:
 
-    @classmethod
-    def dynamic(cls, term, catcherrors=False):
-        next(cls.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors))
+    def __init__(self):
+        self.swipl_fid = None
 
-    @classmethod
-    def retract(cls, term, catcherrors=False):
-        next(cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors))
+    def __enter__(self):
+        self.swipl_fid = Swipl.lib.open_foreign_frame()
 
-    @classmethod
-    def retractall(cls, term, catcherrors=False):
-        next(cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors))
-
-    @classmethod
-    def consult(cls, filename, catcherrors=False):
-        next(cls.query(filename.join(["consult('", "')"]), catcherrors=catcherrors))
-
-    @classmethod
-    def query(cls, query, maxresult=-1, catcherrors=True, normalize=True):
-        """Run a prolog query and return a generator.
-        If the query is a yes/no question, returns {} for yes, and nothing for no.
-        Otherwise returns a generator of dicts with variables as keys.
-
-        >>> prolog = Prolog()
-        >>> prolog.assertz("father(michael,john)")
-        >>> prolog.assertz("father(michael,gina)")
-        >>> bool(list(prolog.query("father(michael,john)")))
-        True
-        >>> bool(list(prolog.query("father(michael,olivia)")))
-        False
-        >>> print sorted(prolog.query("father(michael,X)"))
-        [{'X': 'gina'}, {'X': 'john'}]
-        """
-        return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)
-
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        Swipl.lib.discard_foreign_frame(self.swipl_fid)
+        self.swipl_fid = None

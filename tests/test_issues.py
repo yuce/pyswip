@@ -30,34 +30,15 @@ import sys
 import unittest
 import subprocess
 
+from pyswip.prolog import Prolog
+from pyswip.term import atom, atoms, functor, functors
+
 
 class TestIssues(unittest.TestCase):
-    """Each test method is named after the issue it is testing. The docstring
-       contains the link for the issue and the issue's description.
-    """
 
-    def test_issue_13_17_and_6(self):
-        """
-        Improve library loading.
+    p = Prolog()
 
-        This issue used to manifest as an inability to load SWI-Prolog's
-        SO/DLL. If this test fails, it will usually kill Python, so the test is
-        very simple.
-
-        This test is here but it should be run on several platforms to ensure it
-        works.
-
-        http://code.google.com/p/pyswip/issues/detail?id=13
-        http://code.google.com/p/pyswip/issues/detail?id=6
-        https://code.google.com/p/pyswip/issues/detail?id=17
-        """
-
-        import pyswip.core # This implicitly tests library loading code. It
-                           # won't be very useful if it is not tested in several
-                           # OSes
-
-
-    def test_issue_1(self):
+    def test_issue_old_1(self):
         """
         Segmentation fault when assertz-ing
 
@@ -69,11 +50,9 @@ class TestIssues(unittest.TestCase):
 
         # The simple code below should be enough to trigger the issue. As with
         # issue 13, if it does not work, it will segfault Python.
-        from pyswip import Prolog
-        prolog = Prolog()
-        prolog.assertz("randomTerm(michael,john)")
+        self.p.assertz("randomTerm(michael,john)")
 
-    def test_issue_8(self):
+    def test_issue_old_8(self):
         """
         Callbacks can cause segv's
 
@@ -98,7 +77,7 @@ class TestIssues(unittest.TestCase):
         self.assertEqual(len(callsToHello), 2)  # ['john', 'gina']
         self.assertEqual(len(result), 2) # [{'X': 'john'}, {'X': 'gina'}]
 
-    def test_issue_15(self):
+    def test_issue_old_15(self):
         """
        	sys.exit does not work when importing pyswip
 
@@ -119,7 +98,7 @@ class TestIssues(unittest.TestCase):
         runTestCode(2)
         runTestCode(127)
 
-    def test_issue_5(self):
+    def test_issue_old_5(self):
         """
        	Patch: hash and eq methods for Atom class.
 
@@ -160,7 +139,7 @@ class TestIssues(unittest.TestCase):
         self.assertEqual(len(varSet), 2)
         self.assertEqual(varSet, set([A, B]))
         
-    def test_issue_4(self):
+    def test_issue_old_4(self):
         """
        	Patch for a dynamic method
 
@@ -187,7 +166,7 @@ class TestIssues(unittest.TestCase):
         results = list(Prolog.query('test_issue_4_d(X)'))
         self.assertEqual(len(results), 1)
 
-    def test_issue_3(self):
+    def test_issue_old_3(self):
         """
        	Problem with variables in lists
 
@@ -244,20 +223,20 @@ class TestIssues(unittest.TestCase):
         https://groups.google.com/forum/#!topic/pyswip/Mpnfq4DH-mI
         """
         
-        import pyswip.prolog as pl
-        
-        p = pl.Prolog()
-        p.consult("tests/test_functor_return.pl", catcherrors=True)
-        query = "sentence(Parse_tree, [the,bat,eats,a,cat], [])"
-        expectedTree = "s(np(d(the), n(bat)), vp(v(eats), np(d(a), n(cat))))"
+        p = self.p
+        p.consult("tests/test_functor_return.pl")
 
+        s, np, d, vp, v, n = functors("s", "np", "d", "vp", "v", "n")
+        the, bat, eats, a, cat = atoms("the", "bat", "eats", "a", "cat")
+        target = s(np(d(the), n(bat)), vp(v(eats), np(d(a), n(cat))))
+
+        query = "sentence(Parse_tree, [the,bat,eats,a,cat], [])"
         # This should not throw an exception
         results = list(p.query(query))
         self.assertEqual(len(results), 1,
                          "Query should return exactly one result")
-        
         ptree = results[0]["Parse_tree"]
-        self.assertEqual(ptree, expectedTree)
+        self.assertEqual(ptree, target)
 
         # A second test, based on what was posted in the forum
         p.assertz("friend(john,son(miki))")
@@ -267,10 +246,13 @@ class TestIssues(unittest.TestCase):
         p.assertz("father(son(miki),kur)")
         p.assertz("father(son(kiwi),kur)")
         p.assertz("father(son(wiki),kur)")
+
+        son = functor("son")
+        miki = atom("miki")
         
         soln = [s["Y"] for s in p.query("friend(john,Y), father(Y,kur)",
                                          maxresult=1)]
-        self.assertEqual(soln[0], "son(miki)")
+        self.assertEqual(soln[0], son(miki))
 
         
 if __name__ == "__main__":

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2018 Yüce Tekol
 #  
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,21 +22,89 @@
 # SOFTWARE.
 
 
-"""
-Tests the Prolog class.
-"""
-
-
 import unittest
-import doctest
 
-import pyswip.prolog as pl   # This implicitly tests library loading code
+from pyswip.prolog import Prolog, PrologError
+from pyswip.term import NIL, TRUE, atom, functor
 
 
 class TestProlog(unittest.TestCase):
-    """
-    Unit tests for prolog module (contains only Prolog class).
-    """
+
+    p = Prolog()
+
+    def test_asserta(self):
+        result = self.p.assertz("parent(a, b)")
+        self.assertEqual(None, result)
+
+    def test_assertz(self):
+        result = self.p.assertz("parent(a, b)")
+        self.assertEqual(None, result)
+
+    def test_query(self):
+        result = list(self.p.query("a=a", normalize=False))[0]
+        self.assertEqual(NIL, result)
+
+        result = list(self.p.query("a=b"))
+        self.assertEqual([], result)
+
+        self.p.assertz("p(a)")
+        r = list(self.p.query("p(X)", normalize=False))[0]
+        self.assertEqual({atom("X"): atom("a")}, r.value.value)
+
+        self.p.assertz("numi(42)")
+        r = list(self.p.query("numi(N)"))[0]
+        self.assertEqual({"N": 42}, r)
+
+        self.p.assertz("numf(42.5)")
+        r = list(self.p.query("numf(N)"))[0]
+        self.assertEqual({"N": 42.5}, r)
+
+        self.p.assertz("boolx(true)")
+        r = list(self.p.query("boolx(B)"))[0]
+        self.assertEqual({"B": True}, r)
+
+    def test_query_tuple(self):
+        self.p.assertz("tuple2((a, b))")
+        r = list(self.p.query("tuple2(T)"))[0]
+        self.assertEqual({"T": ("a", "b")}, r)
+
+        self.p.assertz("tuple3((a, b, c))")
+        r = list(self.p.query("tuple3(T)"))[0]
+        self.assertEqual({"T": ("a", "b", "c")}, r)
+
+        self.p.assertz("tuple32((a, (b, c)))")
+        r = list(self.p.query("tuple3(T)"))[0]
+        self.assertEqual({"T": ("a", "b", "c")}, r)
+
+    def test_query_list(self):
+        self.p.assertz("list2([a, b])")
+        r = list(self.p.query("list2(L)", normalize=False))[0]
+        self.assertEqual({"L": ["a", "b"]}, r.norm_value)
+
+        self.p.assertz("list3([a, b, c])")
+        r = list(self.p.query("list3(L)"))[0]
+        self.assertEqual({"L": ["a", "b", "c"]}, r)
+
+        # This test doesn't pass yet -- YT
+        # self.p.assertz("list3([a, [b, c]])")
+        # r = list(self.p.query("list3(L)"))[0]
+        # self.assertEqual({"L": ["a", ["b", "c"]]}, r.norm_value)
+
+    def test_atom(self):
+        a1 = atom("atom1")
+        a2 = atom("atom2")
+        a11 = atom("atom1")
+        self.assertEqual(a1, a1)
+        self.assertEqual(a1, a11)
+        self.assertNotEqual(a1, a2)
+
+    def test_functor(self):
+        f1 = functor("=", arity=2)
+        f2 = functor("foo")
+        f11 = functor("=", arity=2)
+        self.assertEqual(f1, f1)
+        self.assertEqual(f1, f11)
+        self.assertNotEqual(f1, f2)
 
     def test_nested_queries(self):
         """
@@ -48,9 +115,8 @@ class TestProlog(unittest.TestCase):
         Since this is a user error, we just ensure that a appropriate error
         message is thrown.
         """
+        p = self.p
         
-        p = pl.Prolog()
-
         # Add something to the base
         p.assertz("father(john,mich)")
         p.assertz("father(john,gina)")
@@ -65,29 +131,24 @@ class TestProlog(unittest.TestCase):
         for _ in p.query(otherquery):
             pass
         
-        with self.assertRaises(pl.NestedQueryError):
+        with self.assertRaises(PrologError):
             for q in p.query(somequery):
                 for j in p.query(otherquery):
-                    # This should throw an error, because I opened the second
-                    # query
+                    # This should throw an error, another query was opened
                     pass
 
     def test_prolog_strings(self):
         """
         See: https://github.com/yuce/pyswip/issues/9
         """
-        p = pl.Prolog()
-        p.assertz('some_string_fact("abc")')
-        self.assertEqual([{"S": b"abc"}], list(p.query("some_string_fact(S)")))
+        self.p.assertz('some_string_fact("abc")')
+        r = list(self.p.query("some_string_fact(S)"))[0]
+        self.assertEqual({"S": b"abc"}, r)
 
     def test_prolog_read_file(self):
         """
         See: https://github.com/yuce/pyswip/issues/10
         """
-        prolog = pl.Prolog()
-        prolog.consult("tests/test_read.pl")
-        list(prolog.query('read_file("tests/test_read.pl", S)'))
+        self.p.consult("tests/test_read.pl")
+        list(self.p.query('read_file("tests/test_read.pl", S)'))
 
-if __name__ == "__main__":
-    unittest.main()
-    

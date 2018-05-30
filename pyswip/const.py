@@ -15,11 +15,17 @@ PL_INTEGER = 3  # int
 PL_FLOAT = 4  # double
 PL_STRING = 5  # const char *
 PL_TERM = 6  #
-# PL_unify_term()
+PL_NIL = 7
+PL_LIST_PAIR = 9
 PL_FUNCTOR = 10  # functor_t, arg ...
 PL_LIST = 11  # length, arg ...
 PL_CHARS = 12  # const char *
 PL_POINTER = 13  # void *
+
+PL_PARTIAL_LIST = 41
+PL_CYCLIC_TERM = 42
+PL_NOT_A_LIST = 43
+
 #               /* PlArg::PlArg(text, type) */
 #define PL_CODE_LIST     (14)       /* [ascii...] */
 #define PL_CHAR_LIST     (15)       /* [h,e,l,l,o] */
