@@ -23,15 +23,12 @@
 # SOFTWARE.
 
 from __future__ import print_function
-
+import sys
 import os
 import glob
-import warnings
 from subprocess import Popen, PIPE
 from ctypes.util import find_library
 
-from .const import *
-from .swipl import *
 
 # To initialize the SWI-Prolog environment, two things need to be done: the
 # first is to find where the SO/DLL is located and the second is to find the
@@ -56,7 +53,7 @@ def _findSwiplPathFromFindLib():
 
     path = (find_library('swipl') or
             find_library('pl') or
-            find_library('libswipl')) # This last one is for Windows
+            find_library('libswipl'))  # This last one is for Windows
     return path
 
 
@@ -77,7 +74,7 @@ def _findSwiplFromExec():
     fullName = None
     swiHome = None
 
-    try: # try to get library path from swipl executable.
+    try:  # try to get library path from swipl executable.
 
         # We may have pl or swipl as the executable
         try:
@@ -89,15 +86,15 @@ def _findSwiplFromExec():
         # Parse the output into a dictionary
         ret = ret[0].decode().replace(';', '').splitlines()
         ret = [line.split('=', 1) for line in ret]
-        rtvars = dict((name, value[1:-1]) for name, value in ret) # [1:-1] gets
-                                                                  # rid of the
-                                                                  # quotes
+        rtvars = dict((name, value[1:-1]) for name, value in ret)  # [1:-1] gets
+        # rid of the
+        # quotes
 
         if rtvars['PLSHARED'] == 'no':
             raise ImportError('SWI-Prolog is not installed as a shared '
                               'library.')
-        else: # PLSHARED == 'yes'
-            swiHome = rtvars['PLBASE']   # The environment is in PLBASE
+        else:  # PLSHARED == 'yes'
+            swiHome = rtvars['PLBASE']  # The environment is in PLBASE
             if not os.path.exists(swiHome):
                 swiHome = None
 
@@ -130,7 +127,7 @@ def _findSwiplFromExec():
                 else:  # We will search for versions
                     fullName = None
 
-            else: # assume UNIX-like
+            else:  # assume UNIX-like
                 # The SO name in some linuxes is of the form libswipl.so.5.10.2,
                 # so we have to use glob to find the correct one
                 dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + rtvars['PLSOEXT']
@@ -149,7 +146,7 @@ def _findSwiplFromExec():
                     else:  # Will this ever happen?
                         fullName = None
 
-    except (OSError, KeyError): # KeyError from accessing rtvars
+    except (OSError, KeyError):  # KeyError from accessing rtvars
         pass
 
     return (fullName, swiHome)
@@ -191,8 +188,8 @@ def _findSwiplWin():
     # (reg should be installed in all Windows XPs)
     try:
         cmd = Popen(['reg', 'query',
-            r'HKEY_LOCAL_MACHINE\Software\SWI\Prolog',
-            '/v', 'home'], stdout=PIPE)
+                     r'HKEY_LOCAL_MACHINE\Software\SWI\Prolog',
+                     '/v', 'home'], stdout=PIPE)
         ret = cmd.communicate()
 
         # Result is like:
@@ -229,6 +226,7 @@ def _findSwiplWin():
             return (dllName, None)
 
     return (None, None)
+
 
 def _findSwiplLin():
     """
@@ -274,11 +272,11 @@ def walk(path, name):
     """
     This function is a 2-time recursive func,
     that findin file in dirs
-    
+
     :parameters:
       -  `path` (str) - Directory path
       -  `name` (str) - Name of file, that we lookin for
-      
+
     :returns:
         Path to the swipl so, path to the resource file
 
@@ -287,7 +285,7 @@ def walk(path, name):
     """
     back_path = path[:]
     path = os.path.join(path, name)
-    
+
     if os.path.exists(path):
         return path
     else:
@@ -301,14 +299,15 @@ def walk(path, name):
 
     return None
 
+
 def _findSwiplMacOSHome():
     """
     This function is guesing where SWI-Prolog is
     installed in MacOS via .app.
-    
+
     :parameters:
       -  `swi_ver` (str) - Version of SWI-Prolog in '[0-9].[0-9].[0-9]' format
-      
+
     :returns:
         A tuple of (path to the swipl so, path to the resource file)
 
@@ -319,7 +318,7 @@ def _findSwiplMacOSHome():
     # Need more help with MacOS
     # That way works, but need more work
     names = ['libswipl.dylib', 'libpl.dylib']
-    
+
     path = os.environ.get('SWI_HOME_DIR')
     if path is None:
         path = os.environ.get('SWI_LIB_DIR')
@@ -327,7 +326,7 @@ def _findSwiplMacOSHome():
             path = os.environ.get('PLBASE')
             if path is None:
                 raise Exception("SWI-Prolog home not found")  # XXX:
-    
+
     paths = [path]
 
     for name in names:
@@ -392,8 +391,8 @@ def _findSwipl():
 
     # Now begins the guesswork
     platform = sys.platform[:3]
-    if platform == "win": # In Windows, we have the default installer
-                                   # path and the registry to look
+    if platform == "win":  # In Windows, we have the default installer
+        # path and the registry to look
         (path, swiHome) = _findSwiplWin()
 
     elif platform in ("lin", "cyg"):
@@ -401,7 +400,7 @@ def _findSwipl():
 
     elif platform == "dar":  # Help with MacOS is welcome!!
         (path, swiHome) = _findSwiplDar()
-        
+
         if path is None:
             (path, swiHome) = _findSwiplMacOSHome()
 
@@ -430,7 +429,7 @@ def _fixWindowsPath(dll):
     """
 
     if sys.platform[:3] != 'win':
-        return # Nothing to do here
+        return  # Nothing to do here
 
     pathToDll = os.path.dirname(dll)
     currentWindowsPath = os.getenv('PATH')
@@ -439,97 +438,3 @@ def _fixWindowsPath(dll):
         # We will prepend the path, to avoid conflicts between DLLs
         newPath = pathToDll + ';' + currentWindowsPath
         os.putenv('PATH', newPath)
-
-
-# Find the path and resource file. SWI_HOME_DIR shall be treated as a constant
-# by users of this module
-# (_path, SWI_HOME_DIR) = _findSwipl()
-# _fixWindowsPath(_path)
-
-#typedef struct
-#{
-#  int __count;
-#  union
-#  {
-#    wint_t __wch;
-#    char __wchb[4];
-#  } __value;            /* Value so far.  */
-#} __mbstate_t;
-
-class _mbstate_t_value(Union):
-    _fields_ = [("__wch",wint_t),
-                ("__wchb",c_char*4)]
-
-class mbstate_t(Structure):
-    _fields_ = [("__count",c_int),
-                ("__value",_mbstate_t_value)]
-
-# stream related funcs
-Sread_function = CFUNCTYPE(ssize_t, c_void_p, c_char_p, c_size_t)
-Swrite_function = CFUNCTYPE(ssize_t, c_void_p, c_char_p, c_size_t)
-Sseek_function = CFUNCTYPE(c_long, c_void_p, c_long, c_int)
-Sseek64_function = CFUNCTYPE(c_int64, c_void_p, c_int64, c_int)
-Sclose_function = CFUNCTYPE(c_int, c_void_p)
-Scontrol_function = CFUNCTYPE(c_int, c_void_p, c_int, c_void_p)
-
-# IOFUNCTIONS
-class IOFUNCTIONS(Structure):
-    _fields_ = [("read",Sread_function),
-                ("write",Swrite_function),
-                ("seek",Sseek_function),
-                ("close",Sclose_function),
-                ("seek64",Sseek64_function),
-                ("reserved",intptr_t*2)]
-
-# IOENC
-ENC_UNKNOWN,ENC_OCTET,ENC_ASCII,ENC_ISO_LATIN_1,ENC_ANSI,ENC_UTF8,ENC_UNICODE_BE,ENC_UNICODE_LE,ENC_WCHAR = tuple(range(9))
-IOENC = c_int
-
-# IOPOS
-class IOPOS(Structure):
-    _fields_ = [("byteno",c_int64),
-                ("charno",c_int64),
-                ("lineno",c_int),
-                ("linepos",c_int),
-                ("reserved", intptr_t*2)]
-
-# IOSTREAM
-class IOSTREAM(Structure):
-    _fields_ = [("bufp",c_char_p),
-                ("limitp",c_char_p),
-                ("buffer",c_char_p),
-                ("unbuffer",c_char_p),
-                ("lastc",c_int),
-                ("magic",c_int),
-                ("bufsize",c_int),
-                ("flags",c_int),
-                ("posbuf",IOPOS),
-                ("position",POINTER(IOPOS)),
-                ("handle",c_void_p),
-                ("functions",IOFUNCTIONS),
-                ("locks",c_int),
-                ("mutex",IOLOCK),
-                ("closure_hook",CFUNCTYPE(None, c_void_p)),
-                ("closure",c_void_p),
-                ("timeout",c_int),
-                ("message",c_char_p),
-                ("encoding",IOENC)]
-IOSTREAM._fields_.extend([("tee",IOSTREAM),
-                ("mbstate",POINTER(mbstate_t)),
-                ("reserved",intptr_t*6)])
-
-
-
-# #PL_EXPORT(IOSTREAM *)  Sopen_string(IOSTREAM *s, char *buf, size_t sz, const char *m);
-# Sopen_string = _lib.Sopen_string
-# Sopen_string.argtypes = [POINTER(IOSTREAM), c_char_p, c_size_t, c_char_p]
-# Sopen_string.restype = POINTER(IOSTREAM)
-
-# #PL_EXPORT(int)         Sclose(IOSTREAM *s);
-# Sclose = _lib.Sclose
-# Sclose.argtypes = [POINTER(IOSTREAM)]
-
-
-# #PL_EXPORT(int)         PL_unify_stream(term_t t, IOSTREAM *s);
-# PL_unify_stream = _lib.PL_unify_stream
-# PL_unify_stream.argtypes = [term_t, POINTER(IOSTREAM)]

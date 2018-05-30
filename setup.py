@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2012 Yüce Tekol
 #  
@@ -22,30 +21,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# PySWIP setup script
-
-
 import sys
 import os
+import io
 import os.path
-from distutils.core import setup
+from setuptools import setup
+
+with io.open("README.md", encoding="utf-8") as f:
+    long_description = f.read()
 
 
 setup(name="pyswip",
-      version="0.3.0",
+      version="0.2.5",
       url="https://github.com/yuce/pyswip",
       download_url="https://github.com/yuce/pyswip/releases",
       author="Yuce Tekol",
       author_email="yucetekol@gmail.com",
       description="PySWIP enables querying SWI-Prolog in your Python programs.",
-      long_description="",
+      long_description=long_description,
+      long_description_content_type="text/markdown",
       license="MIT",
       packages=["pyswip"],
+      keywords=["prolog", "artificial intelligence", "ai", "ffi", "ctypes"],
+      tests_require=['pytest', 'coverage', 'pytest-cov'],
       classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: The MIT License (MIT)',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',

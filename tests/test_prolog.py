@@ -72,6 +72,21 @@ class TestProlog(unittest.TestCase):
                     # query
                     pass
 
+    def test_prolog_strings(self):
+        """
+        See: https://github.com/yuce/pyswip/issues/9
+        """
+        p = pl.Prolog()
+        p.assertz('some_string_fact("abc")')
+        self.assertEqual([{"S": b"abc"}], list(p.query("some_string_fact(S)")))
+
+    def test_prolog_read_file(self):
+        """
+        See: https://github.com/yuce/pyswip/issues/10
+        """
+        prolog = pl.Prolog()
+        prolog.consult("tests/test_read.pl")
+        list(prolog.query('read_file("tests/test_read.pl", S)'))
 
 if __name__ == "__main__":
     unittest.main()

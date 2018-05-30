@@ -7,7 +7,7 @@
 
 See the [CHANGELOG](CHANGELOG.md).
 
-**This library is being refactored. Expect API breakage and incompatibility with previous versions.**
+**This library is being cleaned up and refactored. Expect API breakage and incompatibility with previous versions.**
 
 Thanks to all [contributors](CONTRIBUTORS.txt). If you have contributed to PySWIP in the past and your name does not appear on that list, please [let me know](mailto:yucetekol@gmail.com) so I can add your name.
 
@@ -22,7 +22,7 @@ doesn't require compilation to be installed.
 
 ## Requirements:
 
-* Python 3.4 and higher.
+* Python 2.7 or 3.4 and higher.
     * PyPy is currently not supported.
 * SWI-Prolog 7.6.x and higher (most probably other versions will also work).
 * libpl as a shared library.
@@ -113,6 +113,8 @@ http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html
 * [A Planning Module for a ROS-Based Ubiquitous Robot Control System](https://dspace.library.uu.nl/bitstream/handle/1874/292669/2014-03-27%20MSc%20Thesis%20Pieterjan%20van%20Gastel.pdf) (PDF)
 * [A pilot framework developed as a common platform integrating diverse elements of computer aided fixture design](https://www.tandfonline.com/doi/full/10.1080/00207543.2013.832000)
 * [Integration von Prolog und ClioPatria in Python](http://www1.pub.informatik.uni-wuerzburg.de/pub/theses/2017-bodenlos-master.pdf) (PDF, German)
+* [SELECTSCRIPT: A Query Language for Robotic World Models and Simulations](https://ieeexplore.ieee.org/document/7140077/)
+* [A Concept for Declarative Information Acquisition in Smart Environments](https://d-nb.info/1122172583/34)
 
 ### Videos
 
