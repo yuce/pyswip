@@ -25,7 +25,7 @@
 import unittest
 
 from pyswip.prolog import Prolog, PrologError
-from pyswip.term import NIL, TRUE, atom, functor
+from pyswip.term import NIL, TRUE, atom, atoms, functor, functors
 
 
 class TestProlog(unittest.TestCase):
@@ -152,3 +152,44 @@ class TestProlog(unittest.TestCase):
         self.p.consult("tests/test_read.pl")
         list(self.p.query('read_file("tests/test_read.pl", S)'))
 
+    def test_functor_return(self):
+        """
+        pyswip should generate string representations of query results
+        that are at least meaningful, preferably equal to what
+        SWI-Prolog would generate. This test checks if this is true for
+        `Functor` instance results.
+
+        Not a formal issue, but see forum topic:
+        https://groups.google.com/forum/#!topic/pyswip/Mpnfq4DH-mI
+        """
+
+        p = self.p
+        p.consult("tests/test_functor_return.pl")
+
+        s, np, d, vp, v, n = functors("s", "np", "d", "vp", "v", "n")
+        the, bat, eats, a, cat = atoms("the", "bat", "eats", "a", "cat")
+        target = s(np(d(the), n(bat)), vp(v(eats), np(d(a), n(cat))))
+
+        query = "sentence(Parse_tree, [the,bat,eats,a,cat], [])"
+        # This should not throw an exception
+        results = list(p.query(query))
+        self.assertEqual(len(results), 1,
+                         "Query should return exactly one result")
+        ptree = results[0]["Parse_tree"]
+        self.assertEqual(ptree, target)
+
+        # A second test, based on what was posted in the forum
+        p.assertz("friend(john,son(miki))")
+        p.assertz("friend(john,son(kiwi))")
+        p.assertz("friend(john,son(wiki))")
+        p.assertz("friend(john,son(tiwi))")
+        p.assertz("father(son(miki),kur)")
+        p.assertz("father(son(kiwi),kur)")
+        p.assertz("father(son(wiki),kur)")
+
+        son = functor("son")
+        miki = atom("miki")
+
+        soln = [s["Y"] for s in p.query("friend(john,Y), father(Y,kur)",
+                                        maxresult=1)]
+        self.assertEqual(soln[0], son(miki))

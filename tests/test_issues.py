@@ -31,26 +31,11 @@ import unittest
 import subprocess
 
 from pyswip.prolog import Prolog
-from pyswip.term import atom, atoms, functor, functors
 
 
 class TestIssues(unittest.TestCase):
 
     p = Prolog()
-
-    def test_issue_old_1(self):
-        """
-        Segmentation fault when assertz-ing
-
-        Notes: This issue manifests only in 64bit stacks (note that a full 64
-        bit stack is needed. If running 32 in 64bit, it will not happen.)
-        
-        http://code.google.com/p/pyswip/issues/detail?id=1
-        """
-
-        # The simple code below should be enough to trigger the issue. As with
-        # issue 13, if it does not work, it will segfault Python.
-        self.p.assertz("randomTerm(michael,john)")
 
     def test_issue_old_8(self):
         """
@@ -98,47 +83,6 @@ class TestIssues(unittest.TestCase):
         runTestCode(2)
         runTestCode(127)
 
-    def test_issue_old_5(self):
-        """
-       	Patch: hash and eq methods for Atom class.
-
-        Ensures that the patch is working.
-
-        https://code.google.com/p/pyswip/issues/detail?id=5
-        """
-
-        from pyswip import Atom, Variable
-
-        a = Atom('test')
-        b = Atom('test2')
-        c = Atom('test')    # Should be equal to a
-
-        self.assertNotEqual(a, b)
-        self.assertNotEqual(c, b)
-        self.assertEqual(a, c)
-
-        atomSet = set()
-        atomSet.add(a)
-        atomSet.add(b)
-        atomSet.add(c)  # This is equal to a
-        self.assertEqual(len(atomSet), 2)
-        self.assertEqual(atomSet, set([a, b]))
-
-        # The same semantics should be valid for other classes
-        A = Variable()
-        B = Variable()
-        C = Variable(A.handle)   # This is equal to A
-        
-        self.assertNotEqual(A, B)
-        self.assertNotEqual(C, B)
-        self.assertEqual(A, C)
-        varSet = set()
-        varSet.add(A)
-        varSet.add(B)
-        varSet.add(C)  # This is equal to A
-        self.assertEqual(len(varSet), 2)
-        self.assertEqual(varSet, set([A, B]))
-        
     def test_issue_old_4(self):
         """
        	Patch for a dynamic method
@@ -212,47 +156,6 @@ class TestIssues(unittest.TestCase):
         self.assertTrue(args[0] == args[2], "The first and last var of "
                                             "f([A, B, A]) should be the same")
 
-    def test_functor_return(self):
-        """
-        pyswip should generate string representations of query results
-        that are at least meaningful, preferably equal to what
-        SWI-Prolog would generate. This test checks if this is true for
-        `Functor` instance results.
-
-        Not a formal issue, but see forum topic:
-        https://groups.google.com/forum/#!topic/pyswip/Mpnfq4DH-mI
-        """
-        
-        p = self.p
-        p.consult("tests/test_functor_return.pl")
-
-        s, np, d, vp, v, n = functors("s", "np", "d", "vp", "v", "n")
-        the, bat, eats, a, cat = atoms("the", "bat", "eats", "a", "cat")
-        target = s(np(d(the), n(bat)), vp(v(eats), np(d(a), n(cat))))
-
-        query = "sentence(Parse_tree, [the,bat,eats,a,cat], [])"
-        # This should not throw an exception
-        results = list(p.query(query))
-        self.assertEqual(len(results), 1,
-                         "Query should return exactly one result")
-        ptree = results[0]["Parse_tree"]
-        self.assertEqual(ptree, target)
-
-        # A second test, based on what was posted in the forum
-        p.assertz("friend(john,son(miki))")
-        p.assertz("friend(john,son(kiwi))")
-        p.assertz("friend(john,son(wiki))")
-        p.assertz("friend(john,son(tiwi))")
-        p.assertz("father(son(miki),kur)")
-        p.assertz("father(son(kiwi),kur)")
-        p.assertz("father(son(wiki),kur)")
-
-        son = functor("son")
-        miki = atom("miki")
-        
-        soln = [s["Y"] for s in p.query("friend(john,Y), father(Y,kur)",
-                                         maxresult=1)]
-        self.assertEqual(soln[0], son(miki))
 
         
 if __name__ == "__main__":
