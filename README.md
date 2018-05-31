@@ -17,20 +17,19 @@ PySWIP is a Python - SWI-Prolog bridge enabling to query [SWI-Prolog](http://www
 It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a
 Pythonic interface.
 
-Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it, it
-doesn't require compilation to be installed.
+Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
 
 ## Requirements:
 
 * Python 2.7 or 3.4 and higher.
     * PyPy is currently not supported.
-* SWI-Prolog 7.6.x and higher (most probably other versions will also work).
-* libpl as a shared library.
+* SWI-Prolog 7.6.x and higher.
+* `libswipl` as a shared library. *This is the default on most platforms.*
 * Works on Linux, Windows and MacOS. Should work on other POSIX.
 
 ## Install
 
-See [INSTALL](INSTALL.md) for instructions. **That file is out of date and is being revamped.**
+See [INSTALL](INSTALL.md) for instructions.
 
 ## Examples
 
@@ -59,47 +58,60 @@ being run in the same working directory, it is consulted like so:
 ### Foreign Functions
 
 ```python
+from __future__ import print_function
 from pyswip import Prolog, registerForeign
+
 def hello(t):
-    print("Hello,", t)
+    print("Hello,", t)    
 hello.arity = 1
+
 registerForeign(hello)
+
 prolog = Prolog()
 prolog.assertz("father(michael,john)")
 prolog.assertz("father(michael,gina)")    
-list(prolog.query("father(michael,X), hello(X)"))
+print(list(prolog.query("father(michael,X), hello(X)")))
 ```
 
 ### Pythonic interface (Experimental)
 
 ```python
+from __future__ import print_function
 from pyswip import Functor, Variable, Query
+
 assertz = Functor("assertz", 2)
 father = Functor("father", 2)
 call(assertz(father("michael","john")))
 call(assertz(father("michael","gina")))
 X = Variable()
+
 q = Query(father("michael",X))
 while q.nextSolution():
-    print "Hello,", X.value
+    print("Hello,", X.value)
 q.closeQuery()
+
 # Outputs:
 #    Hello, john
 #    Hello, gina
 
 ```
 
-The core functionality of ``Prolog.query`` is based on Nathan Denny's public domain prolog.py found at
-http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html
+The core functionality of `Prolog.query` is based on Nathan Denny's public domain prolog.py.
 
 ## Help!
 
 * [Support Forum](https://groups.google.com/forum/#!forum/pyswip)
 * [Stack Overflow](https://stackoverflow.com/search?q=pyswip)
 
+## Contact
+
+* `yucetekol@gmail.com`
+* https://twitter.com/tklx
+
+
 ## Resources that Use or Reference PySWIP
 
-**Do you have a project, video or publication that uses/mentions PySWIP? [Please let me know](mailto:yucetekol@gmail.com) and I'll add it to the list below.**
+**Do you have a project, video or publication that uses/mentions PySWIP? [Please let me know](mailto:yucetekol@gmail.com) or send a pull request.**
 
 ### Books
 
@@ -115,6 +127,9 @@ http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html
 * [Integration von Prolog und ClioPatria in Python](http://www1.pub.informatik.uni-wuerzburg.de/pub/theses/2017-bodenlos-master.pdf) (PDF, German)
 * [SELECTSCRIPT: A Query Language for Robotic World Models and Simulations](https://ieeexplore.ieee.org/document/7140077/)
 * [A Concept for Declarative Information Acquisition in Smart Environments](https://d-nb.info/1122172583/34)
+* [Implementation on ADHD Diagnostic Expert System based on DSM Diagnostic Criteria](http://jse.or.kr/AJMAHS/papers/v7n11/50.pdf) (PDF, Korean)
+* [Wie sehen Krebsmolekule aus? Vergleich der Gute der Klassifizierung potenziell krebserregender Molekule durch induktiv logische und merkmalsbasierte Lernverfahren](http://www.cogsys.wiai.uni-bamberg.de/teaching/ss17/pj_bama/ProjektberichtRelLearningFinzelGrabeHillebrandHornigRicci.pdf) (PDF, German)
+* [Companion Robots Behaving with Style: Towards Plasticity in Social Human-Robot Interaction](https://tel.archives-ouvertes.fr/tel-01679314/document) (PDF)
 
 ### Videos
 
@@ -137,12 +152,6 @@ http://www.ahsc.arizona.edu/~schcats/projects/docs/prolog-0.2.0.html
 
 * [Calling Prolog from Python](http://fernmac.blogspot.com.tr/2013/07/calling-prolog-from-python.html)
 * [Python v. Prolog: Round 1: Fight!](http://www.kuliniewicz.org/blog/archives/2007/10/21/python-v-prolog-round-1-fight/)
-
-## Contact
-
-* `yucetekol@gmail.com`
-* https://twitter.com/tklx
-
 
 ## License
 
