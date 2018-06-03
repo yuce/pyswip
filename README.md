@@ -147,6 +147,7 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 * [tic-tac-toe](https://github.com/ivpusic/tic-tac-toe) Tic-tac-toe game with AI in Prolog and GUI in Python (kivy framework + pyswip)
 * [TBM1 - "Getting to Know My Home"](http://thewiki.rockinrobotchallenge.eu/index.php?title=TBM1_-_“Getting_to_Know_My_Home”)
 * [A script that enables use of a Prolog natural language parsing component to control a Scribbler II robot over bluetooth](http://justinmangue.com/blog/scribpro-py/)
+* [Cosmos](https://github.com/mcsoto/cosmos) A new logic programming language.
 
 ### Blog Posts
 

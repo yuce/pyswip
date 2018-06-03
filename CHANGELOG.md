@@ -1,5 +1,11 @@
 # CHANGELOG
 
++ 0.2.6
+
+  * Fixed issue [#9](https://github.com/yuce/pyswip/issues/9).
+  * Fixed issue [#10](https://github.com/yuce/pyswip/issues/10).
+
+
 + 0.2.5
 
   * Project cleanup
