@@ -6,6 +6,8 @@ from ctypes import *
 from .const import *
 
 
+__all__ = "Swipl",
+
 class Swipl:
     lib = None
 
@@ -93,7 +95,10 @@ def open_lib(path):
         record = _("PL_record", [term_t], record_t)
         recorded = _("PL_recorded", [record_t, term_t], None)
         register_atom = _("PL_register_atom", [atom_t], None)
-        register_foreign = check_strings(0, None)(_("PL_register_foreign", [c_char_p, c_int, CFUNCTYPE(foreign_t, c_int)], c_int))
+        # register_foreign = check_strings(0, None)(_("PL_register_foreign", [c_char_p, c_int, CFUNCTYPE(foreign_t, c_int)], c_int))
+        # register_foreign = _("PL_register_foreign", [c_char_p, c_int, CFUNCTYPE(foreign_t, c_int)], c_int)
+        register_foreign = check_strings(0, None)(_lib.PL_register_foreign)
+        #register_foreign = _lib.PL_register_foreign
         same_compound = _("PL_same_compound", [term_t, term_t], c_int)
         term_type = _("PL_term_type", [term_t], c_int)
         unify_arg = _("PL_unify_arg", [c_int, term_t, term_t], c_int)

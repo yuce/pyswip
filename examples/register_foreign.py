@@ -21,17 +21,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pyswip import Prolog, registerForeign, Atom
+from pyswip import Prolog, Atom
 
 
-def atom_checksum(*a):
-    if isinstance(a[0], Atom):
-        r = sum(ord(c)&0xFF for c in str(a[0]))
-        a[1].value = r&0xFF
+def atom_checksum(a, b):
+    if isinstance(a, Atom):
+        r = sum(ord(c)&0xFF for c in str(a))
+        b.value = r&0xFF
         return True
     else:
         return False
 
+
 p = Prolog()
-registerForeign(atom_checksum, arity=2)
+Prolog.register(atom_checksum)
 print(list(p.query("X='Python', atom_checksum(X, Y)", catcherrors=False)))

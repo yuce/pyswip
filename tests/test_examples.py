@@ -28,7 +28,8 @@ ensure stability in several platforms.
 
 import unittest
 
-from pyswip import *
+# from pyswip import *
+from pyswip.prolog import Prolog
 
 
 class TestExamples(unittest.TestCase):
@@ -37,8 +38,9 @@ class TestExamples(unittest.TestCase):
 
     WARNING: Since it is not possible to unload things from the Prolog base, the
     examples have to be 'orthogonal'.
-    
     """
+
+    p = Prolog()
 
     def test_create_term(self):
         """
@@ -167,15 +169,9 @@ class TestExamples(unittest.TestCase):
         Runs the draughts example (uses clp library of SWI-Prolog).
         """
         
-        prolog = Prolog()
-        prolog.consult(example_path("draughts/puzzle1.pl"))
-        solutions = []
-        for soln in prolog.query("solve(B)."):
-            solutions.append(soln["B"])
-        self.assertEqual(len(solutions), 37)
-
-        # Now do the same test, but using the prolog.query interface
-        solutions = list(prolog.query("solve(B)."))
+        p = self.p
+        p.consult(example_path("draughts/puzzle1.pl"))
+        solutions = list(p.query("solve(B)."))
         self.assertEqual(len(solutions), 37)
         
     def test_hanoi(self):
@@ -186,15 +182,14 @@ class TestExamples(unittest.TestCase):
         N = 3  # Number of disks
  
         result = []
+
+        @Prolog.register
         def notify(t):
             result.append((t[0].value, t[1].value))
-        notify.arity = 1
- 
-        prolog = Prolog()
-        registerForeign(notify)
-        prolog.consult(example_path("hanoi/hanoi.pl"))
-        list(prolog.query("hanoi(%d)" % N)) # Forces the query to run completely
- 
+
+        p = self.p
+        p.consult(example_path("hanoi/hanoi.pl"))
+        list(p.query("hanoi(%d)" % N))
         self.assertEqual(len(result), 7)
         self.assertEqual(result[0], ('left', 'right'))
         self.assertEqual(result[1], ('left', 'center'))
@@ -262,12 +257,12 @@ class TestExamples(unittest.TestCase):
             [8,_,2,_,9,_,7,_,_]
                   ]
             
-        prolog = Prolog()
-        prolog.consult(example_path("sudoku/sudoku.pl"))
+        p = self.p
+        p.consult(example_path("sudoku/sudoku.pl"))
 
         for i, problem in enumerate((puzzle1, puzzle2)):
-            p = str(problem).replace("0", "_")
-            result = list(prolog.query("L=%s,sudoku(L)" % p, maxresult=1))
+            problem = str(problem).replace("0", "_")
+            result = list(p.query("L=%s,sudoku(L)" % problem, maxresult=1))
             if result:
                 # Does a simple check on the result
                 result = result[0]
@@ -281,7 +276,3 @@ class TestExamples(unittest.TestCase):
 def example_path(path):
     import os.path
     return os.path.normpath(os.path.join(os.path.split(os.path.abspath(__file__))[0], "..", "examples", path))
-
-if __name__ == "__main__":
-    unittest.main()
-    

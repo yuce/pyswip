@@ -37,31 +37,6 @@ class TestIssues(unittest.TestCase):
 
     p = Prolog()
 
-    def test_issue_old_8(self):
-        """
-        Callbacks can cause segv's
-
-        https://code.google.com/p/pyswip/issues/detail?id=8
-        """
-
-        from pyswip import Prolog, registerForeign
-
-        callsToHello = []
-        def hello(t):
-            callsToHello.append(t)
-        hello.arity = 1
-
-        registerForeign(hello)
-
-        prolog = Prolog()
-        prolog.assertz("parent(michael,john)")
-        prolog.assertz("parent(michael,gina)")
-        p = prolog.query("parent(michael,X), hello(X)")
-        result = list(p)   # Will run over the iterator
-        
-        self.assertEqual(len(callsToHello), 2)  # ['john', 'gina']
-        self.assertEqual(len(result), 2) # [{'X': 'john'}, {'X': 'gina'}]
-
     def test_issue_old_15(self):
         """
        	sys.exit does not work when importing pyswip
@@ -156,8 +131,3 @@ class TestIssues(unittest.TestCase):
         self.assertTrue(args[0] == args[2], "The first and last var of "
                                             "f([A, B, A]) should be the same")
 
-
-        
-if __name__ == "__main__":
-    unittest.main()
-    

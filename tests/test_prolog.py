@@ -193,3 +193,23 @@ class TestProlog(unittest.TestCase):
         soln = [s["Y"] for s in p.query("friend(john,Y), father(Y,kur)",
                                         maxresult=1)]
         self.assertEqual(soln[0], son(miki))
+
+    def test_register_foreign(self):
+        """
+        Callbacks can cause segv's
+
+        https://code.google.com/p/pyswip/issues/detail?id=8
+        """
+
+        def hello(t):
+            calls_to_hello.append(t)
+
+        Prolog.register(hello)
+        calls_to_hello = []
+        p = self.p
+        p.assertz("parent(michael,john)")
+        p.assertz("parent(michael,gina)")
+        result = list(p.query("parent(michael,X), hello(X)"))
+        self.assertEqual(len(calls_to_hello), 2)  # ['john', 'gina']
+        self.assertEqual(len(result), 2) # [{'X': 'john'}, {'X': 'gina'}]
+

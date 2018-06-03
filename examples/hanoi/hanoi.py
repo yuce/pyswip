@@ -25,7 +25,6 @@ from __future__ import print_function
 from collections import deque
 
 from pyswip.prolog import Prolog
-from pyswip.easy import getList, registerForeign
 
 try:
     input = raw_input
@@ -89,7 +88,7 @@ def main():
     prolog = Prolog()
     tower = Tower(N, INTERACTIVITY)
     notifier = Notifier(tower.move)
-    registerForeign(notifier.notify)
+    prolog.register(notifier.notify)
     prolog.consult("hanoi.pl")
     list(prolog.query("hanoi(%d)" % N))
 

@@ -21,25 +21,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pyswip.core import *
-from pyswip.prolog import Prolog
+from pyswip.prolog import Prolog, Swipl
 
 def main():
     prolog = Prolog()
+    lib = Swipl.lib
     
-    a1 = PL_new_term_refs(2)
+    a1 = lib.new_term_refs(2)
     a2 = a1 + 1
-    t = PL_new_term_ref()
-    ta = PL_new_term_ref()
+    t = lib.new_term_ref()
+    ta = lib.new_term_ref()
 
-    animal2 = PL_new_functor(PL_new_atom("animal"), 2)
-    assertz = PL_new_functor(PL_new_atom("assertz"), 1)
+    animal2 = lib.new_functor(lib.new_atom("animal"), 2)
+    assertz = lib.new_functor(lib.new_atom("assertz"), 1)
 
-    PL_put_atom_chars(a1, "gnu")
-    PL_put_integer(a2, 50)
-    PL_cons_functor_v(t, animal2, a1)
-    PL_cons_functor_v(ta, assertz, t)
-    PL_call(ta, None)
+    lib.put_atom_chars(a1, "gnu")
+    lib.put_integer(a2, 50)
+    lib.cons_functor_v(t, animal2, a1)
+    lib.cons_functor_v(ta, assertz, t)
+    lib.call(ta, None)
     
     print(list(prolog.query("animal(X,Y)", catcherrors=True)))
 

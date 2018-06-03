@@ -1,15 +1,15 @@
 
 import itertools
+from ctypes import create_string_buffer, cast
 
 from .swipl import Swipl, byref, c_int, c_char_p, c_long, c_double
 from .const import \
-    PL_ATOM, PL_INTEGER, PL_FLOAT, PL_STRING, PL_TERM, PL_NIL, PL_LIST_PAIR, PL_LIST, \
-    atom_t, functor_t
-
+    PL_ATOM, PL_INTEGER, PL_FLOAT, PL_STRING, PL_TERM, PL_NIL, PL_LIST_PAIR, PL_LIST, PL_VARIABLE, \
+    atom_t, functor_t, CVT_VARIABLE, BUF_RING
 
 __all__ = "FALSE", "NIL", "TRUE", \
           "Atom", "Functor", "Term", \
-          "atom", "functor", "norm_value"
+          "atom", "atoms", "functor", "functors", "norm_value"
 
 
 class Atom:
@@ -46,6 +46,9 @@ class Atom:
 
     def __repr__(self):
         return "Atom(%s)" % self.name
+
+    def __str__(self):
+        return self.name
 
     def __eq__(self, other):
         if self is other:
@@ -141,6 +144,31 @@ class Term:
         return Functor.from_term(t)
 
 
+class Variable:
+
+    def __init__(self, handle, name, value=None):
+        self.handle = handle
+        self.name = name
+        self._value = value
+
+    @property
+    def value(self):
+        return self._value
+
+    @property
+    def norm_value(self):
+        return self._value
+
+    @classmethod
+    def from_term(cls, t):
+        lib = Swipl.lib
+        s = create_string_buffer(b"\00" * 64)  # FIXME:
+        ptr = cast(s, c_char_p)
+        handle = lib.copy_term_ref(t)
+        if lib.get_chars(handle, byref(ptr), CVT_VARIABLE | BUF_RING):
+            self.chars = ptr.value
+
+
 Term._router = {
     PL_ATOM: Atom.from_term,
     PL_TERM: Term.decode_term,
@@ -218,6 +246,9 @@ class Functor:
 
     def __repr__(self):
         return "Functor(%s(%s))" % (self.name.value, ", ".join(repr(a) for a in self.args))
+
+    def __str__(self):
+        return "%s(%s)" % (self.name.value, ", ".join(str(a) for a in self.args))
 
     def __eq__(self, other):
         if self is other:

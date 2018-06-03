@@ -23,9 +23,23 @@
 # SOFTWARE.
 
 
-from .swipl import Swipl, c_char_p
+from .swipl import CFUNCTYPE, Swipl, c_char_p, foreign_t, term_t
 from .const import PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_Q_NORMAL
 from .term import Term
+
+__all__ = "Prolog", "PrologError"
+
+try:
+    from inspect import signature
+
+    def _fun_arg_count(f):
+        return len(signature(f).parameters)
+
+except ImportError:
+    from inspect import getargspec
+
+    def _fun_arg_count(f):
+        return len(getargspec(f))
 
 
 class PrologError(Exception):
@@ -57,6 +71,9 @@ class Prolog(metaclass=_Singleton):
 
     # We keep track of open queries to avoid nested queries.
     # _queryIsOpen = False
+
+    callbacks = {}
+    register_after = []
 
     def __init__(self, lib_path="", swi_home=""):
         if not lib_path:
@@ -100,6 +117,11 @@ class Prolog(metaclass=_Singleton):
                 """, swipl_load)
             lib.call(swipl_load, None)
 
+        if self.register_after:
+            for item in self.register_after:
+                Swipl.lib.register_foreign(*item)
+            self.register_after = []
+
     def asserta(self, assertion, catcherrors=False):
         return next(self.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors))
 
@@ -126,6 +148,27 @@ class Prolog(metaclass=_Singleton):
     def query(cls, query, maxresult=-1, catcherrors=True, normalize=True):
         return _QueryWrapper()(query, maxresult, catcherrors, normalize)
 
+    @classmethod
+    def register(cls, fun, name=None, arity=None, flags=0):
+        if name is None:
+            name = fun.__name__
+        if arity is None:
+            arity = _fun_arg_count(fun)
+
+        key = "%s/%s" % (name, arity)
+        if key in cls.callbacks:
+            return True
+        cwrapper = CFUNCTYPE(*([foreign_t] + [term_t] * arity))
+        wrapped = cwrapper(_foreign_wrapper(fun))
+        cls.callbacks[key] = wrapped
+
+        if Swipl.lib is None:
+            # Prolog wasn't initialized yet, defer registry
+            cls.register_after.append((name, arity, wrapped, flags))
+            return True
+        else:
+            return Swipl.lib.register_foreign(name, arity, wrapped, flags) == 1
+
 
 class _QueryWrapper(object):
 
@@ -134,7 +177,6 @@ class _QueryWrapper(object):
         lib = Swipl.lib
 
         with Frame():
-            swipl_head = lib.new_term_ref()
             swipl_args = lib.new_term_refs(2)
             swipl_goal_char_list = swipl_args
             swipl_binding_list = swipl_args + 1
@@ -152,7 +194,10 @@ class _QueryWrapper(object):
                     # t = getTerm(swipl_list)
                     t = Term.decode(swipl_list)
                     if normalize:
-                        yield t.norm_value
+                        if isinstance(t, list):
+                            yield [x.norm_value for x in t]
+                        else:
+                            yield t.norm_value
                     #     try:
                     #         v = t.value
                     #     except AttributeError:
@@ -164,9 +209,8 @@ class _QueryWrapper(object):
                         yield t
 
                 if lib.exception(swipl_qid):
-                    raise PrologError("error: %s", swipl_qid)
-                    # term = getTerm(lib.exception(swipl_qid))
-                    #
+                    raise PrologError("error with qid: %s" % swipl_qid)
+                    # term = Term.decode(lib.exception(swipl_qid))
                     # raise PrologError("".join(["Caused by: '", query, "'. ",
                     #                             "Returned: '", str(term), "'."]))
 
@@ -185,4 +229,13 @@ class Frame:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         Swipl.lib.discard_foreign_frame(self.swipl_fid)
+        # TODO: cut on exception
         self.swipl_fid = None
+
+
+def _foreign_wrapper(fun):
+    def wrapper(*args):
+        args = [Term.decode(arg) for arg in args]
+        r = fun(*args)
+        return True if r is None else r
+    return wrapper
