@@ -1,17 +1,14 @@
-.PHONY: build_posix build_win clean cover test
+.PHONY: build clean cover test upload
 
-build_posix:
+build:
 	python setup.py sdist
 	python setup.py bdist_wheel --universal
 
-build_win:
-	python setup.py bdist_msi
+clean:
+	rm -rf dist build pyswip.egg-info
 
 cover:
 	py.test --cov=pyswip tests
-
-clean:
-	rm -rf dist build pyswip.egg-info
 
 test:
 	py.test tests --verbose
