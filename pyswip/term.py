@@ -8,8 +8,13 @@ from .const import \
     atom_t, functor_t, CVT_VARIABLE, BUF_RING
 
 __all__ = "FALSE", "NIL", "TRUE", \
-          "Atom", "Functor", "Term", \
-          "atom", "atoms", "functor", "functors", "norm_value"
+          "Atom", "Compound", "Functor", "Term", \
+          "atom", "atoms", "compound", "functor", "functors", "norm_value"
+
+
+_basestring = str
+if hasattr(globals()["__builtins__"], "basestring"):
+    _basestring = globals()["__builtins__"].basestring
 
 
 class Atom:
@@ -94,7 +99,7 @@ class Term:
     def decode_term(cls, t):
         lib = Swipl.lib
         if lib.is_compound(t):
-            return Functor.from_term(t)
+            return Compound.from_term(t)
         return 6
 
     @classmethod
@@ -200,14 +205,10 @@ class Functor:
 
     funcs = {}
 
-    def __init__(self, handle, name, arity=None, args=None, arg0=None):
+    def __init__(self, handle, name, arity):
         self.handle = handle
         self.name = name
         self.arity = arity
-        self.args = args or []
-        if arity is None:
-            self.arity = len(self.args)
-        self.arg0 = arg0
 
     @classmethod
     def from_term(cls, t):
@@ -215,15 +216,9 @@ class Functor:
         f = functor_t()
         if lib.get_functor(t, byref(f)):
             handle = f.value
-            args = []
             arity = lib.functor_arity(handle)
-            # arg handles are consecutive, args = arg0, arg0 + 1, ...
-            a0 = lib.new_term_refs(arity)
-            for i, arg_handle in enumerate(range(a0, a0 + arity)):
-                if lib.get_arg(i + 1, t, arg_handle):
-                    args.append(Term.decode(arg_handle))
             name = Atom.from_handle(lib.functor_name(handle))
-            return cls(handle, name, arity=arity, args=args, arg0=a0)
+            return cls(handle, name, arity=arity)
         raise Exception("Invalid functor")  # TODO: proper exception
 
     @classmethod
@@ -232,10 +227,11 @@ class Functor:
 
     @property
     def value(self):
-        fun = self.funcs.get("%s/%s" % (self.name.value, self.arity))
-        if fun is not None:
-            return fun(*self.args)
-        return self
+        return self.name.value
+        # fun = self.funcs.get("%s/%s" % (self.name.value, self.arity))
+        # if fun is not None:
+        #     return fun(*self.args)
+        # return self
 
     @property
     def norm_value(self):
@@ -245,10 +241,10 @@ class Functor:
         return self
 
     def __repr__(self):
-        return "Functor(%s(%s))" % (self.name.value, ", ".join(repr(a) for a in self.args))
+        return "Functor(%s/%s)" % (self.name.value, self.arity)
 
     def __str__(self):
-        return "%s(%s)" % (self.name.value, ", ".join(str(a) for a in self.args))
+        return "%s" % self.name.value
 
     def __eq__(self, other):
         if self is other:
@@ -256,19 +252,19 @@ class Functor:
         if not isinstance(other, self.__class__):
             return False
         return self.name == other.name and \
-               self.arity == other.arity and \
-               self.args == other.args
+               self.arity == other.arity
 
     def __call__(self, *args, **kwargs):
-        return Functor(None, name=self.name, args=list(args))
+        f = Functor(None, self.name, len(args))
+        return Compound(None, f, terms=args)
 
 
-def functor(name, args=None, arity=None):
-    return Functor(None, name=atom(name), arity=arity, args=args)
+def functor(name, arity=None):
+    return Functor(None, name=atom(name), arity=arity)
 
 
 def functors(*names):
-    return tuple(functor(name) for name in names)
+    return tuple(functor(name, 0) for name in names)
 
 
 def _unify(arg1, arg2):
@@ -283,11 +279,62 @@ Functor.add_callable("=", 2, _unify)
 Functor.add_callable(",", 2, _tuple)
 
 
-class Variable:
+class Compound:
 
-    def __init__(self, handle, name):
+    def __init__(self, handle, functor, terms=None, arg0=None):
         self.handle = handle
-        self.name = name
+        self.terms = tuple(terms) if terms else tuple()
+        self.arg0 = arg0
+        if isinstance(functor, Functor):
+            self.functor = functor
+        elif isinstance(functor, _basestring):
+            self.functor = functor(functor, len(self.terms))
+        else:
+            raise Exception("Invalid functor: %s" % functor)
+
+    @classmethod
+    def from_term(cls, t):
+        lib = Swipl.lib
+        f = Functor.from_term(t)
+        # arg handles are consecutive, args = arg0, arg0 + 1, ...
+        a0 = lib.new_term_refs(f.arity)
+        terms = []
+        for i, arg_handle in enumerate(range(a0, a0 + f.arity)):
+            if lib.get_arg(i + 1, t, arg_handle):
+                terms.append(Term.decode(arg_handle))
+        return cls(t, functor=f, terms=terms, arg0=a0)
+
+    @property
+    def value(self):
+        fun = Functor.funcs.get("%s/%s" % (self.functor.value, len(self.terms)))
+        if fun is None:
+            return self
+        return fun(*self.terms)
+
+    @property
+    def norm_value(self):
+        fun = Functor.funcs.get("%s/%s" % (self.functor.value, len(self.terms)))
+        if fun is None:
+            return self
+        return norm_value(fun(*self.terms))
+
+    def __repr__(self):
+        return "Compound(%s(%s))" % (repr(self.functor), ", ".join(repr(t) for t in self.terms))
+
+    def __str__(self):
+        return "%s(%s)" % (str(self.functor), ", ".join(str(t) for t in self.terms))
+
+    def __eq__(self, other):
+        if self is other:
+            return True
+        if not isinstance(other, self.__class__):
+            return False
+        return self.functor == other.functor and \
+            self.terms == other.terms
+
+
+def compound(functor, *terms):
+    return Compound(None, functor=functor, terms=terms)
 
 
 def norm_value(value):

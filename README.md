@@ -109,7 +109,7 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 * https://twitter.com/tklx
 
 
-## Resources that Use or Reference PySWIP
+## Projects/Publications that Use or Reference PySWIP
 
 **Do you have a project, video or publication that uses/mentions PySWIP? [Please let me know](mailto:yucetekol@gmail.com) or send a pull request.**
 
@@ -147,6 +147,11 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 * [tic-tac-toe](https://github.com/ivpusic/tic-tac-toe) Tic-tac-toe game with AI in Prolog and GUI in Python (kivy framework + pyswip)
 * [TBM1 - "Getting to Know My Home"](http://thewiki.rockinrobotchallenge.eu/index.php?title=TBM1_-_“Getting_to_Know_My_Home”)
 * [A script that enables use of a Prolog natural language parsing component to control a Scribbler II robot over bluetooth](http://justinmangue.com/blog/scribpro-py/)
+* [Cosmos](https://github.com/mcsoto/cosmos) A new logic programming language.
+* [lib-annotated-attack-trees](https://github.com/yramirezc/lib-annotated-attack-trees) Scripts and resources for creating a library of annotated attack trees and using it to refine an annotated attack tree.
+* [ClIDE](https://github.com/skeledrew/clide) Command-line Intelligent Development Environment
+* [Artificial Intelligence INF1771 @ PUC-Rio](https://github.com/leotok/INF1771) Projects for the Artificial Intelligence class @ PUC-Rio
+* [AutomobileAdvisor](https://github.com/liscju/AutomobileAdvisor) Projekt na systemy ekspertowe pomagający wybrać odpowiedni samochód dla danego klienta na podstawie preferencji (Polish)
 
 ### Blog Posts
 
