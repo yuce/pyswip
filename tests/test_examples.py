@@ -70,102 +70,102 @@ class TestExamples(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], {'X': 'gnu', 'Y': 50})
 
-    def test_knowledgebase(self):
-        """
-        Tests usage of modules.
-        """
+    # def test_knowledgebase(self):
+    #     """
+    #     Tests usage of modules.
+    #     """
+    #
+    #     p = Prolog()
+    #
+    #     assertz = Functor("assertz")
+    #     parent = Functor("parent", 2)
+    #     test1 = newModule("test1")
+    #     test2 = newModule("test2")
+    #
+    #     call(assertz(parent("john", "bob")), module=test1)
+    #     call(assertz(parent("jane", "bob")), module=test1)
+    #
+    #     call(assertz(parent("mike", "bob")), module=test2)
+    #     call(assertz(parent("gina", "bob")), module=test2)
+    #
+    #     # Test knowledgebase module test1
+    #
+    #     result = set()
+    #     X = Variable()
+    #     q = Query(parent(X, "bob"), module=test1)
+    #     while q.nextSolution():
+    #         result.add(X.value.value)    # X.value is an Atom
+    #     q.closeQuery()
+    #     self.assertEqual(result, set(["john", "jane"]))
+    #
+    #     # Test knowledgebase module test2
+    #
+    #     result = set()
+    #     q = Query(parent(X, "bob"), module=test2)
+    #     while q.nextSolution():
+    #         result.add(X.value.value)
+    #     q.closeQuery()
+    #     self.assertEqual(result, set(["mike", "gina"]))
 
-        p = Prolog()
-         
-        assertz = Functor("assertz")
-        parent = Functor("parent", 2)
-        test1 = newModule("test1")
-        test2 = newModule("test2")
-         
-        call(assertz(parent("john", "bob")), module=test1)
-        call(assertz(parent("jane", "bob")), module=test1)
-         
-        call(assertz(parent("mike", "bob")), module=test2)
-        call(assertz(parent("gina", "bob")), module=test2)
-         
-        # Test knowledgebase module test1
- 
-        result = set()
-        X = Variable()
-        q = Query(parent(X, "bob"), module=test1)
-        while q.nextSolution():
-            result.add(X.value.value)    # X.value is an Atom
-        q.closeQuery()
-        self.assertEqual(result, set(["john", "jane"]))
-         
-        # Test knowledgebase module test2
-         
-        result = set()
-        q = Query(parent(X, "bob"), module=test2)
-        while q.nextSolution():
-            result.add(X.value.value)
-        q.closeQuery()
-        self.assertEqual(result, set(["mike", "gina"]))
-
-    def test_father(self):
-        """
-        Tests basic inferences.
-        """
-
-        p = Prolog()
+    # def test_father(self):
+    #     """
+    #     Tests basic inferences.
+    #     """
+    #
+    #     p = Prolog()
+    #
+    #     father = Functor("father", 2)
+    #     mother = Functor("mother", 2)
+    #
+    #     p.assertz("father(john,mich)")
+    #     p.assertz("father(john,gina)")
+    #     p.assertz("mother(jane,mich)")
+    #
+    #     X = Variable()
+    #     Y = Variable()
+    #     Z = Variable()
+    #
+    #     result = []
+    #     q = Query(father("john", Y), mother(Z, Y))
+    #     while q.nextSolution():
+    #         y = Y.value.value
+    #         z = Z.value.value
+    #         result.append({'Y': y, 'Z': z})
+    #     q.closeQuery()
+    #
+    #     self.assertEqual(len(result), 1)
+    #     self.assertEqual(result[0], {'Y': 'mich', 'Z': 'jane'})
+    #
+    #     # Repeat the same query but using strings
+    #     result = []
+    #     for s in p.query("father(john,Y),mother(Z,Y)"):
+    #         result.append(s)
+    #     self.assertEqual(len(result), 1)
+    #     self.assertEqual(result[0], {'Y': 'mich', 'Z': 'jane'})
      
-        father = Functor("father", 2)
-        mother = Functor("mother", 2)
-     
-        p.assertz("father(john,mich)")
-        p.assertz("father(john,gina)")
-        p.assertz("mother(jane,mich)")
-     
-        X = Variable()
-        Y = Variable()
-        Z = Variable()
-  
-        result = []
-        q = Query(father("john", Y), mother(Z, Y))
-        while q.nextSolution():
-            y = Y.value.value
-            z = Z.value.value
-            result.append({'Y': y, 'Z': z})
-        q.closeQuery()
-   
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0], {'Y': 'mich', 'Z': 'jane'})
-
-        # Repeat the same query but using strings
-        result = []
-        for s in p.query("father(john,Y),mother(Z,Y)"):
-            result.append(s)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0], {'Y': 'mich', 'Z': 'jane'})
-     
-    def test_coins(self):
-        """
-        Runs the coins example (uses clp library of SWI-Prolog).
-        """
-
-        prolog = Prolog()
-        prolog.consult(example_path("coins/coins.pl"))
-        count = 100
-        total = 500
-        coins = Functor("coins", 3)
-        S = Variable()
-        q = Query(coins(S, count, total))
- 
-        solutions = []
-        while q.nextSolution():
-            solutions.append(S.value)
-        q.closeQuery()
- 
-        self.assertEqual(len(solutions), 105)
-
-        # Now do the same test, but using the prolog.query interface
-        solutions = list(prolog.query("coins(S, %d, %d)." % (count,total)))
-        self.assertEqual(len(solutions), 105)
+    # def test_coins(self):
+    #     """
+    #     Runs the coins example (uses clp library of SWI-Prolog).
+    #     """
+    #
+    #     prolog = Prolog()
+    #     prolog.consult(example_path("coins/coins.pl"))
+    #     count = 100
+    #     total = 500
+    #     coins = Functor("coins", 3)
+    #     S = Variable()
+    #     q = Query(coins(S, count, total))
+    #
+    #     solutions = []
+    #     while q.nextSolution():
+    #         solutions.append(S.value)
+    #     q.closeQuery()
+    #
+    #     self.assertEqual(len(solutions), 105)
+    #
+    #     # Now do the same test, but using the prolog.query interface
+    #     solutions = list(prolog.query("coins(S, %d, %d)." % (count,total)))
+    #     self.assertEqual(len(solutions), 105)
 
     def test_draughts(self):
         """
@@ -198,37 +198,37 @@ class TestExamples(unittest.TestCase):
         self.assertEqual(result[1], ('left', 'center'))
         self.assertEqual(result[2], ('right', 'center'))
         
-    def test_sendmoremoney(self):
-        """
-        Runs the sendmoremoney example::
-
-            S E N D
-            M O R E
-          + -------
-          M O N E Y
-         
-        So, what should be the values of S, E, N, D, M, O, R, Y
-        if they are all distinct digits.
-        """
-        
-        letters = "S E N D M O R Y".split()
-        prolog = Prolog()
-        sendmore = Functor("sendmore")
-        prolog.consult(example_path("sendmoremoney/money.pl"))
-
-        X = Variable()
-        call(sendmore(X))
-        r = X.value
-        val = {}
-        for i, letter in enumerate(letters):
-            val[letter] = r[i]
-
-        self.assertEqual(len(val), 8)
-        
-        send = val['S']*1e3 + val['E']*1e2 + val['N']*1e1 + val['D']*1e0
-        more = val['M']*1e3 + val['O']*1e2 + val['R']*1e1 + val['E']*1e0
-        money = val['M']*1e4 + val['O']*1e3 + val['N']*1e2 + val['E']*1e1 + val['Y']*1e0
-        self.assertEqual(money, send + more)
+    # def test_sendmoremoney(self):
+    #     """
+    #     Runs the sendmoremoney example::
+    #
+    #         S E N D
+    #         M O R E
+    #       + -------
+    #       M O N E Y
+    #
+    #     So, what should be the values of S, E, N, D, M, O, R, Y
+    #     if they are all distinct digits.
+    #     """
+    #
+    #     letters = "S E N D M O R Y".split()
+    #     prolog = Prolog()
+    #     sendmore = Functor("sendmore")
+    #     prolog.consult(example_path("sendmoremoney/money.pl"))
+    #
+    #     X = Variable()
+    #     call(sendmore(X))
+    #     r = X.value
+    #     val = {}
+    #     for i, letter in enumerate(letters):
+    #         val[letter] = r[i]
+    #
+    #     self.assertEqual(len(val), 8)
+    #
+    #     send = val['S']*1e3 + val['E']*1e2 + val['N']*1e1 + val['D']*1e0
+    #     more = val['M']*1e3 + val['O']*1e2 + val['R']*1e1 + val['E']*1e0
+    #     money = val['M']*1e4 + val['O']*1e3 + val['N']*1e2 + val['E']*1e1 + val['Y']*1e0
+    #     self.assertEqual(money, send + more)
  
     def test_sudoku(self):
         """

@@ -152,6 +152,7 @@ class TestProlog(unittest.TestCase):
         self.p.consult("tests/fixtures/test_read.pl")
         list(self.p.query('read_file("tests/fixtures/test_read.pl", S)'))
 
+
     def test_functor_return(self):
         """
         pyswip should generate string representations of query results
@@ -211,5 +212,5 @@ class TestProlog(unittest.TestCase):
         p.assertz("parent(michael,gina)")
         result = list(p.query("parent(michael,X), hello(X)"))
         self.assertEqual(len(calls_to_hello), 2)  # ['john', 'gina']
-        self.assertEqual(len(result), 2) # [{'X': 'john'}, {'X': 'gina'}]
+        self.assertEqual(len(result), 2)  # [{'X': 'john'}, {'X': 'gina'}]
 
