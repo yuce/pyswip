@@ -87,7 +87,3 @@ class TestProlog(unittest.TestCase):
         prolog = pl.Prolog()
         prolog.consult("tests/test_read.pl")
         list(prolog.query('read_file("tests/test_read.pl", S)'))
-
-if __name__ == "__main__":
-    unittest.main()
-    
