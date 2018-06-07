@@ -1,6 +1,23 @@
-# PySWIP INSTALL
+# PySwip INSTALL
 
-PySWIP has no dependencies beyond Python's standard library. Some operating systems do not install the full standard library. In that case make sure that your Python setup includes `ctypes`.
+PySwip has no dependencies beyond Python's standard library. Some operating systems do not install the full standard library. In that case make sure that your Python setup includes `ctypes`.
+
+We recommend installing PySwip into a virtual environment. Python3 already has built-in support for that. You can create a virtual environment in `pyswip_env` directory using:
+```
+python3 -m venv pyswip_env
+```
+
+After that, you have to activate the virtual environment. On UNIX-like platorms (Linux, MacOS, FreeBSD, etc.) with BASH/csh/tcsh shell:
+```
+source pyswip_env/bin/activate
+```
+
+On Windows:
+```
+pyswip_env\Scripts\activate
+```
+
+See the [Python documentation](https://docs.python.org/3/library/venv.html) for more information.
 
 ## Linux
 
@@ -53,7 +70,20 @@ PySWIP has no dependencies beyond Python's standard library. Some operating syst
     prolog.assertz("father(michael,john)")
     ```
 
-
 ## Other UNIX
 
-**TODO**
+### FreeBSD
+
+1) SWI-Prolog can be installed using `pkg`:
+    ```
+    pkg install swi-pl
+    ```
+
+2) `pip install pyswip`
+
+3) Run a quick test by running following code at your Python console:
+    ```python
+    from pyswip import Prolog
+    prolog = Prolog()
+    prolog.assertz("father(michael,john)")
+    ```
