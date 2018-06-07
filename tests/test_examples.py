@@ -46,24 +46,27 @@ class TestExamples(unittest.TestCase):
         """
         Simple example of term creation.
         """
-        
-        prolog = Prolog()
-    
-        a1 = PL_new_term_refs(2)
+
+        from pyswip.swipl import Swipl
+
+        lib = Swipl.lib
+        p = self.p
+
+        a1 = lib.new_term_refs(2)
         a2 = a1 + 1
-        t = PL_new_term_ref()
-        ta = PL_new_term_ref()
- 
-        animal2 = PL_new_functor(PL_new_atom("animal"), 2)
-        assertz = PL_new_functor(PL_new_atom("assertz"), 1)
- 
-        PL_put_atom_chars(a1, "gnu")
-        PL_put_integer(a2, 50)
-        PL_cons_functor_v(t, animal2, a1)
-        PL_cons_functor_v(ta, assertz, t)
-        PL_call(ta, None)
-    
-        result = list(prolog.query("animal(X,Y)", catcherrors=True))
+        t = lib.new_term_ref()
+        ta = lib.new_term_ref()
+
+        animal2 = lib.new_functor(lib.new_atom("animal"), 2)
+        assertz = lib.new_functor(lib.new_atom("assertz"), 1)
+
+        lib.put_atom_chars(a1, "gnu")
+        lib.put_integer(a2, 50)
+        lib.cons_functor_v(t, animal2, a1)
+        lib.cons_functor_v(ta, assertz, t)
+        lib.call(ta, None)
+
+        result = list(p.query("animal(X,Y)", catcherrors=True))
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], {'X': 'gnu', 'Y': 50})
 

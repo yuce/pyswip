@@ -23,8 +23,8 @@
 # SOFTWARE.
 
 
-from .swipl import CFUNCTYPE, Swipl, c_char_p, foreign_t, term_t
 from .const import PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_Q_NORMAL
+from .swipl import CFUNCTYPE, Swipl, c_char_p, foreign_t, term_t
 from .term import Term
 
 __all__ = "Prolog", "PrologError"
@@ -128,18 +128,18 @@ class Prolog(metaclass=_Singleton):
     def assertz(self, assertion, catcherrors=False):
         return next(self.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors))
 
-    # @classmethod
-    # def dynamic(cls, term, catcherrors=False):
-    #     next(cls.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors))
-    #
-    # @classmethod
-    # def retract(cls, term, catcherrors=False):
-    #     next(cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors))
-    #
-    # @classmethod
-    # def retractall(cls, term, catcherrors=False):
-    #     next(cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors))
-    #
+    @classmethod
+    def dynamic(cls, term, catcherrors=False):
+        next(cls.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors))
+
+    @classmethod
+    def retract(cls, term, catcherrors=False):
+        next(cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors))
+
+    @classmethod
+    def retractall(cls, term, catcherrors=False):
+        next(cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors))
+
 
     def consult(self, filename, catcherrors=True):
         return next(self.query(filename.join(["consult('", "')"]), catcherrors=catcherrors))
@@ -195,7 +195,14 @@ class _QueryWrapper(object):
                     t = Term.decode(swipl_list)
                     if normalize:
                         if isinstance(t, list):
-                            yield [x.norm_value for x in t]
+                            ls = [x.norm_value for x in t]
+                            if len(ls) > 0 and isinstance(ls[0], dict):
+                                d = ls[0]
+                                for x in ls[1:]:
+                                    d.update(x)
+                                yield d
+                            else:
+                                yield ls
                         else:
                             yield t.norm_value
                     #     try:

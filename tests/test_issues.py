@@ -25,10 +25,9 @@
 
 """Regression tests for issues."""
 
-
+import subprocess
 import sys
 import unittest
-import subprocess
 
 from pyswip.prolog import Prolog
 
@@ -45,18 +44,19 @@ class TestIssues(unittest.TestCase):
         """
 
         # We will use it to test several return codes
-        pythonExec = sys.executable
-        def runTestCode(code):
-            parameters = [pythonExec,
+        python_exec = sys.executable
+
+        def run_test_code(code):
+            parameters = [python_exec,
                           '-c',
                           'import sys; import pyswip; sys.exit(%d)' % code,]
             result = subprocess.call(parameters)
             self.assertEqual(result, code)
 
-        runTestCode(0)
-        runTestCode(1)
-        runTestCode(2)
-        runTestCode(127)
+        run_test_code(0)
+        run_test_code(1)
+        run_test_code(2)
+        run_test_code(127)
 
     def test_issue_old_4(self):
         """
@@ -67,22 +67,22 @@ class TestIssues(unittest.TestCase):
         https://code.google.com/p/pyswip/issues/detail?id=4
         """
 
-        from pyswip import Prolog
-        
-        Prolog.dynamic('test_issue_4_d/1')
-        Prolog.assertz('test_issue_4_d(test1)')
-        Prolog.assertz('test_issue_4_d(test1)')
-        Prolog.assertz('test_issue_4_d(test1)')
-        Prolog.assertz('test_issue_4_d(test2)')
-        results = list(Prolog.query('test_issue_4_d(X)'))
+        p = self.p
+
+        p.dynamic('test_issue_4_d/1')
+        p.assertz('test_issue_4_d(test1)')
+        p.assertz('test_issue_4_d(test1)')
+        p.assertz('test_issue_4_d(test2)')
+        p.assertz('test_issue_4_d(test1)')
+        results = list(p.query('test_issue_4_d(X)'))
         self.assertEqual(len(results), 4)
-        
-        Prolog.retract('test_issue_4_d(test1)')
-        results = list(Prolog.query('test_issue_4_d(X)'))
+
+        p.retract('test_issue_4_d(test1)')
+        results = list(p.query('test_issue_4_d(X)'))
         self.assertEqual(len(results), 3)
-        
-        Prolog.retractall('test_issue_4_d(test1)')
-        results = list(Prolog.query('test_issue_4_d(X)'))
+
+        p.retractall('test_issue_4_d(test1)')
+        results = list(p.query('test_issue_4_d(X)'))
         self.assertEqual(len(results), 1)
 
     def test_issue_old_3(self):

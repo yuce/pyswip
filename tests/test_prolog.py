@@ -25,7 +25,7 @@
 import unittest
 
 from pyswip.prolog import Prolog, PrologError
-from pyswip.term import NIL, TRUE, atom, atoms, functor, functors
+from pyswip.term import NIL, atom, atoms, functor, functors
 
 
 class TestProlog(unittest.TestCase):
@@ -149,8 +149,8 @@ class TestProlog(unittest.TestCase):
         """
         See: https://github.com/yuce/pyswip/issues/10
         """
-        self.p.consult("tests/test_read.pl")
-        list(self.p.query('read_file("tests/test_read.pl", S)'))
+        self.p.consult("tests/fixtures/test_read.pl")
+        list(self.p.query('read_file("tests/fixtures/test_read.pl", S)'))
 
     def test_functor_return(self):
         """
@@ -164,7 +164,7 @@ class TestProlog(unittest.TestCase):
         """
 
         p = self.p
-        p.consult("tests/test_functor_return.pl")
+        p.consult("tests/fixtures/test_functor_return.pl")
 
         s, np, d, vp, v, n = functors("s", "np", "d", "vp", "v", "n")
         the, bat, eats, a, cat = atoms("the", "bat", "eats", "a", "cat")
