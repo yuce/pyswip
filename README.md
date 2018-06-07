@@ -25,7 +25,7 @@ Since PySwip uses SWI-Prolog as a shared library and ctypes to access it, it doe
     * PyPy is currently not supported.
 * SWI-Prolog 7.2.x and higher.
 * `libswipl` as a shared library. *This is the default on most platforms.*
-* Works on Linux, Windows and MacOS. Should work on other POSIX.
+* Works on Linux, Windows, MacOS and FreeBSD. Should work on other POSIX.
 
 ## Install
 
