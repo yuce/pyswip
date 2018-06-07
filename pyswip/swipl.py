@@ -106,7 +106,6 @@ def open_lib(path):
         unify_integer = _("PL_unify_integer", [term_t, c_int_p], c_int)
         unregister_atom = _("PL_unregister_atom", [atom_t], None)
 
-    del _
     Swipl.lib = Lib
 
     # create an exit hook which captures the exit code for our cleanup function
