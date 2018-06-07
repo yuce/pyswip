@@ -23,7 +23,7 @@ Since PySwip uses SWI-Prolog as a shared library and ctypes to access it, it doe
 
 * Python 2.7 or 3.4 and higher.
     * PyPy is currently not supported.
-* SWI-Prolog 7.6.x and higher.
+* SWI-Prolog 7.2.x and higher.
 * `libswipl` as a shared library. *This is the default on most platforms.*
 * Works on Linux, Windows and MacOS. Should work on other POSIX.
 
@@ -152,11 +152,14 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 * [ClIDE](https://github.com/skeledrew/clide) Command-line Intelligent Development Environment
 * [Artificial Intelligence INF1771 @ PUC-Rio](https://github.com/leotok/INF1771) Projects for the Artificial Intelligence class @ PUC-Rio
 * [AutomobileAdvisor](https://github.com/liscju/AutomobileAdvisor) Projekt na systemy ekspertowe pomagający wybrać odpowiedni samochód dla danego klienta na podstawie preferencji (Polish)
+* [Prolog Tetris AI](https://sourceforge.net/projects/prologtetrisai/)
 
 ### Blog Posts
 
 * [Calling Prolog from Python](http://fernmac.blogspot.com.tr/2013/07/calling-prolog-from-python.html)
 * [Python v. Prolog: Round 1: Fight!](http://www.kuliniewicz.org/blog/archives/2007/10/21/python-v-prolog-round-1-fight/)
+* [Path Follower: Arduino+Rasp on ROS](http://blog.giacomocerquone.com/path-follower-maze-solving-car-arduino/) and its [Project code](https://github.com/giacomocerquone/robotics-MazeSolver).
+
 
 ## License
 
