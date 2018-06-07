@@ -32,12 +32,12 @@ with io.open("README.md", encoding="utf-8") as f:
 
 
 setup(name="pyswip",
-      version="0.2.6",
+      version="0.2.7",
       url="https://github.com/yuce/pyswip",
       download_url="https://github.com/yuce/pyswip/releases",
       author="Yuce Tekol",
       author_email="yucetekol@gmail.com",
-      description="PySWIP enables querying SWI-Prolog in your Python programs.",
+      description="PySwip enables querying SWI-Prolog in your Python programs.",
       long_description=long_description,
       long_description_content_type="text/markdown",
       license="MIT",

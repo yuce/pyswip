@@ -1,7 +1,7 @@
-PySWIP Examples
+PySwip Examples
 ===============
 
-This directory contains examples for PySWIP.
+This directory contains examples for PySwip.
 
 The ones marked with (clp) requires clp library of SWI-Prolog.
 

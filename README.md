@@ -1,7 +1,7 @@
 <a href="https://travis-ci.org/yuce/pyswip"><img src="https://api.travis-ci.org/yuce/pyswip.svg?branch=master"></a>
 <a href="https://coveralls.io/github/yuce/pyswip"><img src="https://coveralls.io/repos/github/yuce/pyswip/badge.svg?branch=master"></a>
 
-# PySWIP
+# PySwip
 
 ## What's New?
 
@@ -9,15 +9,15 @@ See the [CHANGELOG](CHANGELOG.md).
 
 **This library is being cleaned up and refactored. Expect API breakage and incompatibility with previous versions.**
 
-Thanks to all [contributors](CONTRIBUTORS.txt). If you have contributed to PySWIP in the past and your name does not appear on that list, please [let me know](mailto:yucetekol@gmail.com) so I can add your name.
+Thanks to all [contributors](CONTRIBUTORS.txt). If you have contributed to PySwip in the past and your name does not appear on that list, please [let me know](mailto:yucetekol@gmail.com) so I can add your name.
 
 ## Introduction
 
-PySWIP is a Python - SWI-Prolog bridge enabling to query [SWI-Prolog](http://www.swi-prolog.org) in your Python programs.
+PySwip is a Python - SWI-Prolog bridge enabling to query [SWI-Prolog](http://www.swi-prolog.org) in your Python programs.
 It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a
 Pythonic interface.
 
-Since PySWIP uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
+Since PySwip uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
 
 ## Requirements:
 
@@ -109,9 +109,9 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 * https://twitter.com/tklx
 
 
-## Projects/Publications that Use or Reference PySWIP
+## Projects/Publications that Use or Reference PySwip
 
-**Do you have a project, video or publication that uses/mentions PySWIP? [Please let me know](mailto:yucetekol@gmail.com) or send a pull request.**
+**Do you have a project, video or publication that uses/mentions PySwip? [Please let me know](mailto:yucetekol@gmail.com) or send a pull request.**
 
 ### Books
 
@@ -143,7 +143,7 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 * [Super Pacman](https://github.com/kajornsakp/prologProject)
 * [Pokemon Weak Detector](https://github.com/ReiiYuki/PokemonWeakDetector)
 * [Food Recommendations in Hyderabad, India](https://github.com/cindyleowtt/prolog_food) Food Recommendation AI Expert System using a GUI hosted on Flask and a backend developed with PYSWIP and native Prolog
-* [pyswip_envctrl](https://github.com/2rs2ts/pyswip_envctrl) An environment control module expert system written in PySWIP.
+* [pyswip_envctrl](https://github.com/2rs2ts/pyswip_envctrl) An environment control module expert system written in PySwip.
 * [tic-tac-toe](https://github.com/ivpusic/tic-tac-toe) Tic-tac-toe game with AI in Prolog and GUI in Python (kivy framework + pyswip)
 * [TBM1 - "Getting to Know My Home"](http://thewiki.rockinrobotchallenge.eu/index.php?title=TBM1_-_“Getting_to_Know_My_Home”)
 * [A script that enables use of a Prolog natural language parsing component to control a Scribbler II robot over bluetooth](http://justinmangue.com/blog/scribpro-py/)

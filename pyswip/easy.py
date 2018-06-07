@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-# pyswip.easy -- PySWIP helper functions
+# pyswip.easy -- PySwip helper functions
 # Copyright (c) 2007-2018 Yüce Tekol
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy

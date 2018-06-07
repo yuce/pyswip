@@ -1,5 +1,9 @@
 # CHANGELOG
 
++ 0.2.7
+
+  * Works on FreeBSD.
+
 + 0.2.6
 
   * Fixed issue [#9](https://github.com/yuce/pyswip/issues/9).
@@ -13,8 +17,8 @@
 
 + 0.2.4
 
-  * Maintenance release of PySWIP
-  * Added an error to avoid opening nested queries using PySWIP (SWI-Prolog does
+  * Maintenance release of PySwip
+  * Added an error to avoid opening nested queries using PySwip (SWI-Prolog does
     not allow that). The error is NestedQueryError.
   * Added Tomasz Gryszkiewicz's patch for better finding the SWI-Prolog lib in 
     Darwin
@@ -25,7 +29,7 @@
 
 + 0.2.3
 
-  * Maintenance release of PySWIP
+  * Maintenance release of PySwip
   * Solved issue "Segmentation fault when assertz-ing" (thanks to jpthompson23)
   * Solved issue "pyswip doesn't work on cygwin" 
   * Solved issue "Callbacks can cause segv's" (thanks to jpthompson23)
@@ -34,8 +38,8 @@
 
 + 0.2.2
 
-  * PySWIP won't rely on the (id of the) functor handle of `=/2`.
-  * Sebastian Höhn's patch to enable PySWIP to work on MAC OS-X is incorporated.
+  * PySwip won't rely on the (id of the) functor handle of `=/2`.
+  * Sebastian Höhn's patch to enable PySwip to work on MAC OS-X is incorporated.
 
 + 0.2.1
 

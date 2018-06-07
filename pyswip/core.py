@@ -420,9 +420,8 @@ def _findSwipl():
             (path, swiHome) = _findSwiplMacOSHome()
 
     else:
-        raise EnvironmentError('The platform %s is not supported by this '
-                               'library. If you want it to be supported, '
-                               'please open an issue.' % platform)
+        # This should work for other UNIX
+        (path, swiHome) = _findSwiplLin()
 
     # This is a catch all raise
     if path is None:
@@ -573,7 +572,7 @@ _fixWindowsPath(_path)
 # Load the library
 _lib = CDLL(_path, mode=RTLD_GLOBAL)
 
-# PySWIP constants
+# PySwip constants
 PYSWIP_MAXSTR = 1024
 c_int_p = c_void_p
 c_long_p = c_void_p
