@@ -25,10 +25,9 @@
 
 """Regression tests for issues."""
 
-
+import subprocess
 import sys
 import unittest
-import subprocess
 
 
 class TestIssues(unittest.TestCase):
@@ -52,8 +51,7 @@ class TestIssues(unittest.TestCase):
         https://code.google.com/p/pyswip/issues/detail?id=17
         """
 
-        import pyswip.core # This implicitly tests library loading code. It
-                           # won't be very useful if it is not tested in several
+        # won't be very useful if it is not tested in several
                            # OSes
 
 
@@ -271,8 +269,3 @@ class TestIssues(unittest.TestCase):
         soln = [s["Y"] for s in p.query("friend(john,Y), father(Y,kur)",
                                          maxresult=1)]
         self.assertEqual(soln[0], "son(miki)")
-
-        
-if __name__ == "__main__":
-    unittest.main()
-    
