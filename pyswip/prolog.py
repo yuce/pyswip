@@ -1,26 +1,18 @@
 # -*- coding: utf-8 -*-
 
-
-# prolog.py -- Prolog class
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright 2007 Yuce Tekol <yucetekol@gmail.com>
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 
 from .const import PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_Q_NORMAL
@@ -29,31 +21,13 @@ from .term import Term
 
 __all__ = "Prolog", "PrologError"
 
-try:
-    from inspect import signature
+from inspect import signature
 
-    def _fun_arg_count(f):
-        return len(signature(f).parameters)
-
-except ImportError:
-    from inspect import getargspec
-
-    def _fun_arg_count(f):
-        return len(getargspec(f))
+def _fun_arg_count(f):
+    return len(signature(f).parameters)
 
 
 class PrologError(Exception):
-    pass
-
-
-class NestedQueryError(PrologError):
-    """
-    SWI-Prolog does not accept nested queries, that is, opening a query while
-    the previous one was not closed.
-
-    As this error may be somewhat difficult to debug in foreign code, it is
-    automatically treated inside pySWIP
-    """
     pass
 
 
@@ -69,37 +43,60 @@ class _Singleton(type):
 
 class Prolog(metaclass=_Singleton):
 
-    # We keep track of open queries to avoid nested queries.
-    # _queryIsOpen = False
-
     callbacks = {}
     register_after = []
 
-    def __init__(self, lib_path="", swi_home=""):
+    def __init__(self, lib_path="", swi_bin_path=""):
         if not lib_path:
-            lib_path, swi_home = self._discover_lib()
-        self._initialize(lib_path, swi_home)
+            lib_path = self._discover_lib()
+        if not swi_bin_path:
+            swi_bin_path = self._discover_swi_bin_path()
+        if not lib_path:
+            raise PrologError("")
+        self._initialize(lib_path, swi_bin_path)
 
     @classmethod
-    def _discover_lib(self):
-        from .discover  import _findSwipl
-        return _findSwipl()
+    def _discover_lib(cls):
+        from ctypes.util import find_library
+        return find_library("swipl")
 
     @classmethod
-    def _initialize(self, lib_path, swi_home):
+    def _discover_swi_bin_path(cls):
+        import os
+        import sys
+
+        # first check whether SWI_HOME_DIR is already defined
+        path = os.environ.get("SWI_HOME_DIR")
+        if path:
+            return path
+
+        # check the PATH environment variable to find the swipl binary
+        paths = os.environ.get("PATH")
+        if not paths:
+            return ""
+        swipl_bin = "swipl"
+        if sys.platform.startswith("win"):
+            swipl_bin = "swipl.exe"
+        for path in paths.split(os.pathsep):
+            path = os.path.join(path, swipl_bin)
+            if os.path.exists(path):
+                # Found the swipl binary, return its path
+                return path
+        return ""
+
+    @classmethod
+    def _initialize(cls, lib_path, swi_bin_path):
         from .swipl import open_lib
         open_lib(lib_path)
 
         args = [
-            "./",
+            swi_bin_path,
             "-q",  # quiet
             "-nosignals", # Inhibit signal handling by SWI
         ]
-        if swi_home:
-            args.append("--home=%s" % swi_home)
 
         lib = Swipl.lib
-        result = lib.initialise(len(args),args)
+        result = lib.initialise(len(args), args)
         # result is a boolean variable (i.e. 0 or 1) indicating whether the
         # initialisation was successful or not.
         if not result:
@@ -117,10 +114,10 @@ class Prolog(metaclass=_Singleton):
                 """, swipl_load)
             lib.call(swipl_load, None)
 
-        if self.register_after:
-            for item in self.register_after:
+        if cls.register_after:
+            for item in cls.register_after:
                 Swipl.lib.register_foreign(*item)
-            self.register_after = []
+            cls.register_after = []
 
     def asserta(self, assertion, catcherrors=False):
         return next(self.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors))
@@ -139,7 +136,6 @@ class Prolog(metaclass=_Singleton):
     @classmethod
     def retractall(cls, term, catcherrors=False):
         next(cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors))
-
 
     def consult(self, filename, catcherrors=True):
         return next(self.query(filename.join(["consult('", "')"]), catcherrors=catcherrors))
@@ -185,13 +181,10 @@ class _QueryWrapper(object):
             plq = catcherrors and (PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
             swipl_qid = lib.open_query(None, plq, swipl_predicate, swipl_args)
 
-            # Prolog._queryIsOpen = True # From now on, the query will be considered open
             try:
                 while maxresult and lib.next_solution(swipl_qid):
                     maxresult -= 1
-                    bindings = []
                     swipl_list = lib.copy_term_ref(swipl_binding_list)
-                    # t = getTerm(swipl_list)
                     t = Term.decode(swipl_list)
                     if normalize:
                         if isinstance(t, list):
@@ -205,13 +198,6 @@ class _QueryWrapper(object):
                                 yield ls
                         else:
                             yield t.norm_value
-                    #     try:
-                    #         v = t.value
-                    #     except AttributeError:
-                    #         v = {}
-                    #         for r in [x.value for x in t]:
-                    #             v.update(r)
-                    #     yield v
                     else:
                         yield t
 
@@ -223,7 +209,6 @@ class _QueryWrapper(object):
 
             finally:
                 lib.cut_query(swipl_qid)
-                # Prolog._queryIsOpen = False
 
 
 class Frame:
@@ -236,7 +221,6 @@ class Frame:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         Swipl.lib.discard_foreign_frame(self.swipl_fid)
-        # TODO: cut on exception
         self.swipl_fid = None
 
 

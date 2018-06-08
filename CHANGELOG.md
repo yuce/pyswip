@@ -1,5 +1,11 @@
 # CHANGELOG
 
++ Next
+  * Relicensed under Apache 2.0.
+  * Major rewrite of the library.
+  * Dropped Python 2.7 compatibility.
+  * Compatible with Python 3.5 and up.
+
 + 0.2.7
 
   * Works on FreeBSD.

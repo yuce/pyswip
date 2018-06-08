@@ -21,7 +21,8 @@ Since PySwip uses SWI-Prolog as a shared library and ctypes to access it, it doe
 
 ## Requirements:
 
-* Python 2.7 or 3.4 and higher.
+* Python 3.5 and higher.
+    * Python 2.7 is not supported.
     * PyPy is currently not supported.
 * SWI-Prolog 7.2.x and higher.
 * `libswipl` as a shared library. *This is the default on most platforms.*
@@ -163,23 +164,5 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 
 ## License
 
-```
-Copyright (c) 2007-2018 Yüce Tekol
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-```
+* The library code and tests are licensed under Apache 2.0. See [LICENSE](LICENSE).
+* Example files are licensed under their own licenses. See individual examples.

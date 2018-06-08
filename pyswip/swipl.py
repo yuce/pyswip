@@ -1,3 +1,16 @@
+# Copyright 2007 Yuce Tekol <yucetekol@gmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import sys
 import atexit
@@ -23,7 +36,6 @@ def open_lib(path):
         f.argtypes = argtypes
         f.restype = restype
         return f
-
 
     class Lib:
 
@@ -95,10 +107,7 @@ def open_lib(path):
         record = _("PL_record", [term_t], record_t)
         recorded = _("PL_recorded", [record_t, term_t], None)
         register_atom = _("PL_register_atom", [atom_t], None)
-        # register_foreign = check_strings(0, None)(_("PL_register_foreign", [c_char_p, c_int, CFUNCTYPE(foreign_t, c_int)], c_int))
-        # register_foreign = _("PL_register_foreign", [c_char_p, c_int, CFUNCTYPE(foreign_t, c_int)], c_int)
         register_foreign = check_strings(0, None)(_lib.PL_register_foreign)
-        #register_foreign = _lib.PL_register_foreign
         same_compound = _("PL_same_compound", [term_t, term_t], c_int)
         term_type = _("PL_term_type", [term_t], c_int)
         unify_arg = _("PL_unify_arg", [c_int, term_t, term_t], c_int)
@@ -145,17 +154,6 @@ def open_lib(path):
 # create a decorator that turns the incoming strings into c_char_p compatible
 # butes or pointer arrays
 def check_strings(strings, arrays):
-    """
-    Decorator function which can be used to automatically turn an incoming
-    string into a bytes object and an incoming list to a pointer array if
-    necessary.
-
-    :param strings: Indices of the arguments must be pointers to bytes
-    :type strings: List of integers
-    :param arrays: Indices of the arguments must be arrays of pointers to bytes
-    :type arrays: List of integers
-    """
-
     # if given a single element, turn it into a list
     if isinstance(strings, int):
         strings = [strings]
@@ -205,17 +203,6 @@ def check_strings(strings, arrays):
 
 
 def list_to_bytes_list(str_list):
-    """
-    This function turns an array of strings into a pointer array
-    with pointers pointing to the encodings of those strings
-    Possibly contained bytes are kept as they are.
-
-    :param strList: List of strings that shall be converted
-    :type strList: List of strings
-    :returns: Pointer array with pointers pointing to bytes
-    :raises: TypeError if strList is not list, set or tuple
-    """
-
     p_list = c_char_p * len(str_list)
     # if strList is already a pointerarray or None, there is nothing to do
     if isinstance(str_list, (p_list, type(None))):
