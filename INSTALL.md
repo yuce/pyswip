@@ -21,15 +21,47 @@ See the [Python documentation](https://docs.python.org/3/library/venv.html) for 
 
 ## Linux
 
-1) Install SWI-Prolog using your package manager. On Debian, Ubuntu and similar distributions, you can do that by:
+### Fedora
+
+[Till Hofmann](https://kbsg.rwth-aachen.de/~hofmann/) maintains the [Fedora package](https://apps.fedoraproject.org/packages/python3-pyswip/overview/).
+
+Install PySwip for Python 3 with dependencies using:
+```
+sudo dnf install python3-pyswip
+```
+
+Install PySwip for Python 2 with dependencies using:
+```
+sudo dnf install python3-pyswip
+```
+
+### Arch Linux
+
+Alexander Rødseth mains the [Arch Linux package](https://www.archlinux.org/packages/community/any/python-pyswip/).
+
+Install PySwip with dependencies using:
+```
+sudo pacman -S python-pyswip
+```
+
+### Debian, Ubuntu
+
+There are no packages for Debian-based distros. Follow these steps to install PySwip:
+
+1) Install SWI-Prolog:
     ```
     sudo apt install swi-prolog
     ```
     If you don't want the X bindings, just use the `swi-prolog-nox` package.
 
-2) `pip install pyswip`
+2) Install and activate a virtual environment as described before.
 
-3) Run a quick test by running following code at your Python console:
+3) Install pyswip from Python package index using:
+    ```
+    pip install pyswip
+    ```
+
+4) Run a quick test by running following code at your Python console:
     ```python
     from pyswip import Prolog
     prolog = Prolog()
