@@ -57,16 +57,16 @@ class TestProlog(unittest.TestCase):
         self.assertEqual({"B": True}, r)
 
     def test_query_tuple(self):
-        self.p.assertz("tuple2((a, b))")
-        r = list(self.p.query("tuple2(T)"))[0]
-        self.assertEqual({"T": ("a", "b")}, r)
+        self.p.assertz("tuple2((abc, def))")
+        r = list(self.p.query("tuple2(T)", normalize=True))[0]
+        self.assertEqual({"T": ("abc", "def")}, r)
 
         self.p.assertz("tuple3((a, b, c))")
         r = list(self.p.query("tuple3(T)"))[0]
         self.assertEqual({"T": ("a", "b", "c")}, r)
 
         self.p.assertz("tuple32((a, (b, c)))")
-        r = list(self.p.query("tuple3(T)"))[0]
+        r = list(self.p.query("tuple32(T)"))[0]
         self.assertEqual({"T": ("a", "b", "c")}, r)
 
     def test_query_list(self):
@@ -78,10 +78,9 @@ class TestProlog(unittest.TestCase):
         r = list(self.p.query("list3(L)"))[0]
         self.assertEqual({"L": ["a", "b", "c"]}, r)
 
-        # This test doesn't pass yet -- YT
-        # self.p.assertz("list3([a, [b, c]])")
-        # r = list(self.p.query("list3(L)"))[0]
-        # self.assertEqual({"L": ["a", ["b", "c"]]}, r.norm_value)
+        self.p.assertz("list32([a, [b, c]])")
+        r = list(self.p.query("list32(L)"))[0]
+        self.assertEqual({"L": ["a", ["b", "c"]]}, r)
 
     def test_atom(self):
         a1 = atom("atom1")

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import itertools
 from ctypes import create_string_buffer, cast
 from typing import Any, Iterable, List, Optional, Tuple, Union
 
@@ -127,7 +126,11 @@ class Binding:
 
     @property
     def norm_value(self):
-        return {norm_value(self.a): norm_value(self.b)}
+        nv = norm_value(self.b)
+        # XXX: This is a hack and should be properly fixed --YT
+        if isinstance(nv, tuple):
+            nv = _flatten_tuple(nv)
+        return {norm_value(self.a): nv}
 
 
 class Functor:
@@ -157,17 +160,8 @@ class Functor:
     @property
     def value(self):
         return self.name.value
-        # fun = self.funcs.get("%s/%s" % (self.name.value, self.arity))
-        # if fun is not None:
-        #     return fun(*self.args)
-        # return self
 
-    @property
-    def norm_value(self):
-        fun = self.funcs.get("%s/%s" % (self.name.value, self.arity))
-        if fun is not None:
-            return norm_value(fun(*self.args))
-        return self
+    norm_value = value
 
     def __repr__(self):
         return "Functor(%s/%s)" % (self.name.value, self.arity)
@@ -188,20 +182,20 @@ class Functor:
         return Compound(None, f, terms=args)
 
 
-def functor(name, arity=None):
+def _functor(name: str, arity=None) -> Functor:
     return Functor(None, name=atom(name), arity=arity)
 
 
-def functors(*names):
-    return tuple(functor(name, 0) for name in names)
+def functors(*names) -> List[Functor]:
+    return [_functor(name, 0) for name in names]
 
 
-def _unify(arg1, arg2):
+def _unify(arg1, arg2) -> Binding:
     return Binding(arg1, arg2)
 
 
-def _tuple(*args):
-    return tuple(args)
+def _tuple(arg1, arg2) -> Tuple:
+    return arg1, arg2
 
 
 Functor.add_callable("=", 2, _unify)
@@ -210,14 +204,14 @@ Functor.add_callable(",", 2, _tuple)
 
 class Compound:
 
-    def __init__(self, handle, functor, terms=None, arg0=None):
+    def __init__(self, handle: Optional[int], functor: Union[str, Functor], terms=None, arg0=None):
         self.handle = handle
         self.terms = tuple(terms) if terms else tuple()
         self.arg0 = arg0
         if isinstance(functor, Functor):
             self.functor = functor
         elif isinstance(functor, str):
-            self.functor = functor(functor, len(self.terms))
+            self.functor = _functor(functor, len(self.terms))
         else:
             raise Exception("Invalid functor: %s" % functor)
 
@@ -347,7 +341,6 @@ Term._router = {
 
 
 def norm_value(value):
-    f = getattr(value, "norm_value", None)
     if hasattr(value, "norm_value"):
         return value.norm_value
     if isinstance(value, dict):
@@ -355,5 +348,20 @@ def norm_value(value):
     elif isinstance(value, list):
         return [norm_value(item) for item in value]
     elif isinstance(value, tuple):
-        return tuple(itertools.chain.from_iterable(norm_value(item) for item in value))
+        return tuple(norm_value(item) for item in value)
     return value
+
+
+def _flatten_tuple(t):
+    if not isinstance(t, tuple):
+        return t
+    ls = []
+    for item in t:
+        if isinstance(item, tuple):
+            ls.extend(_flatten_tuple(item))
+        else:
+            ls.append(item)
+    return tuple(ls)
+
+
+functor = _functor
