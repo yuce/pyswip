@@ -44,9 +44,9 @@ Install PySwip with dependencies using:
 sudo pacman -S python-pyswip
 ```
 
-### Debian, Ubuntu
+### Debian, Ubuntu, Raspbian
 
-There are no packages for Debian-based distros. Follow these steps to install PySwip:
+There are no native packages for Debian-based distros. Follow these steps to install PySwip:
 
 1) Install SWI-Prolog:
     ```
