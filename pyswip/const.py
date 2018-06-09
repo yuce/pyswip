@@ -19,12 +19,12 @@ c_long_p = c_void_p
 c_double_p = c_void_p
 c_uint_p = c_void_p
 
-PL_VARIABLE = 1  # nothing
+PL_VARIABLE = 1
 PL_ATOM = 2  # const char
 PL_INTEGER = 3  # int
 PL_FLOAT = 4  # double
 PL_STRING = 5  # const char *
-PL_TERM = 6  #
+PL_TERM = 6
 PL_NIL = 7
 PL_LIST_PAIR = 9
 PL_FUNCTOR = 10  # functor_t, arg ...
@@ -47,7 +47,7 @@ CVT_FLOAT = 0x0010
 CVT_VARIABLE = 0x0020
 CVT_NUMBER = CVT_INTEGER | CVT_FLOAT
 CVT_ATOMIC = CVT_NUMBER | CVT_ATOM | CVT_STRING
-CVT_WRITE = 0x0040  # as of version 3.2.10
+CVT_WRITE = 0x0040
 CVT_ALL = CVT_ATOMIC | CVT_LIST
 CVT_MASK = 0x00ff
 

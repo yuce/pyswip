@@ -14,17 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from inspect import signature
 
 from .const import PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_Q_NORMAL
 from .swipl import CFUNCTYPE, Swipl, c_char_p, foreign_t, term_t
 from .term import Term
 
 __all__ = "Prolog", "PrologError"
-
-from inspect import signature
-
-def _fun_arg_count(f):
-    return len(signature(f).parameters)
 
 
 class PrologError(Exception):
@@ -56,19 +52,14 @@ class Prolog(metaclass=_Singleton):
         self._initialize(lib_path, swi_bin_path)
 
     @classmethod
-    def _discover_lib(cls):
+    def _discover_lib(cls) -> str:
         from ctypes.util import find_library
         return find_library("swipl")
 
     @classmethod
-    def _discover_swi_bin_path(cls):
+    def _discover_swi_bin_path(cls) -> str:
         import os
         import sys
-
-        # first check whether SWI_HOME_DIR is already defined
-        path = os.environ.get("SWI_HOME_DIR")
-        if path:
-            return path
 
         # check the PATH environment variable to find the swipl binary
         paths = os.environ.get("PATH")
@@ -85,7 +76,7 @@ class Prolog(metaclass=_Singleton):
         return ""
 
     @classmethod
-    def _initialize(cls, lib_path, swi_bin_path):
+    def _initialize(cls, lib_path: str, swi_bin_path: str) -> None:
         from .swipl import open_lib
         open_lib(lib_path)
 
@@ -119,37 +110,37 @@ class Prolog(metaclass=_Singleton):
                 Swipl.lib.register_foreign(*item)
             cls.register_after = []
 
-    def asserta(self, assertion, catcherrors=False):
+    def asserta(self, assertion: str, catcherrors=False):
         return next(self.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors))
 
-    def assertz(self, assertion, catcherrors=False):
+    def assertz(self, assertion: str, catcherrors=False):
         return next(self.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors))
 
     @classmethod
-    def dynamic(cls, term, catcherrors=False):
+    def dynamic(cls, term: str, catcherrors=False):
         next(cls.query(term.join(["dynamic((", "))."]), catcherrors=catcherrors))
 
     @classmethod
-    def retract(cls, term, catcherrors=False):
+    def retract(cls, term: str, catcherrors=False):
         next(cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors))
 
     @classmethod
-    def retractall(cls, term, catcherrors=False):
+    def retractall(cls, term: str, catcherrors=False):
         next(cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors))
 
-    def consult(self, filename, catcherrors=True):
+    def consult(self, filename: str, catcherrors=True):
         return next(self.query(filename.join(["consult('", "')"]), catcherrors=catcherrors))
 
     @classmethod
-    def query(cls, query, maxresult=-1, catcherrors=True, normalize=True):
-        return _QueryWrapper()(query, maxresult, catcherrors, normalize)
+    def query(cls, query: str, maxresult=-1, catcherrors=True, normalize=True):
+        return cls._query_wrapper(query, maxresult, catcherrors, normalize)
 
     @classmethod
     def register(cls, fun, name=None, arity=None, flags=0):
         if name is None:
             name = fun.__name__
         if arity is None:
-            arity = _fun_arg_count(fun)
+            arity = len(signature(fun).parameters)
 
         key = "%s/%s" % (name, arity)
         if key in cls.callbacks:
@@ -165,13 +156,9 @@ class Prolog(metaclass=_Singleton):
         else:
             return Swipl.lib.register_foreign(name, arity, wrapped, flags) == 1
 
-
-class _QueryWrapper(object):
-
     @classmethod
-    def __call__(cls, query, maxresult, catcherrors, normalize):
+    def _query_wrapper(cls, query: str, maxresult: int, catcherrors: bool, normalize: bool):
         lib = Swipl.lib
-
         with Frame():
             swipl_args = lib.new_term_refs(2)
             swipl_goal_char_list = swipl_args

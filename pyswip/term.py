@@ -14,6 +14,7 @@
 
 import itertools
 from ctypes import create_string_buffer, cast
+from typing import Any, Iterable, List, Optional, Tuple, Union
 
 from .swipl import Swipl, byref, c_int, c_char_p, c_long, c_double
 from .const import \
@@ -27,19 +28,19 @@ __all__ = "FALSE", "NIL", "TRUE", \
 
 class Atom:
 
-    def __init__(self, handle, name=""):
+    def __init__(self, handle: Optional[int], name=""):
         self.handle = handle
         self.name = name
 
     @classmethod
-    def from_term(cls, t):
+    def from_term(cls, t: int):
         a = atom_t()
         if Swipl.lib.get_atom(t, byref(a)):
             return cls.from_handle(a.value)
         raise Exception("Invalid atom")  # TODO: Proper exception
 
     @classmethod
-    def from_handle(cls, handle):
+    def from_handle(cls, handle: int):
         lib = Swipl.lib
         lib.register_atom(handle)
         return cls(handle, lib.atom_chars(handle).decode("utf-8"))
@@ -63,7 +64,7 @@ class Atom:
     def __str__(self):
         return self.name
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any):
         if self is other:
             return True
         if not isinstance(other, self.__class__):
@@ -76,12 +77,12 @@ class Atom:
         return hash(self.name)
 
 
-def atom(name):
+def atom(name: str):
     return Atom(None, name=name)
 
 
-def atoms(*names):
-    return tuple(atom(name) for name in names)
+def atoms(*names) -> List[Atom]:
+    return [atom(name) for name in names]
 
 
 NIL = atom("[]")
@@ -89,109 +90,29 @@ TRUE = atom("true")
 FALSE = atom("false")
 
 
-class Term:
-
-    _router = {}
-
-    @classmethod
-    def decode(cls, t):
-        term_type = Swipl.lib.term_type(t)
-        fun = cls._router[term_type]
-        return fun(t)
-
-    @classmethod
-    def decode_atom(cls, t):
-        return Atom.from_term(t)
-
-    @classmethod
-    def decode_term(cls, t):
-        lib = Swipl.lib
-        if lib.is_compound(t):
-            return Compound.from_term(t)
-        return 6
-
-    @classmethod
-    def decode_integer(cls, t):
-        i = c_long()
-        Swipl.lib.get_long(t, byref(i))
-        return i.value
-
-    @classmethod
-    def decode_float(cls, t):
-        d = c_double()
-        Swipl.lib.get_float(t, byref(d))
-        return d.value
-
-    @classmethod
-    def decode_string(cls, t):
-        slen = c_int()
-        s = c_char_p()
-        Swipl.lib.get_string_chars(t, byref(s), byref(slen))
-        return s.value
-
-    @classmethod
-    def decode_nil(cls, t):
-        return NIL
-
-    @classmethod
-    def decode_pair(cls, t):
-        ls = cls.decode_list(t)
-        if len(ls) == 1:
-            return ls[0]
-        if Swipl.lib.is_list(t):
-            return ls
-        return tuple(ls)
-
-    @classmethod
-    def decode_list(cls, t):
-        lib = Swipl.lib
-        t = lib.copy_term_ref(t)
-        head = lib.new_term_ref()
-        result = []
-        while lib.get_list(t, head, t):
-            result.append(Term.decode(head))
-        return result
-
-    @classmethod
-    def decode_functor(cls, t):
-        return Functor.from_term(t)
-
-
-class Variable:
-
-    def __init__(self, handle, name, value=None):
-        self.handle = handle
-        self.name = name
-        self._value = value
-
-    @property
-    def value(self):
-        return self._value
-
-    @property
-    def norm_value(self):
-        return self._value
-
-    @classmethod
-    def from_term(cls, t):
-        lib = Swipl.lib
-        s = create_string_buffer(b"\00" * 64)  # FIXME:
-        ptr = cast(s, c_char_p)
-        handle = lib.copy_term_ref(t)
-        if lib.get_chars(handle, byref(ptr), CVT_VARIABLE | BUF_RING):
-            self.chars = ptr.value
-
-
-Term._router = {
-    PL_ATOM: Atom.from_term,
-    PL_TERM: Term.decode_term,
-    PL_INTEGER: Term.decode_integer,
-    PL_FLOAT: Term.decode_float,
-    PL_STRING: Term.decode_string,
-    PL_NIL: Term.decode_nil,
-    PL_LIST_PAIR: Term.decode_pair,
-    PL_LIST: Term.decode_list,
-}
+# class Variable:
+#
+#     def __init__(self, handle, name, value=None):
+#         self.handle = handle
+#         self.name = name
+#         self._value = value
+#
+#     @property
+#     def value(self):
+#         return self._value
+#
+#     @property
+#     def norm_value(self):
+#         return self._value
+#
+#     @classmethod
+#     def from_term(cls, t):
+#         lib = Swipl.lib
+#         s = create_string_buffer(b"\00" * 64)  # FIXME:
+#         ptr = cast(s, c_char_p)
+#         handle = lib.copy_term_ref(t)
+#         if lib.get_chars(handle, byref(ptr), CVT_VARIABLE | BUF_RING):
+#             self.chars = ptr.value
 
 
 class Binding:
@@ -343,6 +264,86 @@ class Compound:
 
 def compound(functor, *terms):
     return Compound(None, functor=functor, terms=terms)
+
+
+class Term:
+
+    _router = {}
+
+    @classmethod
+    def decode(cls, t: int):
+        term_type = Swipl.lib.term_type(t)
+        fun = cls._router[term_type]
+        return fun(t)
+
+    @classmethod
+    def decode_atom(cls, t: int) -> Atom:
+        return Atom.from_term(t)
+
+    @classmethod
+    def decode_term(cls, t: int) -> Compound:
+        lib = Swipl.lib
+        if lib.is_compound(t):
+            return Compound.from_term(t)
+        return 6
+
+    @classmethod
+    def decode_integer(cls, t: int) -> int:
+        i = c_long()
+        Swipl.lib.get_long(t, byref(i))
+        return i.value
+
+    @classmethod
+    def decode_float(cls, t: int) -> float:
+        d = c_double()
+        Swipl.lib.get_float(t, byref(d))
+        return d.value
+
+    @classmethod
+    def decode_string(cls, t: int) -> str:
+        slen = c_int()
+        s = c_char_p()
+        Swipl.lib.get_string_chars(t, byref(s), byref(slen))
+        return s.value
+
+    @classmethod
+    def decode_nil(cls, t: int) -> Atom:
+        return NIL
+
+    @classmethod
+    def decode_pair(cls, t: int) -> Union[List, Tuple]:
+        ls = cls.decode_list(t)
+        if len(ls) == 1:
+            return ls[0]
+        if Swipl.lib.is_list(t):
+            return ls
+        return tuple(ls)
+
+    @classmethod
+    def decode_list(cls, t: int) -> List:
+        lib = Swipl.lib
+        t = lib.copy_term_ref(t)
+        head = lib.new_term_ref()
+        result = []
+        while lib.get_list(t, head, t):
+            result.append(Term.decode(head))
+        return result
+
+    @classmethod
+    def decode_functor(cls, t):
+        return Functor.from_term(t)
+
+
+Term._router = {
+    PL_ATOM: Atom.from_term,
+    PL_TERM: Term.decode_term,
+    PL_INTEGER: Term.decode_integer,
+    PL_FLOAT: Term.decode_float,
+    PL_STRING: Term.decode_string,
+    PL_NIL: Term.decode_nil,
+    PL_LIST_PAIR: Term.decode_pair,
+    PL_LIST: Term.decode_list,
+}
 
 
 def norm_value(value):
