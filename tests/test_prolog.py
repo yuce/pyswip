@@ -194,10 +194,10 @@ class TestProlog(unittest.TestCase):
         https://code.google.com/p/pyswip/issues/detail?id=8
         """
 
+        @Prolog.register
         def hello(t):
             calls_to_hello.append(t)
 
-        Prolog.register(hello)
         calls_to_hello = []
         p = self.p
         p.assertz("parent(michael,john)")
@@ -205,4 +205,14 @@ class TestProlog(unittest.TestCase):
         result = list(p.query("parent(michael,X), hello(X)"))
         self.assertEqual(len(calls_to_hello), 2)  # ['john', 'gina']
         self.assertEqual(len(result), 2)  # [{'X': 'john'}, {'X': 'gina'}]
+
+    def test_errors(self):
+        p = self.p
+        p.assertz("foo(bar)")
+        try:
+            list(p.query("zzz(X)"))
+        except PrologError as ex:
+            self.assertEqual(ex.msg, "Does not exist: procedure /(zzz, 1)")
+            return
+        self.fail("PrologError was not raised")
 

@@ -16,9 +16,10 @@ from ctypes import create_string_buffer, cast
 from typing import Any, Iterable, List, Optional, Tuple, Union
 
 from .swipl import Swipl, byref, c_int, c_char_p, c_long, c_double
+from .errors import ExistenceError, PrologError
 from .const import \
     PL_ATOM, PL_INTEGER, PL_FLOAT, PL_STRING, PL_TERM, PL_NIL, PL_LIST_PAIR, PL_LIST, PL_VARIABLE, \
-    atom_t, functor_t, CVT_VARIABLE, BUF_RING
+    atom_t, functor_t, CVT_VARIABLE, BUF_RING, BUF_DISCARDABLE
 
 __all__ = "FALSE", "NIL", "TRUE", \
           "Atom", "Compound", "Functor", "Term", \
@@ -89,29 +90,32 @@ TRUE = atom("true")
 FALSE = atom("false")
 
 
-# class Variable:
-#
-#     def __init__(self, handle, name, value=None):
-#         self.handle = handle
-#         self.name = name
-#         self._value = value
-#
-#     @property
-#     def value(self):
-#         return self._value
-#
-#     @property
-#     def norm_value(self):
-#         return self._value
-#
-#     @classmethod
-#     def from_term(cls, t):
-#         lib = Swipl.lib
-#         s = create_string_buffer(b"\00" * 64)  # FIXME:
-#         ptr = cast(s, c_char_p)
-#         handle = lib.copy_term_ref(t)
-#         if lib.get_chars(handle, byref(ptr), CVT_VARIABLE | BUF_RING):
-#             self.chars = ptr.value
+class Variable:
+
+    def __init__(self, handle, name, value=None):
+        self.handle = handle
+        self.name = name
+        self._value = value
+
+    @property
+    def value(self):
+        return self._value
+
+    @property
+    def norm_value(self):
+        return self._value
+
+    @classmethod
+    def from_term(cls, t):
+        lib = Swipl.lib
+        ptr = c_char_p()
+        handle = lib.copy_term_ref(t)
+        if lib.get_chars(handle, byref(ptr), CVT_VARIABLE | BUF_DISCARDABLE):
+            return Variable(handle, name=ptr.value)
+        raise PrologError("Invalid variable")
+
+    def __repr__(self):
+        return "Variable(%s=%s)" % (self.name, self._value)
 
 
 class Binding:
@@ -190,16 +194,28 @@ def functors(*names) -> List[Functor]:
     return [_functor(name, 0) for name in names]
 
 
-def _unify(arg1, arg2) -> Binding:
+def _functor_unify(arg1, arg2) -> Binding:
     return Binding(arg1, arg2)
 
 
-def _tuple(arg1, arg2) -> Tuple:
+def _functor_tuple(arg1, arg2) -> Tuple:
     return arg1, arg2
 
 
-Functor.add_callable("=", 2, _unify)
-Functor.add_callable(",", 2, _tuple)
+def _functor_error(error_type, context):
+    error = error_type.norm_value
+    error.context = context
+    return error
+
+
+def _functor_existence_error(term_type, what):
+    return ExistenceError(term_type, what)
+
+
+Functor.add_callable("=", 2, _functor_unify)
+Functor.add_callable(",", 2, _functor_tuple)
+Functor.add_callable("error", 2, _functor_error)
+Functor.add_callable("existence_error", 2, _functor_existence_error)
 
 
 class Compound:
@@ -267,6 +283,7 @@ class Term:
     @classmethod
     def decode(cls, t: int):
         term_type = Swipl.lib.term_type(t)
+        print("T", t, term_type)
         fun = cls._router[term_type]
         return fun(t)
 
@@ -329,6 +346,7 @@ class Term:
 
 
 Term._router = {
+    PL_VARIABLE: Variable.from_term,
     PL_ATOM: Atom.from_term,
     PL_TERM: Term.decode_term,
     PL_INTEGER: Term.decode_integer,

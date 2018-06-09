@@ -19,12 +19,9 @@ from inspect import signature
 from .const import PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_Q_NORMAL
 from .swipl import CFUNCTYPE, Swipl, c_char_p, foreign_t, term_t
 from .term import Term
+from .errors import PrologError
 
-__all__ = "Prolog", "PrologError"
-
-
-class PrologError(Exception):
-    pass
+__all__ = "Prolog",
 
 
 class _Singleton(type):
@@ -189,11 +186,8 @@ class Prolog(metaclass=_Singleton):
                         yield t
 
                 if lib.exception(swipl_qid):
-                    raise PrologError("error with qid: %s" % swipl_qid)
-                    # term = Term.decode(lib.exception(swipl_qid))
-                    # raise PrologError("".join(["Caused by: '", query, "'. ",
-                    #                             "Returned: '", str(term), "'."]))
-
+                    term = Term.decode(lib.exception(swipl_qid))
+                    raise term.norm_value
             finally:
                 lib.cut_query(swipl_qid)
 
