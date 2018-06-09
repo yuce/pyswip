@@ -37,7 +37,7 @@ sudo dnf install python3-pyswip
 
 ### Arch Linux
 
-Alexander Rødseth mains the [Arch Linux package](https://www.archlinux.org/packages/community/any/python-pyswip/).
+[Alexander Rødseth](https://roboticoverlords.org) maintains the [Arch Linux package](https://www.archlinux.org/packages/community/any/python-pyswip/).
 
 Install PySwip with dependencies using:
 ```
