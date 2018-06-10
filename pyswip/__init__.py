@@ -17,4 +17,6 @@
 
 __VERSION__ = "0.9.0"
 
-from pyswip.prolog import Prolog
+from pyswip.errors import *
+from pyswip.prolog import *
+from pyswip.term import *

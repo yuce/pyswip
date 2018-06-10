@@ -12,14 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ctypes import create_string_buffer, cast
-from typing import Any, Iterable, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
-from .swipl import Swipl, byref, c_int, c_char_p, c_long, c_double
-from .errors import ExistenceError, PrologError
 from .const import \
     PL_ATOM, PL_INTEGER, PL_FLOAT, PL_STRING, PL_TERM, PL_NIL, PL_LIST_PAIR, PL_LIST, PL_VARIABLE, \
-    atom_t, functor_t, CVT_VARIABLE, BUF_RING, BUF_DISCARDABLE
+    atom_t, functor_t, CVT_VARIABLE, BUF_DISCARDABLE
+from .errors import ExistenceError, PrologError
+from .swipl import Swipl, byref, c_int, c_char_p, c_long, c_double
 
 __all__ = "FALSE", "NIL", "TRUE", \
           "Atom", "Compound", "Functor", "Term", \
@@ -296,7 +295,7 @@ class Term:
         lib = Swipl.lib
         if lib.is_compound(t):
             return Compound.from_term(t)
-        return 6
+        raise PrologError("Cannot decode term: %s", t)
 
     @classmethod
     def decode_integer(cls, t: int) -> int:
