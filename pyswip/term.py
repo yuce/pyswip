@@ -282,7 +282,6 @@ class Term:
     @classmethod
     def decode(cls, t: int):
         term_type = Swipl.lib.term_type(t)
-        print("T", t, term_type)
         fun = cls._router[term_type]
         return fun(t)
 
