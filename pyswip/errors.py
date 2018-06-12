@@ -16,6 +16,8 @@
 
 __all__ = "PrologError", "ExistenceError"
 
+from .const import PL_ENGINE_INVAL, PL_ENGINE_INUSE
+
 
 class PrologError(Exception):
 
@@ -35,3 +37,17 @@ class ExistenceError(PrologError):
         self.what = what
 
 
+class EngineError(PrologError):
+
+    ENGINE_INVALID = PL_ENGINE_INVAL
+    ENGINE_IN_USE = PL_ENGINE_INUSE
+
+    _STATUS_MSG_MAP = {
+        ENGINE_INVALID: "invalid_engine",
+        ENGINE_IN_USE: "engine_in_use",
+    }
+
+    def __init__(self, status: int):
+        msg = self._STATUS_MSG_MAP.get(status, "unknown_status")
+        super().__init__(msg)
+        self.status = status

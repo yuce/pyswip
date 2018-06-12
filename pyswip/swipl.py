@@ -50,7 +50,9 @@ def open_lib(path):
         cons_functor_v = _("PL_cons_functor_v", [term_t, functor_t, term_t], None)
         cons_list = _("PL_cons_list", [term_t, term_t, term_t], None)
         copy_term_ref = _("PL_copy_term_ref", [term_t], term_t)
+        create_engine = _("PL_create_engine", [c_void_p], engine_t)  # NOTE: pass always 0
         cut_query = _("PL_cut_query", [qid_t], None)
+        destroy_engine = _("PL_destroy_engine", [engine_t], c_int)
         discard_foreign_frame = _("PL_discard_foreign_frame", [fid_t], None)
         erase = _("PL_erase", [record_t], None)
         exception = _("PL_exception", [qid_t], term_t)
@@ -109,6 +111,7 @@ def open_lib(path):
         register_atom = _("PL_register_atom", [atom_t], None)
         register_foreign = check_strings(0, None)(_lib.PL_register_foreign)
         same_compound = _("PL_same_compound", [term_t, term_t], c_int)
+        set_engine = _("PL_set_engine", [engine_t, POINTER(engine_t)], int)
         term_type = _("PL_term_type", [term_t], c_int)
         unify_arg = _("PL_unify_arg", [c_int, term_t, term_t], c_int)
         unify = _("PL_unify", [term_t, term_t], c_int)

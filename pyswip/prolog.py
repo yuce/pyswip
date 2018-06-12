@@ -16,10 +16,11 @@
 
 from inspect import signature
 
-from .const import PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_Q_NORMAL
-from .swipl import CFUNCTYPE, Swipl, c_char_p, foreign_t, term_t
+from .const import PL_ENGINE_INUSE, PL_ENGINE_SET, \
+    PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_Q_NORMAL
+from .swipl import CFUNCTYPE, Swipl, byref, c_char_p, c_void_p, foreign_t, term_t
 from .term import Term
-from .errors import PrologError
+from .errors import EngineError, PrologError
 
 __all__ = "Prolog",
 
@@ -154,6 +155,25 @@ class Prolog(metaclass=_Singleton):
             return Swipl.lib.register_foreign(name, arity, wrapped, flags) == 1
 
     @classmethod
+    def create_engine(cls):
+        engine = Swipl.lib.create_engine(0)
+        if not engine:
+            raise PrologError("Engine not created")
+        return engine
+
+    @classmethod
+    def destroy_engine(cls, engine):
+        return bool(Swipl.lib.destroy_engine(engine))
+
+    @classmethod
+    def set_engine(cls, engine):
+        old_engine = c_void_p()
+        r = Swipl.lib.set_engine(engine, byref(old_engine))
+        if r == PL_ENGINE_SET:
+            return old_engine.value
+        raise EngineError(r)
+
+    @classmethod
     def _query_wrapper(cls, query: str, maxresult: int, catcherrors: bool, normalize: bool):
         lib = Swipl.lib
         with Frame():
@@ -168,8 +188,7 @@ class Prolog(metaclass=_Singleton):
             try:
                 while maxresult and lib.next_solution(swipl_qid):
                     maxresult -= 1
-                    swipl_list = lib.copy_term_ref(swipl_binding_list)
-                    t = Term.decode(swipl_list)
+                    t = Term.decode(swipl_binding_list)
                     if normalize:
                         if isinstance(t, list):
                             ls = [x.norm_value for x in t]

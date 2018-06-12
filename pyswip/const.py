@@ -19,6 +19,20 @@ c_long_p = c_void_p
 c_double_p = c_void_p
 c_uint_p = c_void_p
 
+atom_t = c_uint_p
+atomic_t = c_uint_p
+control_t = c_void_p
+engine_t = c_void_p
+fid_t = c_uint_p
+foreign_t = c_uint_p
+functor_t = c_uint_p
+module_t = c_void_p
+predicate_t = c_void_p
+qid_t = c_uint_p
+record_t = c_void_p
+term_t = c_uint_p
+wchar_t = c_wchar
+
 PL_VARIABLE = 1
 PL_ATOM = 2  # const char
 PL_INTEGER = 3  # int
@@ -39,6 +53,12 @@ PL_Q_CATCH_EXCEPTION = 0x08  # handle exceptions in C
 PL_Q_PASS_EXCEPTION = 0x10  # pass to parent environment
 PL_Q_DETERMINISTIC = 0x20  # call was deterministic
 
+PL_ENGINE_MAIN = engine_t(0x1)
+PL_ENGINE_CURRENT = engine_t(0x2)
+PL_ENGINE_SET = 0
+PL_ENGINE_INVAL = 2
+PL_ENGINE_INUSE = 3
+
 CVT_ATOM = 0x0001
 CVT_STRING = 0x0002
 CVT_LIST = 0x0004
@@ -56,18 +76,3 @@ BUF_RING = 0x0100
 BUF_MALLOC = 0x0200
 
 CVT_EXCEPTION = 0x10000  # throw exception on error
-
-atom_t = c_uint_p
-functor_t = c_uint_p
-module_t = c_void_p
-predicate_t = c_void_p
-record_t = c_void_p
-term_t = c_uint_p
-qid_t = c_uint_p
-PL_fid_t = c_uint_p
-fid_t = c_uint_p
-control_t = c_void_p
-PL_engine_t = c_void_p
-PL_atomic_t = c_uint_p
-foreign_t = c_uint_p
-pl_wchar_t = c_wchar

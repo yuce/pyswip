@@ -91,12 +91,20 @@ class TestProlog(unittest.TestCase):
         self.assertNotEqual(a1, a2)
 
     def test_functor(self):
-        f1 = functor("=", arity=2)
+        f1 = functor("=", 2)
         f2 = functor("foo")
-        f11 = functor("=", arity=2)
+        f11 = functor("=", 2)
         self.assertEqual(f1, f1)
         self.assertEqual(f1, f11)
         self.assertNotEqual(f1, f2)
+
+    def test_multiple_answers(self):
+        p = self.p
+        p.retractall("foo(X)")
+        p.assertz("foo(x1)")
+        p.assertz("foo(x2)")
+        r = list(p.query("foo(X)"))
+        self.assertEqual(r, [{"X": "x1"}, {"X": "x2"}])
 
     def test_nested_queries(self):
         """
