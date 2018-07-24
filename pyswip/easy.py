@@ -151,6 +151,18 @@ class Variable(object):
             self.chars = self.chars.decode()
 
     def unify(self, value):
+
+        if self.handle is None:
+            t = PL_new_term_ref(self.handle)
+        else:
+            t = PL_copy_term_ref(self.handle)
+
+        new_t = PL_new_term_ref()
+        putTerm(new_t, value)
+        PL_unify(t, new_t)
+        self.handle = t
+
+        """
         if type(value) == str:
             fun = PL_unify_atom_chars
         elif type(value) == int:
@@ -163,13 +175,15 @@ class Variable(object):
             fun = PL_unify_list
         else:
             raise
-
+        
         if self.handle is None:
             t = PL_new_term_ref(self.handle)
         else:
             t = PL_copy_term_ref(self.handle)
+        
         fun(t, value)
         self.handle = t
+        """
 
     def get_value(self):
         return getTerm(self.handle)
@@ -307,8 +321,12 @@ def putTerm(term, value):
         PL_put_term(term, value.handle)
     elif isinstance(value, str):
         PL_put_atom_chars(term, value)
+    elif isinstance(value, bool):
+        PL_put_bool(term, value)
     elif isinstance(value, int):
         PL_put_integer(term, value)
+    elif isinstance(value, float):
+        PL_put_float(term, value)
     elif isinstance(value, Variable):
         value.put(term)
     elif isinstance(value, list):
