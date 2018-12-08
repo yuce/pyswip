@@ -91,7 +91,7 @@ There are no native packages for Debian-based distros. Follow these steps to ins
 
 3) Make sure `swipl` executable is on the `PATH` and the directory that contains `libswipl.dylib` is in the `DYLD_FALLBACK_LIBRARY_PATH` environment variable. For example, if SWI-Prolog is in `/Applications/SWI-Prolog.app` directory, the following may work:
     ```
-    export PATH=$PATH:PATH=$PATH:/Applications/SWI-Prolog.app/Contents/swipl/bin/x86_64-darwin15.6.0
+    export PATH=$PATH:/Applications/SWI-Prolog.app/Contents/swipl/bin/x86_64-darwin15.6.0
     export DYLD_FALLBACK_LIBRARY_PATH=/Applications/SWI-Prolog.app/Contents/swipl/lib/x86_64-darwin15.6.0
     ```
 
