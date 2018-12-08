@@ -77,9 +77,9 @@ print(list(prolog.query("father(michael,X), hello(X)")))
 
 ```python
 from __future__ import print_function
-from pyswip import Functor, Variable, Query
+from pyswip import Functor, Variable, Query, call
 
-assertz = Functor("assertz", 2)
+assertz = Functor("assertz", 1)
 father = Functor("father", 2)
 call(assertz(father("michael","john")))
 call(assertz(father("michael","gina")))
