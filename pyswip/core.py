@@ -254,7 +254,7 @@ def _findSwiplLin():
         return (path, swiHome)
 
     # Our last try: some hardcoded paths.
-    paths = ['/lib', '/usr/lib', '/usr/local/lib', '.', './lib']
+    paths = ['/lib', '/usr/lib', '/usr/local/lib', '.', './lib', '/usr/lib/swi-prolog/lib/x86_64-linux']
     names = ['libswipl.so', 'libpl.so']
 
     path = None
