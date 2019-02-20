@@ -1,5 +1,9 @@
 # CHANGELOG
 
++ 0.2.8
+
+  * Fixed issue [#35](https://github.com/yuce/pyswip/issues/35). Contributed by Robert Simione.
+
 + 0.2.7
 
   * Works on FreeBSD.
