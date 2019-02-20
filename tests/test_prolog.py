@@ -18,7 +18,7 @@
 import unittest
 
 from pyswip.prolog import Prolog, PrologError
-from pyswip.term import NIL, atom, atoms, functor, functors
+from pyswip.term import NIL, atom, atoms, compound, functor, functors
 
 
 class TestProlog(unittest.TestCase):
@@ -97,6 +97,16 @@ class TestProlog(unittest.TestCase):
         self.assertEqual(f1, f1)
         self.assertEqual(f1, f11)
         self.assertNotEqual(f1, f2)
+
+    def test_list_of_functor(self):
+        p = self.p
+        p.assertz("answer(a,b,[on(a), jump(a,b)])")
+        r = next(p.query("answer(a,b,X)"))
+        on, jump = functors("on", "jump")
+        a, b = atoms("a", "b")
+        target = {"X": [on(a), jump(a, b)]}
+        self.assertTrue(r == target)
+        # self.assertEqual(target, r)
 
     def test_multiple_answers(self):
         p = self.p
