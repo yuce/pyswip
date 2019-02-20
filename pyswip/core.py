@@ -82,9 +82,9 @@ def _findSwiplFromExec():
 
         # We may have pl or swipl as the executable
         try:
-            cmd = Popen(['swipl', '-dump-runtime-variables'], stdout=PIPE)
+            cmd = Popen(['swipl', '--dump-runtime-variables'], stdout=PIPE)
         except OSError:
-            cmd = Popen(['pl', '-dump-runtime-variables'], stdout=PIPE)
+            cmd = Popen(['pl', '--dump-runtime-variables'], stdout=PIPE)
         ret = cmd.communicate()
 
         # Parse the output into a dictionary
