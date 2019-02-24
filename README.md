@@ -48,7 +48,7 @@ for soln in prolog.query("father(X,Y)"):
 ```
 
 An existing knowledge base stored in a Prolog file can also be consulted,
-and queried. Assuming the filename "knowledge_base.pl" and the Python is 
+and queried. Assuming the filename "knowledge_base.pl" and the Python is
 being run in the same working directory, it is consulted like so:
 
     >>> from pyswip import Prolog
@@ -62,14 +62,14 @@ from __future__ import print_function
 from pyswip import Prolog, registerForeign
 
 def hello(t):
-    print("Hello,", t)    
+    print("Hello,", t)
 hello.arity = 1
 
 registerForeign(hello)
 
 prolog = Prolog()
 prolog.assertz("father(michael,john)")
-prolog.assertz("father(michael,gina)")    
+prolog.assertz("father(michael,gina)")
 print(list(prolog.query("father(michael,X), hello(X)")))
 ```
 
@@ -153,6 +153,7 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 * [Artificial Intelligence INF1771 @ PUC-Rio](https://github.com/leotok/INF1771) Projects for the Artificial Intelligence class @ PUC-Rio
 * [AutomobileAdvisor](https://github.com/liscju/AutomobileAdvisor) Projekt na systemy ekspertowe pomagający wybrać odpowiedni samochód dla danego klienta na podstawie preferencji (Polish)
 * [Prolog Tetris AI](https://sourceforge.net/projects/prologtetrisai/)
+* [Jupyter SWI Prolog](https://github.com/targodan/jupyter-swi-prolog) A Jupyter Kernel for SWI-Prolog
 
 ### Blog Posts
 
