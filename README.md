@@ -9,6 +9,8 @@ See the [CHANGELOG](CHANGELOG.md).
 
 **This library is being cleaned up and refactored. Expect API breakage and incompatibility with previous versions.**
 
+**WARNING! PySwip has no Windows installers! If you are a Windows user, see [INSTALL](https://github.com/yuce/pyswip/blob/master/INSTALL.md#windows). There are some "free download" sites that claim to be hosting PySwip installers. DO NOT TRUST THEM!**
+
 Thanks to all [contributors](CONTRIBUTORS.txt). If you have contributed to PySwip in the past and your name does not appear on that list, please [let me know](mailto:yucetekol@gmail.com) so I can add your name.
 
 ## Introduction
@@ -163,13 +165,13 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 
 * [Calling Prolog from Python](http://fernmac.blogspot.com.tr/2013/07/calling-prolog-from-python.html)
 * [Python v. Prolog: Round 1: Fight!](http://www.kuliniewicz.org/blog/archives/2007/10/21/python-v-prolog-round-1-fight/)
-* [Path Follower: Arduino+Rasp on ROS](http://blog.giacomocerquone.com/path-follower-maze-solving-car-arduino/) and its [Project code](https://github.com/giacomocerquone/robotics-MazeSolver).
-
+* [Path Follower: Arduino+Rasp on ROS](http://blog.giacomocerquone.com/path-follower-maze-solving-car-arduino/) and its [Project code](https://github.com/giacomocerquone/robotics-MazeSolver)
+* [10 minutes to make a GUI for your SWI-Prolog App via Python](http://www.paulbrownmagic.com/blog/quick_gui.html)
 
 ## License
 
 ```
-Copyright (c) 2007-2018 Yüce Tekol
+Copyright (c) 2007-2019 Yüce Tekol
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
