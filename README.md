@@ -107,12 +107,6 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 * [Support Forum](https://groups.google.com/forum/#!forum/pyswip)
 * [Stack Overflow](https://stackoverflow.com/search?q=pyswip)
 
-## Contact
-
-* `yucetekol@gmail.com`
-* https://twitter.com/tklx
-
-
 ## Projects/Publications that Use or Reference PySwip
 
 **Do you have a project, video or publication that uses/mentions PySwip? [Please let me know](mailto:yucetekol@gmail.com) or send a pull request.**
