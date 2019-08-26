@@ -627,6 +627,7 @@ PL_POINTER = 13  # void *
 
 PL_FIRST_CALL = 0
 PL_CUTTED = 1
+PL_PRUNED = PL_CUTTED
 PL_REDO = 2
 
 PL_FA_NOTRACE = 0x01  # foreign cannot be traced
@@ -717,6 +718,9 @@ PL_engine_t = c_void_p
 PL_atomic_t = c_uint_p
 foreign_t = c_uint_p
 pl_wchar_t = c_wchar
+intptr_t = c_long
+ssize_t = intptr_t
+wint_t = c_uint
 
 PL_initialise = _lib.PL_initialise
 PL_initialise = check_strings(None, 1)(PL_initialise)
@@ -724,6 +728,18 @@ PL_initialise = check_strings(None, 1)(PL_initialise)
 
 PL_open_foreign_frame = _lib.PL_open_foreign_frame
 PL_open_foreign_frame.restype = fid_t
+
+PL_foreign_control = _lib.PL_foreign_control
+PL_foreign_control.argtypes = [control_t]
+PL_foreign_control.restype = c_int
+
+PL_foreign_context = _lib.PL_foreign_context
+PL_foreign_context.argtypes = [control_t]
+PL_foreign_context.restype = intptr_t
+
+PL_retry = _lib._PL_retry
+PL_retry.argtypes = [intptr_t]
+PL_retry.restype = foreign_t
 
 PL_new_term_ref = _lib.PL_new_term_ref
 PL_new_term_ref.restype = term_t
@@ -1105,9 +1121,7 @@ PL_new_module.restype = module_t
 
 PL_is_initialised = _lib.PL_is_initialised
 
-intptr_t = c_long
-ssize_t = intptr_t
-wint_t = c_uint
+
 
 #typedef struct
 #{
