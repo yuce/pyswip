@@ -47,7 +47,7 @@ def _initialize():
     args = []
     args.append("./")
     args.append("-q")         # --quiet
-    args.append("-nosignals") # "Inhibit any signal handling by Prolog"
+    args.append("--nosignals") # "Inhibit any signal handling by Prolog"
     if SWI_HOME_DIR is not None:
         args.append("--home=%s" % SWI_HOME_DIR)
 
