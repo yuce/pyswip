@@ -1,5 +1,11 @@
 # CHANGELOG
 
++ 0.2.9
+
+  * Added non deterministic foreign function support. Contributed by rmanhaeve.
+
+  * Fixed issue [#67](https://github.com/yuce/pyswip/pull/67). Contributed by Galileo Sartor.
+
 + 0.2.8
 
   * Fixed issue [#35](https://github.com/yuce/pyswip/issues/35). Contributed by Robert Simione.
@@ -85,4 +91,3 @@
 
   * Added `queryGenerator` to PrologRunner, `query` calls `queryGenerator`.
   * Added example `send more money`.
-
