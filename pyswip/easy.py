@@ -392,6 +392,8 @@ def getString(t):
 
 mappedTerms = {}
 def getTerm(t):
+    if t is None:
+        return None
     global mappedTerms
     #print 'mappedTerms', mappedTerms
 
@@ -442,28 +444,37 @@ _getterm_router = {
                    PL_TERM: getTerm,
                   }
 
-
 arities = {}
-def _callbackWrapper(arity=1):
+
+def _callbackWrapper(arity=1, nondeterministic=False):
     global arities
 
-    res = arities.get(arity)
+    res = arities.get((arity, nondeterministic))
     if res is None:
-        res = CFUNCTYPE(*([foreign_t] + [term_t]*arity))
-        arities[arity] = res
+        if nondeterministic:
+            res = CFUNCTYPE(*([foreign_t] + [term_t] * arity + [control_t]))
+        else:
+            res = CFUNCTYPE(*([foreign_t] + [term_t] * arity))
+        arities[(arity, nondeterministic)] = res
     return res
 
 
 funwraps = {}
-def _foreignWrapper(fun):
+
+
+def _foreignWrapper(fun, nondeterministic=False):
     global funwraps
 
     res = funwraps.get(fun)
     if res is None:
         def wrapper(*args):
-            args = [getTerm(arg) for arg in args]
+            if nondeterministic:
+                args = [getTerm(arg) for arg in args[:-1]] + [args[-1]]
+            else:
+                args = [getTerm(arg) for arg in args]
             r = fun(*args)
             return (r is None) and True or r
+
         res = wrapper
         funwraps[fun] = res
     return res
@@ -489,8 +500,10 @@ def registerForeign(func, name=None, arity=None, flags=0):
     if name is None:
         name = func.__name__
 
-    cwrap = _callbackWrapper(arity)
-    fwrap = _foreignWrapper(func)
+    nondeterministic = bool(flags & PL_FA_NONDETERMINISTIC)
+
+    cwrap = _callbackWrapper(arity, nondeterministic)
+    fwrap = _foreignWrapper(func, nondeterministic)
     fwrap2 = cwrap(fwrap)
     cwraps.append(fwrap2)
     return PL_register_foreign(name, arity, fwrap2, flags)
