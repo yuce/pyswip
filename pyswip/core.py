@@ -307,7 +307,7 @@ def get_swi_ver():
     import re
     swi_ver = input(
                 'Please enter you SWI-Prolog version in format "X.Y.Z": ')
-    match = re.search(r'[0-9]\.[0-9]\.[0-9]')
+    match = re.search(r'[0-9]+\.[0-9]+\.[0-9]+', swi_ver)
     if match is None:
         raise InputError('Error, type normal version')
     
