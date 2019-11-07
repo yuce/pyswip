@@ -338,9 +338,8 @@ def _findSwiplMacOSHome():
         path = os.environ.get('SWI_LIB_DIR')
         if path is None:
             path = os.environ.get('PLBASE')
-            if path is None:
-                swi_ver = get_swi_ver()
-                path = '/Applications/SWI-Prolog.app/Contents/swipl-' + swi_ver + '/lib/'
+            if path is None:                
+                path = '/Applications/SWI-Prolog.app/Contents/'
     
     paths = [path]
 
