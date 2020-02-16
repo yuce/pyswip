@@ -3,6 +3,19 @@
 
 # PySwip
 
+---
+
+## PySwip in 2020 Survey
+
+<img src="https://lh5.googleusercontent.com/jQYQkglYr0DRfcyHPKFsjavSyEuOU1Dm3iOHZOw387i92ZKG4YcDowT0Pqe5fwW3EQ5Hy7j-HVbbw62C4x3JbTuWuOGkm6AH_xRmWH4MUIFcoodD_sCgzU2HQos-=w1200">
+
+Thanks for being a member of the PySwip community. We want to know more about you, your interests and any problems you may have with PySwip. That will help us provide the features you want and resolve the problems with PySwip.
+
+**Please fill out the 
+[PySwip in 2020 Survey](https://docs.google.com/forms/d/1trve34aLw61PkgWfoBjtbgVsO1wno-eUk0F5mSVtHOw/edit).**
+
+---
+
 ## What's New?
 
 See the [CHANGELOG](CHANGELOG.md).
