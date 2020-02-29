@@ -616,6 +616,10 @@ PL_POINTER = 13  # void *
 #define PL_MBCODES   (35)       /* const char * */
 #define PL_MBSTRING  (36)       /* const char * */
 
+REP_ISO_LATIN_1 = 0x0000 # output representation
+REP_UTF8 = 0x1000
+REP_MB = 0x2000
+
 #       /********************************
 #       * NON-DETERMINISTIC CALL/RETURN *
 #       *********************************/
@@ -766,6 +770,10 @@ PL_discard_foreign_frame = _lib.PL_discard_foreign_frame
 PL_discard_foreign_frame.argtypes = [fid_t]
 PL_discard_foreign_frame.restype = None
 
+PL_put_chars = _lib.PL_put_chars
+PL_put_chars.argtypes = [term_t, c_int, c_size_t, c_char_p]
+PL_put_chars.restype = c_int
+
 PL_put_list_chars = _lib.PL_put_list_chars
 PL_put_list_chars.argtypes = [term_t, c_char_p]
 PL_put_list_chars.restype = c_int
@@ -815,6 +823,8 @@ PL_get_string_chars.argtypes = [term_t, POINTER(c_char_p), c_int_p]
 
 #PL_EXPORT(int)         PL_get_chars(term_t t, char **s, unsigned int flags);
 PL_get_chars = _lib.PL_get_chars  # FIXME:
+PL_get_chars.argtypes = [term_t, POINTER(c_char_p), c_uint]
+PL_get_chars.restype = c_int
 
 PL_get_chars = check_strings(None, 1)(PL_get_chars)
 
@@ -887,6 +897,10 @@ PL_put_atom_chars = check_strings(1, None)(PL_put_atom_chars)
 PL_atom_chars = _lib.PL_atom_chars
 PL_atom_chars.argtypes = [atom_t]
 PL_atom_chars.restype = c_char_p
+
+PL_atom_wchars = _lib.PL_atom_wchars
+PL_atom_wchars.argtypes = [atom_t, POINTER(c_size_t)]
+PL_atom_wchars.restype = c_wchar_p
 
 PL_predicate = _lib.PL_predicate
 PL_predicate.argtypes = [c_char_p, c_int, c_char_p]
