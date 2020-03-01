@@ -45,7 +45,7 @@ class ArgumentTypeError(Exception):
 class Atom(object):
     __slots__ = "handle", "chars"
 
-    def __init__(self, handleOrChars):
+    def __init__(self, handleOrChars, chars=None):
         """Create an atom.
         ``handleOrChars``: handle or string of the atom.
         """
@@ -56,8 +56,11 @@ class Atom(object):
         else:
             self.handle = handleOrChars
             PL_register_atom(self.handle)
-            #self.chars = c_char_p(PL_atom_chars(self.handle)).value
-            self.chars = PL_atom_chars(self.handle)
+            if chars is None:
+                slen = c_size_t()
+                self.chars = PL_atom_wchars(self.handle, byref(slen))
+            else: # WA: PL_atom_wchars can fail to return correct string
+                self.chars = chars
 
     def fromTerm(cls, term):
         """Create an atom from a Term or term handle."""
@@ -69,7 +72,7 @@ class Atom(object):
 
         a = atom_t()
         if PL_get_atom(term, byref(a)):
-            return cls(a.value)
+            return cls(a.value, getAtomChars(term))
     fromTerm = classmethod(fromTerm)
 
     def __del__(self):
@@ -142,7 +145,7 @@ class Variable(object):
             self.handle = handle
             s = create_string_buffer(b"\00"*64)  # FIXME:
             ptr = cast(s, c_char_p)
-            if PL_get_chars(handle, byref(ptr), CVT_VARIABLE|BUF_RING):
+            if PL_get_chars(handle, byref(ptr), CVT_VARIABLE|BUF_RING|REP_UTF8):
                 self.chars = ptr.value
         else:
             self.handle = PL_new_term_ref()
@@ -329,12 +332,11 @@ def putList(l, ls):
         PL_cons_list(l, a, l)
 
 
-# deprecated
 def getAtomChars(t):
     """If t is an atom, return it as a string, otherwise raise InvalidTypeError.
     """
     s = c_char_p()
-    if PL_get_atom_chars(t, byref(s)):
+    if PL_get_chars(t, byref(s), CVT_ATOM|REP_UTF8):
         return s.value
     else:
         raise InvalidTypeError("atom")
@@ -382,9 +384,8 @@ def getFloat(t):
 def getString(t):
     """If t is of type string, return it, otherwise raise InvalidTypeError.
     """
-    slen = c_int()
     s = c_char_p()
-    if PL_get_string_chars(t, byref(s), byref(slen)):
+    if PL_get_chars(t, byref(s), REP_UTF8|CVT_STRING):
         return s.value
     else:
         raise InvalidTypeError("string")
