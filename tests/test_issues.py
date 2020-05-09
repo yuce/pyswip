@@ -231,6 +231,27 @@ class TestIssues(unittest.TestCase):
         self.assertTrue(args[0] == args[2], "The first and last var of "
                                             "f([A, B, A]) should be the same")
 
+    def test_issue_62(self):
+        """
+        Problem with non-ascii atoms and strings
+
+        https://github.com/yuce/pyswip/issues/62
+        """
+        from pyswip import Prolog
+
+        prolog = Prolog()
+        prolog.consult("tests/test_unicode.pl", catcherrors=True)
+        atoms = list(prolog.query("unicode_atom(B)."))
+
+        self.assertEqual(len(atoms), 3,
+                         "Query should return exactly three atoms")
+
+        strings = list(prolog.query("unicode_string(B)."))
+
+        self.assertEqual(len(strings), 1,
+                         "Query should return exactly one string")
+        self.assertEqual(strings[0]['B'], b'\xd1\x82\xd0\xb5\xd1\x81\xd1\x82')
+
     def test_functor_return(self):
         """
         pyswip should generate string representations of query results

@@ -95,7 +95,7 @@ class Prolog:
             swipl_goalCharList = swipl_args
             swipl_bindingList = swipl_args + 1
 
-            PL_put_list_chars(swipl_goalCharList, query)
+            PL_put_chars(swipl_goalCharList, PL_STRING|REP_UTF8, -1, query.encode("utf-8"))
 
             swipl_predicate = PL_predicate("pyrun", 2, None)
 
