@@ -124,6 +124,8 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 
 **Do you have a project, video or publication that uses/mentions PySwip? [file an issue](https://github.com/yuce/pyswip/issues/new?title=Powered%20by%20PySwip) or send a pull request.**
 
+If you would like to reference PySwip in a LaTeX document, you can use the provided [BibTeX file](pyswip.bibtex).
+
 ### Books
 
 * [Beginning Artificial Intelligence with the Raspberry Pi](https://www.apress.com/gp/book/9781484227428)
