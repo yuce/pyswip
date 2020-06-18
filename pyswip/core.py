@@ -703,6 +703,21 @@ BUF_MALLOC = 0x0200
 
 CVT_EXCEPTION = 0x10000  # throw exception on error
 
+
+
+#       /*******************************
+#        *	      VERSIONS		*
+#        *******************************/
+
+PL_VERSION_SYSTEM	=1	# Prolog version
+PL_VERSION_FLI		=2	# PL_* compatibility
+PL_VERSION_REC		=3	# PL_record_external() compatibility
+PL_VERSION_QLF		=4	# Saved QLF format version
+PL_VERSION_QLF_LOAD	=5	# Min loadable QLF format version
+PL_VERSION_VM		=6	# VM signature
+PL_VERSION_BUILT_IN	=7	# Built-in predicate signature
+
+
 argv = list_to_bytes_list(sys.argv + [None])
 argc = len(sys.argv)
 
@@ -746,6 +761,15 @@ wint_t = c_uint
 PL_initialise = _lib.PL_initialise
 PL_initialise = check_strings(None, 1)(PL_initialise)
 #PL_initialise.argtypes = [c_int, c_c??
+
+#unsigned int PL_version(int key)
+PL_version = _lib.PL_version
+PL_version.argtypes = [c_int]
+PL_version.restype = c_uint
+
+PL_VERSION = PL_version(PL_VERSION_SYSTEM)
+if PL_VERSION<80200:
+    raise Exception("swi-prolog>= 8.2.0 is required")
 
 PL_open_foreign_frame = _lib.PL_open_foreign_frame
 PL_open_foreign_frame.restype = fid_t
