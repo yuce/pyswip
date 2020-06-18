@@ -4,7 +4,7 @@
     update for broken compatibility changes in SWI-Prolog.h.
     Update to swi-prolog >= 0.8.2 is required (and the default apt
     for Ubuntu >= 14.04).
-    
+  * Fix incorrect REP_* constants.  
   * Fixed https://github.com/yuce/pyswip/issues/92 (C assert)
   * Fixed https://github.com/yuce/pyswip/issues/90 (quoted string)
 
