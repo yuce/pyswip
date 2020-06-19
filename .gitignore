@@ -7,3 +7,5 @@ __pycache__
 dist/
 pyswip.egg-info/
 build/
+/.idea/
+/.mypy_cache/

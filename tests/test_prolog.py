@@ -80,6 +80,16 @@ class TestProlog(unittest.TestCase):
         p.assertz('some_string_fact("abc")')
         self.assertEqual([{"S": b"abc"}], list(p.query("some_string_fact(S)")))
 
+    def test_quoted_strings(self):
+        """
+        See: https://github.com/yuce/pyswip/issues/90
+        """
+        p = pl.Prolog()
+        self.assertEqual([{"X": b"a"}], list(p.query('X = "a"')))
+
+        p.assertz('test_quoted_strings("hello","world")')
+        self.assertEqual([{"A": b"hello", "B": b"world"}], list(p.query('test_quoted_strings(A,B)')))
+
     def test_prolog_read_file(self):
         """
         See: https://github.com/yuce/pyswip/issues/10
