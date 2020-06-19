@@ -144,6 +144,7 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [Wie sehen Krebsmolekule aus? Vergleich der Gute der Klassifizierung potenziell krebserregender Molekule durch induktiv logische und merkmalsbasierte Lernverfahren](http://www.cogsys.wiai.uni-bamberg.de/teaching/ss17/pj_bama/ProjektberichtRelLearningFinzelGrabeHillebrandHornigRicci.pdf) (PDF, German)
 * [Companion Robots Behaving with Style: Towards Plasticity in Social Human-Robot Interaction](https://tel.archives-ouvertes.fr/tel-01679314/document) (PDF)
 * [Semi-automatically Augmenting Attack Trees using an Annotated Attack Tree Library](https://www.researchgate.net/publication/327985985_Semi-automatically_Augmenting_Attack_Trees_Using_an_Annotated_Attack_Tree_Library)
+* [A Learning Framework for Tool Creation by a Robot](http://www.araa.asn.au/acra/acra2015/papers/pap145.pdf) (PDF)
 
 ### Videos
 
