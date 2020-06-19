@@ -572,11 +572,6 @@ _fixWindowsPath(_path)
 # Load the library
 _lib = CDLL(_path, mode=RTLD_GLOBAL)
 
-
-PL_version = _lib.PL_version
-PL_version.argtypes = [c_int]
-PL_version.restype = c_uint
-
 #       /*******************************
 #        *	      VERSIONS		*
 #        *******************************/
@@ -589,9 +584,16 @@ PL_VERSION_QLF_LOAD	=5	# Min loadable QLF format version
 PL_VERSION_VM		=6	# VM signature
 PL_VERSION_BUILT_IN	=7	# Built-in predicate signature
 
-PL_VERSION = PL_version(PL_VERSION_SYSTEM)
-if PL_VERSION<80200:
-    raise Exception("swi-prolog>= 8.2.0 is required")
+try:
+    PL_version = _lib.PL_version
+    PL_version.argtypes = [c_int]
+    PL_version.restype = c_uint
+
+    PL_VERSION = PL_version(PL_VERSION_SYSTEM)
+    if PL_VERSION<80200:
+        raise Exception("swi-prolog>= 8.2.0 is required")
+except AttributeError:
+    PL_VERSION=70000  # Best guess. When was PL_version introduced?
 
 
 # PySwip constants
