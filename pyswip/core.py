@@ -122,7 +122,7 @@ def _findSwiplFromExec():
                     fullName = None
 
             elif platform == "dar":
-                dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + rtvars['PLSOEXT']
+                dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + "dylib"
                 path = os.path.join(rtvars['PLBASE'], 'lib', rtvars['PLARCH'])
                 baseName = os.path.join(path, dllName)
 
