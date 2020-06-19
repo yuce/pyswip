@@ -1,9 +1,7 @@
 # CHANGELOG
 + 0.3
   * Synchronized type constants with SWI-Prolog.h
-    update for broken compatibility changes in SWI-Prolog.h.
-    Update to swi-prolog >= 0.8.2 is required (and the default apt
-    for Ubuntu >= 14.04).
+    update for broken compatibility changes in SWI-Prolog.h up to 0.8.3.
   * Fix incorrect REP_* constants.  
   * Fixed https://github.com/yuce/pyswip/issues/92 (C assert)
   * Fixed https://github.com/yuce/pyswip/issues/90 (quoted string)
