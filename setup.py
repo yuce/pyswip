@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2020 Yüce Tekol
 #  
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ with io.open("README.md", encoding="utf-8") as f:
 
 
 setup(name="pyswip",
-      version="0.3.0",
+      version="0.2.10",
       url="https://github.com/yuce/pyswip",
       download_url="https://github.com/yuce/pyswip/releases",
       author="Yuce Tekol",
