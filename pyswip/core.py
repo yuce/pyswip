@@ -1124,6 +1124,14 @@ PL_put_integer = _lib.PL_put_integer
 PL_put_integer.argtypes = [term_t, c_long]
 PL_put_integer.restype = None
 
+PL_put_bool = _lib.PL_put_bool
+PL_put_integer.argtypes = [term_t, c_long]
+PL_put_integer.restype = None
+
+PL_put_float = _lib.PL_put_float
+PL_put_float.argtypes = [term_t, c_double]
+PL_put_float.restype = None
+
 #PL_EXPORT(void)                PL_put_pointer(term_t t, void *ptr);
 #PL_EXPORT(void)                PL_put_float(term_t t, double f);
 #PL_EXPORT(void)                PL_put_functor(term_t t, functor_t functor);
