@@ -1,3 +1,4 @@
+<a href="https://pypi.python.org/pypi/pyswip"><img src="https://img.shields.io/pypi/v/pyswip.svg?maxAge=2592&updated=2"></a>
 <a href="https://travis-ci.org/yuce/pyswip"><img src="https://api.travis-ci.org/yuce/pyswip.svg?branch=master"></a>
 <a href="https://coveralls.io/github/yuce/pyswip"><img src="https://coveralls.io/repos/github/yuce/pyswip/badge.svg?branch=master"></a>
 
@@ -13,6 +14,14 @@ Thanks for being a member of the PySwip community. We want to know more about yo
 
 **Please fill out the 
 [PySwip in 2020 Survey](https://docs.google.com/forms/d/1trve34aLw61PkgWfoBjtbgVsO1wno-eUk0F5mSVtHOw/edit).** That will help us provide the features you want and resolve the problems with PySwip.
+
+---
+
+## The End of Python 2 Support
+
+Python 2 has reached end of life on January 1st, 2020 as documented [here](https://www.python.org/doc/sunset-python-2/). So, PySwip 0.2.10 will be the last version which officially supports Python 2.
+
+Do you still require Python 2 support? Let us know at: https://github.com/yuce/pyswip/issues/94
 
 ---
 
