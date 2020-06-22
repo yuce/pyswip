@@ -179,6 +179,7 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [Prolog Tetris AI](https://sourceforge.net/projects/prologtetrisai/)
 * [Jupyter SWI Prolog](https://github.com/targodan/jupyter-swi-prolog) A Jupyter Kernel for SWI-Prolog.
 * [Blocks World Planner](https://github.com/davideiacobs/BlocksWorldPlanner) A program that allows users to solve the blocks world problem interacting only using the natural language.
+* [DeepTalk](https://github.com/ptarau/DeepTalk). A Python+Prolog based Dialog Engine using the Python package text_graph_crafts that extracts the highest ranked sentences answering a query.
 
 ### Blog Posts
 
