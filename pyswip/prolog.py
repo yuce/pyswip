@@ -115,6 +115,7 @@ class Prolog:
                         except AttributeError:
                             v = {}
                             for r in [x.value for x in t]:
+                                r = normalize_values(r)
                                 v.update(r)
                         yield v
                     else:
@@ -172,4 +173,21 @@ class Prolog:
         [{'X': 'gina'}, {'X': 'john'}]
         """
         return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)
+
+
+def normalize_values(values):
+    from pyswip.easy import Atom, Functor
+    if isinstance(values, Atom):
+        return values.value
+    if isinstance(values, Functor):
+        normalized = values.name.value
+        if values.arity:
+            normalized_args = ([str(normalize_values(arg)) for arg in values.args])
+            normalized = normalized + '(' + ', '.join(normalized_args) + ')'
+        return normalized
+    elif isinstance(values, dict):
+        return {key: normalize_values(v) for key, v in values.items()}
+    elif isinstance(values, (list, tuple)):
+        return [normalize_values(v) for v in values]
+    return values
 

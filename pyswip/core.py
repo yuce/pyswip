@@ -1042,8 +1042,40 @@ PL_cleanup.restype = c_int
 
 PL_unify_integer = _lib.PL_unify_integer
 PL_unify_atom_chars = _lib.PL_unify_atom_chars
+
+PL_unify_float = _lib.PL_unify_float
+PL_unify_float.argtypes = [term_t, c_double]
+PL_unify_float.restype = c_int
+
+PL_unify_bool = _lib.PL_unify_bool
+PL_unify_bool.argtypes = [term_t, c_int]
+PL_unify_bool.restype = c_int
+
+PL_unify_list = _lib.PL_unify_list
+PL_unify_list.argtypes = [term_t, term_t, term_t]
+PL_unify_list.restype = c_int
+
+PL_unify_atom_chars = _lib.PL_unify_atom_chars
+PL_unify_atom_chars.argtypes = [term_t, c_char_p]
+PL_unify_atom_chars.restype = c_int
+
+PL_foreign_control = _lib.PL_foreign_control
+PL_foreign_control.argtypes = [control_t]
+PL_foreign_control.restypes = c_int
+
+PL_foreign_context_address = _lib.PL_foreign_context_address
+PL_foreign_context_address.argtypes = [control_t]
+PL_foreign_context_address.restypes = c_void_p
+
+PL_retry_address = _lib._PL_retry_address
+PL_retry_address.argtypes = [c_void_p]
+PL_retry_address.restypes = foreign_t
+
 PL_unify = _lib.PL_unify
 PL_unify.restype = c_int
+
+PL_succeed = 1
+PL_PRUNED = 1
 
 #PL_EXPORT(int)          PL_unify_arg(int index, term_t t, term_t a) WUNUSED;
 PL_unify_arg = _lib.PL_unify_arg
@@ -1229,25 +1261,29 @@ PL_new_module.restype = module_t
 
 PL_is_initialised = _lib.PL_is_initialised
 
+intptr_t = c_long
+ssize_t = intptr_t
+wint_t = c_uint
 
-
-#typedef struct
-#{
+# typedef struct
+# {
 #  int __count;
 #  union
 #  {
 #    wint_t __wch;
 #    char __wchb[4];
 #  } __value;            /* Value so far.  */
-#} __mbstate_t;
+# } __mbstate_t;
 
 class _mbstate_t_value(Union):
-    _fields_ = [("__wch",wint_t),
-                ("__wchb",c_char*4)]
+    _fields_ = [("__wch", wint_t),
+                ("__wchb", c_char * 4)]
+
 
 class mbstate_t(Structure):
-    _fields_ = [("__count",c_int),
-                ("__value",_mbstate_t_value)]
+    _fields_ = [("__count", c_int),
+                ("__value", _mbstate_t_value)]
+
 
 # stream related funcs
 Sread_function = CFUNCTYPE(ssize_t, c_void_p, c_char_p, c_size_t)
