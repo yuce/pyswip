@@ -134,6 +134,16 @@ class Term(object):
         return self.handle
 
 
+# support unicode also in python 2
+try:
+    isinstance("", basestring)
+    def isstr(s):
+        return isinstance(s, basestring)
+except NameError:
+    def isstr(s):
+        return isinstance(s, str)
+
+
 class Variable(object):
     __slots__ = "handle", "chars"
 
@@ -154,7 +164,7 @@ class Variable(object):
             self.chars = self.chars.decode()
 
     def unify(self, value):
-        if type(value) == str:
+        if isstr(value):
             fun = PL_unify_atom_chars
             value = value.encode()
         elif type(value) == int:
