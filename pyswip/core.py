@@ -1275,6 +1275,18 @@ wint_t = c_uint
 #  } __value;            /* Value so far.  */
 # } __mbstate_t;
 
+#                /*******************************
+#                *          THREADING           *
+#                *******************************/
+
+PL_thread_self = _lib.PL_thread_self
+PL_thread_self.restype = c_int
+
+PL_thread_attach_engine = _lib.PL_thread_attach_engine
+PL_thread_attach_engine.argtypes = [c_void_p]
+PL_thread_attach_engine.restype = c_int
+
+
 class _mbstate_t_value(Union):
     _fields_ = [("__wch", wint_t),
                 ("__wchb", c_char * 4)]

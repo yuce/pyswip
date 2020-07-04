@@ -88,6 +88,7 @@ class Prolog:
                 raise NestedQueryError("The last query was not closed")
 
         def __call__(self, query, maxresult, catcherrors, normalize):
+            Prolog._init_prolog_thread()
             swipl_fid = PL_open_foreign_frame()
 
             swipl_head = PL_new_term_ref()
@@ -131,6 +132,16 @@ class Prolog:
                 PL_cut_query(swipl_qid)
                 PL_discard_foreign_frame(swipl_fid)
                 Prolog._queryIsOpen = False
+
+    @classmethod
+    def _init_prolog_thread(cls):
+        pengine_id = PL_thread_self()
+        if pengine_id == -1:
+            pengine_id = PL_thread_attach_engine(None)
+        if pengine_id == -1:
+            raise PrologError("Unable to attach new Prolog engine to the thread")
+        elif pengine_id == -2:
+            print("{WARN} Single-threaded swipl build, beware!")
 
     @classmethod
     def asserta(cls, assertion, catcherrors=False):
