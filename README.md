@@ -53,7 +53,7 @@ Since PySwip uses SWI-Prolog as a shared library and ctypes to access it, it doe
 
 ## Install
 
-**IMPORTANT: Make sure the SWI-Prolog architecture is the same as the Python architecture. If you are using a 64bit build of Python, use a 64bit build of SWI-Prolog, etc.***
+**IMPORTANT: Make sure the SWI-Prolog architecture is the same as the Python architecture. If you are using a 64bit build of Python, use a 64bit build of SWI-Prolog, etc.**
 
 See [INSTALL](INSTALL.md) for instructions.
 
