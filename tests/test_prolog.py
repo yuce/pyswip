@@ -27,11 +27,10 @@
 Tests the Prolog class.
 """
 
-
 import unittest
 import doctest
 
-import pyswip.prolog as pl   # This implicitly tests library loading code
+import pyswip.prolog as pl  # This implicitly tests library loading code
 
 
 class TestProlog(unittest.TestCase):
@@ -48,7 +47,7 @@ class TestProlog(unittest.TestCase):
         Since this is a user error, we just ensure that a appropriate error
         message is thrown.
         """
-        
+
         p = pl.Prolog()
 
         # Add something to the base
@@ -64,13 +63,28 @@ class TestProlog(unittest.TestCase):
             pass
         for _ in p.query(otherquery):
             pass
-        
+
         with self.assertRaises(pl.NestedQueryError):
             for q in p.query(somequery):
                 for j in p.query(otherquery):
                     # This should throw an error, because I opened the second
                     # query
                     pass
+
+    def test_prolog_functor_in_list(self):
+        p = pl.Prolog()
+        p.assertz('f([g(a,b),h(a,b,c)])')
+        self.assertEqual([{"L": [u"g(a, b)", u"h(a, b, c)"]}], list(p.query("f(L)")))
+        p.retract("f([g(a,b),h(a,b,c)])")
+
+    def test_prolog_functor_in_functor(self):
+        p = pl.Prolog()
+        p.assertz("f([g([h(a,1), h(b,1)])])")
+        self.assertEqual([{'G': [u"g([u'h(a, 1)', u'h(b, 1)'])"]}], list(p.query('f(G)')))
+        p.assertz("a([b(c(x), d([y, z, w]))])")
+        self.assertEqual([{'B': [u"b(c(x), d(['y', 'z', 'w']))"]}], list(p.query('a(B)')))
+        p.retract("f([g([h(a,1), h(b,1)])])")
+        p.retract("a([b(c(x), d([y, z, w]))])")
 
     def test_prolog_strings(self):
         """

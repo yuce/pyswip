@@ -88,6 +88,7 @@ class Prolog:
                 raise NestedQueryError("The last query was not closed")
 
         def __call__(self, query, maxresult, catcherrors, normalize):
+            Prolog._init_prolog_thread()
             swipl_fid = PL_open_foreign_frame()
 
             swipl_head = PL_new_term_ref()
@@ -115,6 +116,7 @@ class Prolog:
                         except AttributeError:
                             v = {}
                             for r in [x.value for x in t]:
+                                r = normalize_values(r)
                                 v.update(r)
                         yield v
                     else:
@@ -130,6 +132,16 @@ class Prolog:
                 PL_cut_query(swipl_qid)
                 PL_discard_foreign_frame(swipl_fid)
                 Prolog._queryIsOpen = False
+
+    @classmethod
+    def _init_prolog_thread(cls):
+        pengine_id = PL_thread_self()
+        if pengine_id == -1:
+            pengine_id = PL_thread_attach_engine(None)
+        if pengine_id == -1:
+            raise PrologError("Unable to attach new Prolog engine to the thread")
+        elif pengine_id == -2:
+            print("{WARN} Single-threaded swipl build, beware!")
 
     @classmethod
     def asserta(cls, assertion, catcherrors=False):
@@ -172,4 +184,21 @@ class Prolog:
         [{'X': 'gina'}, {'X': 'john'}]
         """
         return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)
+
+
+def normalize_values(values):
+    from pyswip.easy import Atom, Functor
+    if isinstance(values, Atom):
+        return values.value
+    if isinstance(values, Functor):
+        normalized = values.name.value
+        if values.arity:
+            normalized_args = ([str(normalize_values(arg)) for arg in values.args])
+            normalized = normalized + '(' + ', '.join(normalized_args) + ')'
+        return normalized
+    elif isinstance(values, dict):
+        return {key: normalize_values(v) for key, v in values.items()}
+    elif isinstance(values, (list, tuple)):
+        return [normalize_values(v) for v in values]
+    return values
 
