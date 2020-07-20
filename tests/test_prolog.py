@@ -80,7 +80,7 @@ class TestProlog(unittest.TestCase):
     def test_prolog_functor_in_functor(self):
         p = pl.Prolog()
         p.assertz("f([g([h(a,1), h(b,1)])])")
-        self.assertEqual([{'G': [u"g([u'h(a, 1)', u'h(b, 1)'])"]}], list(p.query('f(G)')))
+        self.assertEqual([{'G': [u"g(['h(a, 1)', 'h(b, 1)'])"]}], list(p.query('f(G)')))
         p.assertz("a([b(c(x), d([y, z, w]))])")
         self.assertEqual([{'B': [u"b(c(x), d(['y', 'z', 'w']))"]}], list(p.query('a(B)')))
         p.retract("f([g([h(a,1), h(b,1)])])")
