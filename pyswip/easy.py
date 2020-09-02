@@ -417,11 +417,11 @@ def getString(t):
         raise InvalidTypeError("string")
 
 
-mappedTerms = {}
+# mappedTerms = {}
 def getTerm(t):
     if t is None:
         return None
-    global mappedTerms
+    # global mappedTerms
     #print 'mappedTerms', mappedTerms
 
     #if t in mappedTerms:
@@ -434,7 +434,7 @@ def getTerm(t):
             res = getList(t)
         else:
             res = getFunctor(t)
-        mappedTerms[t] = res
+        # mappedTerms[t] = res
         return res
 
 
