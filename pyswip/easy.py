@@ -361,11 +361,22 @@ def putList(l, ls):
 def getAtomChars(t):
     """If t is an atom, return it as a string, otherwise raise InvalidTypeError.
     """
-    s = c_char_p()
-    if PL_get_chars(t, byref(s), CVT_ATOM|REP_UTF8):
-        return s.value
-    else:
-        raise InvalidTypeError("atom")
+    with PL_STRINGS_MARK():
+        s = c_char_p()
+        if PL_get_chars(t, byref(s), CVT_ATOM|REP_UTF8):
+            return s.value
+        else:
+            raise InvalidTypeError("atom")
+
+
+# def getAtomChars(t):
+#     """If t is an atom, return it as a string, otherwise raise InvalidTypeError.
+#     """
+#     s = c_char_p()
+#     if PL_get_chars(t, byref(s), CVT_ATOM|REP_UTF8):
+#         return s.value
+#     else:
+#         raise InvalidTypeError("atom")
 
 
 def getAtom(t):
