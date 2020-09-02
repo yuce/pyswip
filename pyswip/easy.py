@@ -361,12 +361,11 @@ def putList(l, ls):
 def getAtomChars(t):
     """If t is an atom, return it as a string, otherwise raise InvalidTypeError.
     """
-    with PL_STRINGS_MARK():
-        s = c_char_p()
-        if PL_get_chars(t, byref(s), CVT_ATOM|REP_UTF8):
-            return s.value
-        else:
-            raise InvalidTypeError("atom")
+    s = c_char_p()
+    if PL_get_chars(t, byref(s), CVT_ATOM|REP_UTF8):
+        return s.value
+    else:
+        raise InvalidTypeError("atom")
 
 
 def getAtom(t):
@@ -427,15 +426,16 @@ def getTerm(t):
 
     #if t in mappedTerms:
     #    return mappedTerms[t]
-    p = PL_term_type(t)
-    if p < PL_TERM:
-        res = _getterm_router[p](t)
-    elif PL_is_list(t):
-        res = getList(t)
-    else:
-        res = getFunctor(t)
-    mappedTerms[t] = res
-    return res
+    with PL_STRINGS_MARK():
+        p = PL_term_type(t)
+        if p < PL_TERM:
+            res = _getterm_router[p](t)
+        elif PL_is_list(t):
+            res = getList(t)
+        else:
+            res = getFunctor(t)
+        mappedTerms[t] = res
+        return res
 
 
 def getList(x):
