@@ -173,8 +173,11 @@ class Variable(object):
             self.chars = self.chars.decode()
 
     def unify(self, value):
-        if isstr(value):
-            fun = PL_unify_atom_chars
+        if type(value) == Atom:
+            fun = PL_unify_atom
+            value = value.handle
+        elif isstr(value):
+            fun = PL_unify_string_chars
             value = value.encode()
         elif type(value) == int:
             fun = PL_unify_integer
