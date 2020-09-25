@@ -437,6 +437,19 @@ def getTerm(t):
     return res
 
 
+class TermList(list):
+    # Python list.str() uses repr() on elements,
+    # instead of str(). Seems like a bug in python
+    # that would be too disruptive to fix.
+    def __str__(self):
+        # Probably better to use F-strings, but
+        # str.format is more backward-compatible.
+        element_strs = list(map(str, self))
+        return "[{}]".format(
+            ', '.join(element_strs)
+        )
+
+
 def getList(x):
     """
     Return t as a list.
@@ -444,7 +457,7 @@ def getList(x):
 
     t = PL_copy_term_ref(x)
     head = PL_new_term_ref()
-    result = []
+    result = TermList()
     while PL_get_list(t, head, t):
         result.append(getTerm(head))
         head = PL_new_term_ref()
