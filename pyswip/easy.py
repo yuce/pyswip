@@ -23,7 +23,16 @@
 # SOFTWARE.
 
 
+import sys
+
 from pyswip.core import *
+
+
+# For backwards compability with Python 2 64bit
+if sys.version_info < (3,):
+    integer_types = (int, long,)
+else:
+    integer_types = (int,)
 
 
 class InvalidTypeError(TypeError):
@@ -67,7 +76,7 @@ class Atom(object):
 
         if isinstance(term, Term):
             term = term.handle
-        elif not isinstance(term, (c_void_p, int)):
+        elif not isinstance(term, (c_void_p, integer_types)):
             raise ArgumentTypeError((str(Term), str(c_void_p)), str(type(term)))
 
         a = atom_t()
@@ -266,7 +275,7 @@ class Functor(object):
 
         if isinstance(term, Term):
             term = term.handle
-        elif not isinstance(term, (c_void_p, int)):
+        elif not isinstance(term, (c_void_p, integer_types)):
             raise ArgumentTypeError((str(Term), str(int)), str(type(term)))
 
         f = functor_t()
