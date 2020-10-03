@@ -417,24 +417,25 @@ def getString(t):
         raise InvalidTypeError("string")
 
 
-mappedTerms = {}
+# mappedTerms = {}
 def getTerm(t):
     if t is None:
         return None
-    global mappedTerms
+    # global mappedTerms
     #print 'mappedTerms', mappedTerms
 
     #if t in mappedTerms:
     #    return mappedTerms[t]
-    p = PL_term_type(t)
-    if p < PL_TERM:
-        res = _getterm_router[p](t)
-    elif PL_is_list(t):
-        res = getList(t)
-    else:
-        res = getFunctor(t)
-    mappedTerms[t] = res
-    return res
+    with PL_STRINGS_MARK():
+        p = PL_term_type(t)
+        if p < PL_TERM:
+            res = _getterm_router[p](t)
+        elif PL_is_list(t):
+            res = getList(t)
+        else:
+            res = getFunctor(t)
+        # mappedTerms[t] = res
+        return res
 
 
 def getList(x):
