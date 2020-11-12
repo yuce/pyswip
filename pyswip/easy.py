@@ -173,6 +173,15 @@ class Variable(object):
             self.chars = self.chars.decode()
 
     def unify(self, value):
+        if self.handle is None:
+            t = PL_new_term_ref(self.handle)
+        else:
+            t = PL_copy_term_ref(self.handle)
+
+        self._fun(value, t)
+        self.handle = t
+
+    def _fun(self, value, t):
         if type(value) == Atom:
             fun = PL_unify_atom
             value = value.handle
@@ -191,26 +200,13 @@ class Variable(object):
             raise TypeError('Cannot unify {} with value {} due to the value unknown type {}'.
                             format(self, value, type(value)))
 
-        if self.handle is None:
-            t = PL_new_term_ref(self.handle)
-        else:
-            t = PL_copy_term_ref(self.handle)
-
         if type(value) == list:
             a = PL_new_term_ref(self.handle)
-            if type(value[0]) == int:
-                element_fun = PL_unify_integer
-            elif type(value[0]) == float:
-                element_fun = PL_unify_float
-            else:
-                raise
-            if value:
-                for element in value:
-                    fun(t, a, t)
-                    element_fun(a, element)
+            for element in value:
+                fun(t, a, t)
+                self._fun(a, element)
         else:
             fun(t, value)
-        self.handle = t
 
     def get_value(self):
         return getTerm(self.handle)
