@@ -204,7 +204,7 @@ class Variable(object):
             a = PL_new_term_ref(self.handle)
             for element in value:
                 fun(t, a, t)
-                self._fun(a, element)
+                self._fun(element, a)
         else:
             fun(t, value)
 
