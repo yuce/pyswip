@@ -46,6 +46,37 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(len(result), 10, 'Query should return 10 results')
         for i in range(10):
             self.assertTrue({'X': i} in result, 'Expected result  X:{} not present'.format(i))
+    
+    def test_atoms_and_strings_distinction(self):
+        def get_str(string):
+            string.value = "string"
+        
+        def test_for_string(string, result):
+            result.value = isinstance(string, str) 
+
+        get_str.arity = 1
+        test_for_string.arity = 2
+
+        registerForeign(get_str)
+        registerForeign(test_for_string)
+
+        prolog = Prolog()
+        
+        result = list(prolog.query("get_str(String), test_for_string(String, Result)"))
+        self.assertTrue({'Result': 'true', 'String': 'string'} in result, 'A string return value should not be converted to an atom.')
+    
+    def test_nested_lists(self):
+        def get_list_of_lists(result):
+            result.value = [[1], [2]]
+
+        get_list_of_lists.arity = 1
+
+        registerForeign(get_list_of_lists)
+
+        prolog = Prolog()
+        
+        result = list(prolog.query("get_list_of_lists(Result)"))
+        self.assertTrue({'Result': [[1], [2]]} in result, 'A string return value should not be converted to an atom.')
 
 
 
