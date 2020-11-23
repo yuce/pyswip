@@ -77,6 +77,19 @@ class MyTestCase(unittest.TestCase):
         
         result = list(prolog.query("get_list_of_lists(Result)"))
         self.assertTrue({'Result': [[1], [2]]} in result, 'A string return value should not be converted to an atom.')
+    
+    def test_register_with_module(self):
+        def get_int(result):
+            result.value = 1
+
+        get_int.arity = 1
+
+        registerForeign(get_int, module="my_module")
+
+        prolog = Prolog()
+        
+        result = list(prolog.query("my_module:get_int(Result)"))
+        self.assertTrue({'Result': 1} in result, 'One should be able to call the foreign predicate by using the module name.')
 
 
 
