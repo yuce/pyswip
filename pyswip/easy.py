@@ -202,9 +202,13 @@ class Variable(object):
 
         if type(value) == list:
             a = PL_new_term_ref(self.handle)
+            list_term = t
             for element in value:
-                fun(t, a, t)
+                tail_term = PL_new_term_ref(self.handle)
+                fun(list_term, a, tail_term)
                 self._fun(element, a)
+                list_term = tail_term
+            PL_unify_nil(list_term)
         else:
             fun(t, value)
 

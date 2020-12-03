@@ -1,6 +1,6 @@
 import unittest
 
-from pyswip import Prolog, registerForeign, PL_foreign_context, PL_foreign_control, PL_FIRST_CALL, PL_REDO, PL_PRUNED, PL_retry, PL_FA_NONDETERMINISTIC
+from pyswip import Prolog, registerForeign, PL_foreign_context, PL_foreign_control, PL_FIRST_CALL, PL_REDO, PL_PRUNED, PL_retry, PL_FA_NONDETERMINISTIC, Variable
 
 
 class MyTestCase(unittest.TestCase):
@@ -65,6 +65,11 @@ class MyTestCase(unittest.TestCase):
         result = list(prolog.query("get_str(String), test_for_string(String, Result)"))
         self.assertTrue({'Result': 'true', 'String': 'string'} in result, 'A string return value should not be converted to an atom.')
     
+    def test_unifying_list_correctly(self):
+        variable = Variable()
+        variable.value = [1, 2]
+        self.assertEquals(variable.value, [1, 2], 'Lists should be unifyed correctly.')
+
     def test_nested_lists(self):
         def get_list_of_lists(result):
             result.value = [[1], [2]]
