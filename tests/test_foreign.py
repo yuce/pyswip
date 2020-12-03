@@ -76,7 +76,7 @@ class MyTestCase(unittest.TestCase):
         prolog = Prolog()
         
         result = list(prolog.query("get_list_of_lists(Result)"))
-        self.assertTrue({'Result': [[1], [2]]} in result, 'A string return value should not be converted to an atom.')
+        self.assertTrue({'Result': [[1], [2]]} in result, 'Nested lists should be unified correctly as return value.')
     
     def test_register_with_module(self):
         def get_int(result):
