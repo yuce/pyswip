@@ -1211,8 +1211,8 @@ PL_exception = _lib.PL_exception
 PL_exception.argtypes = [qid_t]
 PL_exception.restype = term_t
 #
-PL_register_foreign_in_module = _lib.PL_register_foreign_in_module
-PL_register_foreign_in_module = check_strings(0, None)(PL_register_foreign_in_module)
+PL_register_foreign = _lib.PL_register_foreign
+PL_register_foreign = check_strings(0, None)(PL_register_foreign)
 
 #
 #PL_EXPORT(atom_t)      PL_new_atom(const char *s);

@@ -522,7 +522,7 @@ def _foreignWrapper(fun, nondeterministic=False):
 cwraps = []
 
 
-def registerForeign(func, name=None, arity=None, flags=0, module=None):
+def registerForeign(func, name=None, arity=None, flags=0):
     """Register a Python predicate
     ``func``: Function to be registered. The function should return a value in
     ``foreign_t``, ``True`` or ``False``.
@@ -545,7 +545,7 @@ def registerForeign(func, name=None, arity=None, flags=0, module=None):
     fwrap = _foreignWrapper(func, nondeterministic)
     fwrap2 = cwrap(fwrap)
     cwraps.append(fwrap2)
-    return PL_register_foreign_in_module(module, name, arity, fwrap2, flags)
+    return PL_register_foreign(name, arity, fwrap2, flags)
     # return PL_register_foreign(name, arity,
     #            _callbackWrapper(arity)(_foreignWrapper(func)), flags)
 
