@@ -6,17 +6,6 @@
 
 ---
 
-## PySwip in 2020 Survey
-
-<img src="https://lh5.googleusercontent.com/jQYQkglYr0DRfcyHPKFsjavSyEuOU1Dm3iOHZOw387i92ZKG4YcDowT0Pqe5fwW3EQ5Hy7j-HVbbw62C4x3JbTuWuOGkm6AH_xRmWH4MUIFcoodD_sCgzU2HQos-=w1200">
-
-Thanks for being a member of the PySwip community. We want to know more about you, your interests and any problems you may have with PySwip.
-
-**Please fill out the 
-[PySwip in 2020 Survey](https://docs.google.com/forms/d/1trve34aLw61PkgWfoBjtbgVsO1wno-eUk0F5mSVtHOw/edit).** That will help us provide the features you want and resolve the problems with PySwip.
-
----
-
 ## The End of Python 2 Support
 
 Python 2 has reached end of life on January 1st, 2020 as documented [here](https://www.python.org/doc/sunset-python-2/). So, PySwip 0.2.10 will be the last version which officially supports Python 2.
@@ -187,13 +176,14 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [Blocks World Planner](https://github.com/davideiacobs/BlocksWorldPlanner) A program that allows users to solve the blocks world problem interacting only using the natural language.
 * [DeepTalk](https://github.com/ptarau/DeepTalk) A Python+Prolog based Dialog Engine using the Python package text_graph_crafts that extracts the highest ranked sentences answering a query.
 * [DeepRank](https://github.com/ptarau/DeepRank) The system uses dependency links for building Text Graphs, that with help of a centrality algorithm like PageRank, extract relevant keyphrases, summaries and relations from text documents.
+* [Prolog Tic-tac-toe](https://github.com/guyzyl/prolog-tic-tac-toe) A full-stack tic-tac-toe game with AI in Prolog, backend in Python3 (+Flask) and frontend in Vue.js 3.
 
 ### Blog Posts
 
 * [Calling Prolog from Python](http://fernmac.blogspot.com.tr/2013/07/calling-prolog-from-python.html)
 * [Python v. Prolog: Round 1: Fight!](http://www.kuliniewicz.org/blog/archives/2007/10/21/python-v-prolog-round-1-fight/)
 * [Path Follower: Arduino+Rasp on ROS](http://blog.giacomocerquone.com/path-follower-maze-solving-car-arduino/) and its [Project code](https://github.com/giacomocerquone/robotics-MazeSolver)
-* [10 minutes to make a GUI for your SWI-Prolog App via Python](http://www.paulbrownmagic.com/blog/quick_gui.html)
+* [10 minutes to make a GUI for your SWI-Prolog App via Python](http://pbrown.me/blog/quick_gui/)
 
 ## Companies using PySwip
 
