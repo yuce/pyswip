@@ -48,11 +48,13 @@ class MyTestCase(unittest.TestCase):
             self.assertTrue({'X': i} in result, 'Expected result  X:{} not present'.format(i))
     
     def test_atoms_and_strings_distinction(self):
+        test_string = "string"
+
         def get_str(string):
-            string.value = "string"
+            string.value = test_string
         
-        def test_for_string(string, result):
-            result.value = isinstance(string, str) 
+        def test_for_string(string, test_result):
+            test_result.value = (test_string == string.decode('utf-8'))
 
         get_str.arity = 1
         test_for_string.arity = 2
@@ -63,12 +65,12 @@ class MyTestCase(unittest.TestCase):
         prolog = Prolog()
         
         result = list(prolog.query("get_str(String), test_for_string(String, Result)"))
-        self.assertTrue({'Result': 'true', 'String': 'string'} in result, 'A string return value should not be converted to an atom.')
+        self.assertEqual(result[0]['Result'], 'true', 'A string return value should not be converted to an atom.')
     
     def test_unifying_list_correctly(self):
         variable = Variable()
         variable.value = [1, 2]
-        self.assertEquals(variable.value, [1, 2], 'Lists should be unifyed correctly.')
+        self.assertEqual(variable.value, [1, 2], 'Lists should be unifyed correctly.')
 
     def test_nested_lists(self):
         def get_list_of_lists(result):
@@ -82,20 +84,6 @@ class MyTestCase(unittest.TestCase):
         
         result = list(prolog.query("get_list_of_lists(Result)"))
         self.assertTrue({'Result': [[1], [2]]} in result, 'Nested lists should be unified correctly as return value.')
-    
-    def test_register_with_module(self):
-        def get_int(result):
-            result.value = 1
-
-        get_int.arity = 1
-
-        registerForeign(get_int, module="my_module")
-
-        prolog = Prolog()
-        
-        result = list(prolog.query("my_module:get_int(Result)"))
-        self.assertTrue({'Result': 1} in result, 'One should be able to call the foreign predicate by using the module name.')
-
 
 
 if __name__ == '__main__':
