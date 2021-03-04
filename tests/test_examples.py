@@ -285,7 +285,7 @@ class TestExamples(unittest.TestCase):
         num_facts = 1250000
         prolog = Prolog()
         for i in range(num_facts):
-            prolog.assertz(f'p({i})')
+            prolog.assertz('p(%s)' % i)
 
         results = [r for r in prolog.query('p(I)')]
         self.assertEqual(len(results), num_facts)
