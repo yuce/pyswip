@@ -191,7 +191,7 @@ def normalize_values(values):
     if isinstance(values, Atom):
         return values.value
     if isinstance(values, Functor):
-        normalized = values.name.value
+        normalized = str(values.name.value)
         if values.arity:
             normalized_args = ([str(normalize_values(arg)) for arg in values.args])
             normalized = normalized + '(' + ', '.join(normalized_args) + ')'
