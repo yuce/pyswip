@@ -189,6 +189,13 @@ def _findSwiplWin():
     if path is not None and os.path.exists(path):
         return (path, None)
 
+    # Let's try the scoop.sh install location
+    p = os.getenv("USERPROFILE") +"\\scoop\\apps\\swipl\\8.2.4-1\\bin"
+    for dllName in dllNames:
+        pp = p + "\\" + dllName
+        if os.path.exists(pp):
+            return (pp, None)
+
     # Third try: use reg.exe to find the installation path in the registry
     # (reg should be installed in all Windows XPs)
     try:
@@ -218,6 +225,10 @@ def _findSwiplWin():
 
     except OSError:
         # reg.exe not found? Weird...
+        pass
+
+    except IndexError:
+        # reg query returns no result
         pass
 
     # May the exec is on path?
@@ -276,11 +287,11 @@ def walk(path, name):
     """
     This function is a 2-time recursive func,
     that findin file in dirs
-    
+
     :parameters:
       -  `path` (str) - Directory path
       -  `name` (str) - Name of file, that we lookin for
-      
+
     :returns:
         Path to the swipl so, path to the resource file
 
@@ -289,7 +300,7 @@ def walk(path, name):
     """
     back_path = path[:]
     path = os.path.join(path, name)
-    
+
     if os.path.exists(path):
         return path
     else:
@@ -311,7 +322,7 @@ def get_swi_ver():
     match = re.search(r'[0-9]+\.[0-9]+\.[0-9]+', swi_ver)
     if match is None:
         raise InputError('Error, type normal version')
-    
+
     return swi_ver
 
 
@@ -319,10 +330,10 @@ def _findSwiplMacOSHome():
     """
     This function is guesing where SWI-Prolog is
     installed in MacOS via .app.
-    
+
     :parameters:
       -  `swi_ver` (str) - Version of SWI-Prolog in '[0-9].[0-9].[0-9]' format
-      
+
     :returns:
         A tuple of (path to the swipl so, path to the resource file)
 
@@ -333,15 +344,15 @@ def _findSwiplMacOSHome():
     # Need more help with MacOS
     # That way works, but need more work
     names = ['libswipl.dylib', 'libpl.dylib']
-    
+
     path = os.environ.get('SWI_HOME_DIR')
     if path is None:
         path = os.environ.get('SWI_LIB_DIR')
         if path is None:
             path = os.environ.get('PLBASE')
-            if path is None:                
+            if path is None:
                 path = '/Applications/SWI-Prolog.app/Contents/'
-    
+
     paths = [path]
 
     for name in names:
@@ -415,7 +426,7 @@ def _findSwipl():
 
     elif platform == "dar":  # Help with MacOS is welcome!!
         (path, swiHome) = _findSwiplDar()
-        
+
         if path is None:
             (path, swiHome) = _findSwiplMacOSHome()
 
