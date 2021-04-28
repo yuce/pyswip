@@ -149,12 +149,14 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [The Detection Of Conflicts In The Requirements Specification Based On An Ontological Model And A Production Rule System](https://www.researchgate.net/publication/337655252_The_detection_of_conflicts_in_the_requirements_specification_based_on_an_ontological_model_and_a_production_rule_system)
 * [Dependency-based Text Graphs for Keyphrase and Summary Extraction with Applications to Interactive Content Retrieval](https://arxiv.org/pdf/1909.09742.pdf) (PDF)
 * [Information Retrieval Based on Knowledge-Enhanced Word Embedding Through Dialog: A Case Study](https://www.atlantis-press.com/journals/ijcis/125936225/view)
+* [Exploring the world of declarative programming](https://fedoramagazine.org/exploring-the-world-of-declarative-programming/)
 
 ### Videos
 
 * [AI - Blocks world solver interactive planner](https://www.youtube.com/watch?v=p1m8htUEHrc)
 * [PySwip, Prolog, Javascript and HTML](https://www.youtube.com/watch?v=Oj8xsW2vaLA) (Spanish)
 * [Get out of the maze with Prolog and Python](https://www.youtube.com/watch?v=MW3S0Jfa0LU) (Spanish)
+* [Les robots deviennent (vraiment) intelligents ! (NAO discute avec Kylo Ren)](https://www.youtube.com/watch?v=JlfnpyIly-Y)
 
 ### Projects
 
