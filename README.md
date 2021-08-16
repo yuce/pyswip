@@ -179,6 +179,7 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [DeepTalk](https://github.com/ptarau/DeepTalk) A Python+Prolog based Dialog Engine using the Python package text_graph_crafts that extracts the highest ranked sentences answering a query.
 * [DeepRank](https://github.com/ptarau/DeepRank) The system uses dependency links for building Text Graphs, that with help of a centrality algorithm like PageRank, extract relevant keyphrases, summaries and relations from text documents.
 * [Prolog Tic-tac-toe](https://github.com/guyzyl/prolog-tic-tac-toe) A full-stack tic-tac-toe game with AI in Prolog, backend in Python3 (+Flask) and frontend in Vue.js 3.
+* [MIDSI Project](https://github.com/devdaniellima/midsi) Solution for data discovery in projects applicable to the Semantic Web, enabling the loading of ontologies and inference of results using the WSML language.
 
 ### Blog Posts
 
