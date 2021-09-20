@@ -23,8 +23,6 @@
 # SOFTWARE.
 
 
-import sys
-
 from pyswip.core import *
 
 
@@ -330,8 +328,6 @@ class Functor(object):
 
 def _unifier(arity, *args):
     assert arity == 2
-    #if PL_is_variable(args[0]):
-    #    args[0].unify(args[1])
     try:
         return {args[0].value:args[1].value}
     except AttributeError:
@@ -429,15 +425,9 @@ def getString(t):
         raise InvalidTypeError("string")
 
 
-# mappedTerms = {}
 def getTerm(t):
     if t is None:
         return None
-    # global mappedTerms
-    #print 'mappedTerms', mappedTerms
-
-    #if t in mappedTerms:
-    #    return mappedTerms[t]
     with PL_STRINGS_MARK():
         p = PL_term_type(t)
         if p < PL_TERM:
@@ -446,7 +436,6 @@ def getTerm(t):
             res = getList(t)
         else:
             res = getFunctor(t)
-        # mappedTerms[t] = res
         return res
 
 
@@ -605,9 +594,6 @@ class Query(object):
         f = Functor.fromTerm(t)
         p = PL_pred(f.handle, module)
         Query.qid = PL_open_query(module, flags, p, f.a0)
-
-#    def __del__(self):
-#        self.closeQuery()
 
     def nextSolution():
         return PL_next_solution(Query.qid)

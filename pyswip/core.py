@@ -24,15 +24,14 @@
 
 from __future__ import print_function
 
-from contextlib import contextmanager
+import atexit
+import glob
 import os
 import sys
-import glob
-import warnings
-import atexit
-from subprocess import Popen, PIPE
+from contextlib import contextmanager
 from ctypes import *
 from ctypes.util import find_library
+from subprocess import Popen, PIPE
 
 
 # To initialize the SWI-Prolog environment, two things need to be done: the
@@ -846,9 +845,6 @@ buf_mark_t = c_uint_p
 
 PL_initialise = _lib.PL_initialise
 PL_initialise = check_strings(None, 1)(PL_initialise)
-#PL_initialise.argtypes = [c_int, c_c??
-
-#unsigned int PL_version(int key)
 
 PL_mark_string_buffers = _lib.PL_mark_string_buffers
 PL_mark_string_buffers.argtypes = [buf_mark_t]
@@ -956,72 +952,47 @@ PL_get_atom_chars = check_strings(None, 1)(PL_get_atom_chars)
 PL_get_string_chars = _lib.PL_get_string
 PL_get_string_chars.argtypes = [term_t, POINTER(c_char_p), c_int_p]
 
-#PL_EXPORT(int)         PL_get_chars(term_t t, char **s, unsigned int flags);
 PL_get_chars = _lib.PL_get_chars  # FIXME:
 PL_get_chars.argtypes = [term_t, POINTER(c_char_p), c_uint]
 PL_get_chars.restype = c_int
 
 PL_get_chars = check_strings(None, 1)(PL_get_chars)
 
-#PL_EXPORT(int)         PL_get_list_chars(term_t l, char **s,
-#                                         unsigned int flags);
-#PL_EXPORT(int)         PL_get_atom_nchars(term_t t, size_t *len, char **a);
-#PL_EXPORT(int)         PL_get_list_nchars(term_t l,
-#                                          size_t *len, char **s,
-#                                          unsigned int flags);
-#PL_EXPORT(int)         PL_get_nchars(term_t t,
-#                                     size_t *len, char **s,
-#                                     unsigned int flags);
-#PL_EXPORT(int)         PL_get_integer(term_t t, int *i);
 PL_get_integer = _lib.PL_get_integer
 PL_get_integer.argtypes = [term_t, POINTER(c_int)]
 PL_get_integer.restype = c_int
 
-#PL_EXPORT(int)         PL_get_long(term_t t, long *i);
 PL_get_long = _lib.PL_get_long
 PL_get_long.argtypes = [term_t, POINTER(c_long)]
 PL_get_long.restype = c_int
 
-#PL_EXPORT(int)         PL_get_pointer(term_t t, void **ptr);
-#PL_EXPORT(int)         PL_get_float(term_t t, double *f);
 PL_get_float = _lib.PL_get_float
 PL_get_float.argtypes = [term_t, c_double_p]
 PL_get_float.restype = c_int
 
-#PL_EXPORT(int)         PL_get_functor(term_t t, functor_t *f);
 PL_get_functor = _lib.PL_get_functor
 PL_get_functor.argtypes = [term_t, POINTER(functor_t)]
 PL_get_functor.restype = c_int
 
-#PL_EXPORT(int)         PL_get_name_arity(term_t t, atom_t *name, int *arity);
 PL_get_name_arity = _lib.PL_get_name_arity
 PL_get_name_arity.argtypes = [term_t, POINTER(atom_t), POINTER(c_int)]
 PL_get_name_arity.restype = c_int
 
-#PL_EXPORT(int)         PL_get_module(term_t t, module_t *module);
-#PL_EXPORT(int)         PL_get_arg(int index, term_t t, term_t a);
 PL_get_arg = _lib.PL_get_arg
 PL_get_arg.argtypes = [c_int, term_t, term_t]
 PL_get_arg.restype = c_int
 
-#PL_EXPORT(int)         PL_get_list(term_t l, term_t h, term_t t);
-#PL_EXPORT(int)         PL_get_head(term_t l, term_t h);
 PL_get_head = _lib.PL_get_head
 PL_get_head.argtypes = [term_t, term_t]
 PL_get_head.restype = c_int
 
-#PL_EXPORT(int)         PL_get_tail(term_t l, term_t t);
 PL_get_tail = _lib.PL_get_tail
 PL_get_tail.argtypes = [term_t, term_t]
 PL_get_tail.restype = c_int
 
-#PL_EXPORT(int)         PL_get_nil(term_t l);
 PL_get_nil = _lib.PL_get_nil
 PL_get_nil.argtypes = [term_t]
 PL_get_nil.restype = c_int
-
-#PL_EXPORT(int)         PL_get_term_value(term_t t, term_value_t *v);
-#PL_EXPORT(char *)      PL_quote(int chr, const char *data);
 
 PL_put_atom_chars = _lib.PL_put_atom_chars
 PL_put_atom_chars.argtypes = [term_t, c_char_p]
@@ -1069,7 +1040,6 @@ PL_close_query = _lib.PL_close_query
 PL_close_query.argtypes = [qid_t]
 PL_close_query.restype = None
 
-#void PL_cut_query(qid)
 PL_cut_query = _lib.PL_cut_query
 PL_cut_query.argtypes = [qid_t]
 PL_cut_query.restype = None
@@ -1078,7 +1048,6 @@ PL_halt = _lib.PL_halt
 PL_halt.argtypes = [c_int]
 PL_halt.restype = None
 
-# PL_EXPORT(int)        PL_cleanup(int status);
 PL_cleanup = _lib.PL_cleanup
 PL_cleanup.restype = c_int
 
@@ -1129,9 +1098,7 @@ PL_unify = _lib.PL_unify
 PL_unify.restype = c_int
 
 PL_succeed = 1
-PL_PRUNED = 1
 
-#PL_EXPORT(int)          PL_unify_arg(int index, term_t t, term_t a) WUNUSED;
 PL_unify_arg = _lib.PL_unify_arg
 PL_unify_arg.argtypes = [c_int, term_t, term_t]
 PL_unify_arg.restype = c_int
@@ -1166,10 +1133,6 @@ PL_is_float = _lib.PL_is_float
 PL_is_float.argtypes = [term_t]
 PL_is_float.restype = c_int
 
-#PL_is_rational = _lib.PL_is_rational
-#PL_is_rational.argtypes = [term_t]
-#PL_is_rational.restype = c_int
-
 PL_is_compound = _lib.PL_is_compound
 PL_is_compound.argtypes = [term_t]
 PL_is_compound.restype = c_int
@@ -1190,92 +1153,57 @@ PL_is_number = _lib.PL_is_number
 PL_is_number.argtypes = [term_t]
 PL_is_number.restype = c_int
 
-#                       /* Assign to term-references */
-#PL_EXPORT(void)                PL_put_variable(term_t t);
 PL_put_variable = _lib.PL_put_variable
 PL_put_variable.argtypes = [term_t]
 PL_put_variable.restype = None
 
-#PL_EXPORT(void)                PL_put_atom(term_t t, atom_t a);
-#PL_EXPORT(void)                PL_put_atom_chars(term_t t, const char *chars);
-#PL_EXPORT(void)                PL_put_string_chars(term_t t, const char *chars);
-#PL_EXPORT(void)                PL_put_list_chars(term_t t, const char *chars);
-#PL_EXPORT(void)                PL_put_list_codes(term_t t, const char *chars);
-#PL_EXPORT(void)                PL_put_atom_nchars(term_t t, size_t l, const char *chars);
-#PL_EXPORT(void)                PL_put_string_nchars(term_t t, size_t len, const char *chars);
-#PL_EXPORT(void)                PL_put_list_nchars(term_t t, size_t l, const char *chars);
-#PL_EXPORT(void)                PL_put_list_ncodes(term_t t, size_t l, const char *chars);
-#PL_EXPORT(void)                PL_put_integer(term_t t, long i);
 PL_put_integer = _lib.PL_put_integer
 PL_put_integer.argtypes = [term_t, c_long]
 PL_put_integer.restype = None
 
-#PL_EXPORT(void)                PL_put_pointer(term_t t, void *ptr);
-#PL_EXPORT(void)                PL_put_float(term_t t, double f);
-#PL_EXPORT(void)                PL_put_functor(term_t t, functor_t functor);
 PL_put_functor = _lib.PL_put_functor
 PL_put_functor.argtypes = [term_t, functor_t]
 PL_put_functor.restype = None
 
-#PL_EXPORT(void)                PL_put_list(term_t l);
 PL_put_list = _lib.PL_put_list
 PL_put_list.argtypes = [term_t]
 PL_put_list.restype = None
 
-#PL_EXPORT(void)                PL_put_nil(term_t l);
 PL_put_nil = _lib.PL_put_nil
 PL_put_nil.argtypes = [term_t]
 PL_put_nil.restype = None
 
-#PL_EXPORT(void)                PL_put_term(term_t t1, term_t t2);
 PL_put_term = _lib.PL_put_term
 PL_put_term.argtypes = [term_t, term_t]
 PL_put_term.restype = None
 
-#                       /* construct a functor or list-cell */
-#PL_EXPORT(void)                PL_cons_functor(term_t h, functor_t f, ...);
-#class _PL_cons_functor(object):
 PL_cons_functor = _lib.PL_cons_functor  # FIXME:
 
-#PL_EXPORT(void)                PL_cons_functor_v(term_t h, functor_t fd, term_t a0);
 PL_cons_functor_v = _lib.PL_cons_functor_v
 PL_cons_functor_v.argtypes = [term_t, functor_t, term_t]
 PL_cons_functor_v.restype = None
 
-#PL_EXPORT(void)                PL_cons_list(term_t l, term_t h, term_t t);
 PL_cons_list = _lib.PL_cons_list
 PL_cons_list.argtypes = [term_t, term_t, term_t]
 PL_cons_list.restype = None
 
-#
-# term_t PL_exception(qid_t qid)
 PL_exception = _lib.PL_exception
 PL_exception.argtypes = [qid_t]
 PL_exception.restype = term_t
-#
+
 PL_register_foreign = _lib.PL_register_foreign
 PL_register_foreign = check_strings(0, None)(PL_register_foreign)
 
-#
-#PL_EXPORT(atom_t)      PL_new_atom(const char *s);
 PL_new_atom = _lib.PL_new_atom
 PL_new_atom.argtypes = [c_char_p]
 PL_new_atom.restype = atom_t
 
 PL_new_atom = check_strings(0, None)(PL_new_atom)
 
-#PL_EXPORT(functor_t)   PL_new_functor(atom_t f, int a);
 PL_new_functor = _lib.PL_new_functor
 PL_new_functor.argtypes = [atom_t, c_int]
 PL_new_functor.restype = functor_t
 
-
-#                /*******************************
-#                *           COMPARE            *
-#                *******************************/
-#
-#PL_EXPORT(int)         PL_compare(term_t t1, term_t t2);
-#PL_EXPORT(int)         PL_same_compound(term_t t1, term_t t2);
 PL_compare = _lib.PL_compare
 PL_compare.argtypes = [term_t, term_t]
 PL_compare.restype = c_int
@@ -1284,30 +1212,17 @@ PL_same_compound = _lib.PL_same_compound
 PL_same_compound.argtypes = [term_t, term_t]
 PL_same_compound.restype = c_int
 
-
-#                /*******************************
-#                *      RECORDED DATABASE       *
-#                *******************************/
-#
-#PL_EXPORT(record_t)    PL_record(term_t term);
 PL_record = _lib.PL_record
 PL_record.argtypes = [term_t]
 PL_record.restype = record_t
 
-#PL_EXPORT(void)                PL_recorded(record_t record, term_t term);
 PL_recorded = _lib.PL_recorded
 PL_recorded.argtypes = [record_t, term_t]
 PL_recorded.restype = None
 
-#PL_EXPORT(void)                PL_erase(record_t record);
 PL_erase = _lib.PL_erase
 PL_erase.argtypes = [record_t]
 PL_erase.restype = None
-
-#
-#PL_EXPORT(char *)      PL_record_external(term_t t, size_t *size);
-#PL_EXPORT(int)         PL_recorded_external(const char *rec, term_t term);
-#PL_EXPORT(int)         PL_erase_external(char *rec);
 
 PL_new_module = _lib.PL_new_module
 PL_new_module.argtypes = [atom_t]
@@ -1318,20 +1233,6 @@ PL_is_initialised = _lib.PL_is_initialised
 intptr_t = c_long
 ssize_t = intptr_t
 wint_t = c_uint
-
-# typedef struct
-# {
-#  int __count;
-#  union
-#  {
-#    wint_t __wch;
-#    char __wchb[4];
-#  } __value;            /* Value so far.  */
-# } __mbstate_t;
-
-#                /*******************************
-#                *          THREADING           *
-#                *******************************/
 
 PL_thread_self = _lib.PL_thread_self
 PL_thread_self.restype = c_int
@@ -1410,17 +1311,13 @@ IOSTREAM._fields_.extend([("tee",IOSTREAM),
 
 
 
-#PL_EXPORT(IOSTREAM *)  Sopen_string(IOSTREAM *s, char *buf, size_t sz, const char *m);
 Sopen_string = _lib.Sopen_string
 Sopen_string.argtypes = [POINTER(IOSTREAM), c_char_p, c_size_t, c_char_p]
 Sopen_string.restype = POINTER(IOSTREAM)
 
-#PL_EXPORT(int)         Sclose(IOSTREAM *s);
 Sclose = _lib.Sclose
 Sclose.argtypes = [POINTER(IOSTREAM)]
 
-
-#PL_EXPORT(int)         PL_unify_stream(term_t t, IOSTREAM *s);
 PL_unify_stream = _lib.PL_unify_stream
 PL_unify_stream.argtypes = [term_t, POINTER(IOSTREAM)]
 
