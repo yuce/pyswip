@@ -2,17 +2,17 @@
 
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2018 Yüce Tekol
-#  
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#  
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#  
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,30 +37,30 @@ class TestExamples(unittest.TestCase):
 
     WARNING: Since it is not possible to unload things from the Prolog base, the
     examples have to be 'orthogonal'.
-    
+
     """
 
     def test_create_term(self):
         """
         Simple example of term creation.
         """
-        
+
         prolog = Prolog()
-    
+
         a1 = PL_new_term_refs(2)
         a2 = a1 + 1
         t = PL_new_term_ref()
         ta = PL_new_term_ref()
- 
+
         animal2 = PL_new_functor(PL_new_atom("animal"), 2)
         assertz = PL_new_functor(PL_new_atom("assertz"), 1)
- 
+
         PL_put_atom_chars(a1, "gnu")
         PL_put_integer(a2, 50)
         PL_cons_functor_v(t, animal2, a1)
         PL_cons_functor_v(ta, assertz, t)
         PL_call(ta, None)
-    
+
         result = list(prolog.query("animal(X,Y)", catcherrors=True))
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], {'X': 'gnu', 'Y': 50})
@@ -71,20 +71,20 @@ class TestExamples(unittest.TestCase):
         """
 
         p = Prolog()
-         
+
         assertz = Functor("assertz")
         parent = Functor("parent", 2)
         test1 = newModule("test1")
         test2 = newModule("test2")
-         
+
         call(assertz(parent("john", "bob")), module=test1)
         call(assertz(parent("jane", "bob")), module=test1)
-         
+
         call(assertz(parent("mike", "bob")), module=test2)
         call(assertz(parent("gina", "bob")), module=test2)
-         
+
         # Test knowledgebase module test1
- 
+
         result = set()
         X = Variable()
         q = Query(parent(X, "bob"), module=test1)
@@ -92,9 +92,9 @@ class TestExamples(unittest.TestCase):
             result.add(X.value.value)    # X.value is an Atom
         q.closeQuery()
         self.assertEqual(result, set(["john", "jane"]))
-         
+
         # Test knowledgebase module test2
-         
+
         result = set()
         q = Query(parent(X, "bob"), module=test2)
         while q.nextSolution():
@@ -108,18 +108,18 @@ class TestExamples(unittest.TestCase):
         """
 
         p = Prolog()
-     
+
         father = Functor("father", 2)
         mother = Functor("mother", 2)
-     
+
         p.assertz("father(john,mich)")
         p.assertz("father(john,gina)")
         p.assertz("mother(jane,mich)")
-     
+
         X = Variable()
         Y = Variable()
         Z = Variable()
-  
+
         result = []
         q = Query(father("john", Y), mother(Z, Y))
         while q.nextSolution():
@@ -127,7 +127,7 @@ class TestExamples(unittest.TestCase):
             z = Z.value.value
             result.append({'Y': y, 'Z': z})
         q.closeQuery()
-   
+
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], {'Y': 'mich', 'Z': 'jane'})
 
@@ -137,7 +137,7 @@ class TestExamples(unittest.TestCase):
             result.append(s)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], {'Y': 'mich', 'Z': 'jane'})
-     
+
     def test_coins(self):
         """
         Runs the coins example (uses clp library of SWI-Prolog).
@@ -150,12 +150,12 @@ class TestExamples(unittest.TestCase):
         coins = Functor("coins", 3)
         S = Variable()
         q = Query(coins(S, count, total))
- 
+
         solutions = []
         while q.nextSolution():
             solutions.append(S.value)
         q.closeQuery()
- 
+
         self.assertEqual(len(solutions), 105)
 
         # Now do the same test, but using the prolog.query interface
@@ -166,7 +166,7 @@ class TestExamples(unittest.TestCase):
         """
         Runs the draughts example (uses clp library of SWI-Prolog).
         """
-        
+
         prolog = Prolog()
         prolog.consult(example_path("draughts/puzzle1.pl"))
         solutions = []
@@ -177,29 +177,29 @@ class TestExamples(unittest.TestCase):
         # Now do the same test, but using the prolog.query interface
         solutions = list(prolog.query("solve(B)."))
         self.assertEqual(len(solutions), 37)
-        
+
     def test_hanoi(self):
         """
         Runs the hanoi example.
         """
- 
+
         N = 3  # Number of disks
- 
+
         result = []
         def notify(t):
             result.append((t[0].value, t[1].value))
         notify.arity = 1
- 
+
         prolog = Prolog()
         registerForeign(notify)
         prolog.consult(example_path("hanoi/hanoi.pl"))
         list(prolog.query("hanoi(%d)" % N)) # Forces the query to run completely
- 
+
         self.assertEqual(len(result), 7)
         self.assertEqual(result[0], ('left', 'right'))
         self.assertEqual(result[1], ('left', 'center'))
         self.assertEqual(result[2], ('right', 'center'))
-        
+
     def test_sendmoremoney(self):
         """
         Runs the sendmoremoney example::
@@ -208,11 +208,11 @@ class TestExamples(unittest.TestCase):
             M O R E
           + -------
           M O N E Y
-         
+
         So, what should be the values of S, E, N, D, M, O, R, Y
         if they are all distinct digits.
         """
-        
+
         letters = "S E N D M O R Y".split()
         prolog = Prolog()
         sendmore = Functor("sendmore")
@@ -226,17 +226,17 @@ class TestExamples(unittest.TestCase):
             val[letter] = r[i]
 
         self.assertEqual(len(val), 8)
-        
+
         send = val['S']*1e3 + val['E']*1e2 + val['N']*1e1 + val['D']*1e0
         more = val['M']*1e3 + val['O']*1e2 + val['R']*1e1 + val['E']*1e0
         money = val['M']*1e4 + val['O']*1e3 + val['N']*1e2 + val['E']*1e1 + val['Y']*1e0
         self.assertEqual(money, send + more)
- 
+
     def test_sudoku(self):
         """
         Runs the sudoku example (uses clp library of SWI-Prolog).
         """
-        
+
         _ = 0
         puzzle1 = [
             [_,6,_,1,_,4,_,5,_],
@@ -249,7 +249,7 @@ class TestExamples(unittest.TestCase):
             [_,_,7,2,_,6,9,_,_],
             [_,4,_,5,_,8,_,7,_]
             ]
-         
+
         puzzle2 = [
             [_,_,1,_,8,_,6,_,4],
             [_,3,7,6,_,_,_,_,_],
@@ -261,7 +261,7 @@ class TestExamples(unittest.TestCase):
             [_,_,_,_,_,7,5,2,_],
             [8,_,2,_,9,_,7,_,_]
                   ]
-            
+
         prolog = Prolog()
         prolog.consult(example_path("sudoku/sudoku.pl"))
 

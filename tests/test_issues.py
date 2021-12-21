@@ -3,17 +3,17 @@
 
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2012 Yüce Tekol
-#  
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#  
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#  
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -61,7 +61,7 @@ class TestIssues(unittest.TestCase):
 
         Notes: This issue manifests only in 64bit stacks (note that a full 64
         bit stack is needed. If running 32 in 64bit, it will not happen.)
-        
+
         http://code.google.com/p/pyswip/issues/detail?id=1
         """
 
@@ -92,7 +92,7 @@ class TestIssues(unittest.TestCase):
         prolog.assertz("parent(michael,gina)")
         p = prolog.query("parent(michael,X), hello(X)")
         result = list(p)   # Will run over the iterator
-        
+
         self.assertEqual(len(callsToHello), 2)  # ['john', 'gina']
         self.assertEqual(len(result), 2) # [{'X': 'john'}, {'X': 'gina'}]
 
@@ -147,7 +147,7 @@ class TestIssues(unittest.TestCase):
         A = Variable()
         B = Variable()
         C = Variable(A.handle)   # This is equal to A
-        
+
         self.assertNotEqual(A, B)
         self.assertNotEqual(C, B)
         self.assertEqual(A, C)
@@ -157,7 +157,7 @@ class TestIssues(unittest.TestCase):
         varSet.add(C)  # This is equal to A
         self.assertEqual(len(varSet), 2)
         self.assertEqual(varSet, set([A, B]))
-        
+
     def test_issue_4(self):
         """
        	Patch for a dynamic method
@@ -168,7 +168,7 @@ class TestIssues(unittest.TestCase):
         """
 
         from pyswip import Prolog
-        
+
         Prolog.dynamic('test_issue_4_d/1')
         Prolog.assertz('test_issue_4_d(test1)')
         Prolog.assertz('test_issue_4_d(test1)')
@@ -176,11 +176,11 @@ class TestIssues(unittest.TestCase):
         Prolog.assertz('test_issue_4_d(test2)')
         results = list(Prolog.query('test_issue_4_d(X)'))
         self.assertEqual(len(results), 4)
-        
+
         Prolog.retract('test_issue_4_d(test1)')
         results = list(Prolog.query('test_issue_4_d(X)'))
         self.assertEqual(len(results), 3)
-        
+
         Prolog.retractall('test_issue_4_d(test1)')
         results = list(Prolog.query('test_issue_4_d(X)'))
         self.assertEqual(len(results), 1)
@@ -193,14 +193,14 @@ class TestIssues(unittest.TestCase):
         """
 
         from pyswip import Prolog, Functor, Variable, Atom
-         
+
         p = Prolog()
-         
+
         f = Functor('f', 1)
         A = Variable()
         B = Variable()
         C = Variable()
-         
+
         x = f([A, B, C])
         x = Functor.fromTerm(x)
         args = x.args[0]
@@ -262,9 +262,9 @@ class TestIssues(unittest.TestCase):
         Not a formal issue, but see forum topic:
         https://groups.google.com/forum/#!topic/pyswip/Mpnfq4DH-mI
         """
-        
+
         import pyswip.prolog as pl
-        
+
         p = pl.Prolog()
         p.consult("tests/test_functor_return.pl", catcherrors=True)
         query = "sentence(Parse_tree, [the,bat,eats,a,cat], [])"
@@ -274,7 +274,7 @@ class TestIssues(unittest.TestCase):
         results = list(p.query(query))
         self.assertEqual(len(results), 1,
                          "Query should return exactly one result")
-        
+
         ptree = results[0]["Parse_tree"]
         self.assertEqual(ptree, expectedTree)
 
@@ -286,7 +286,7 @@ class TestIssues(unittest.TestCase):
         p.assertz("father(son(miki),kur)")
         p.assertz("father(son(kiwi),kur)")
         p.assertz("father(son(wiki),kur)")
-        
+
         soln = [s["Y"] for s in p.query("friend(john,Y), father(Y,kur)",
                                          maxresult=1)]
         self.assertEqual(soln[0], "son(miki)")

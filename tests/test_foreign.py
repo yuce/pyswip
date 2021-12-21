@@ -46,13 +46,13 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(len(result), 10, 'Query should return 10 results')
         for i in range(10):
             self.assertTrue({'X': i} in result, 'Expected result  X:{} not present'.format(i))
-    
+
     def test_atoms_and_strings_distinction(self):
         test_string = "string"
 
         def get_str(string):
             string.value = test_string
-        
+
         def test_for_string(string, test_result):
             test_result.value = (test_string == string.decode('utf-8'))
 
@@ -63,10 +63,10 @@ class MyTestCase(unittest.TestCase):
         registerForeign(test_for_string)
 
         prolog = Prolog()
-        
+
         result = list(prolog.query("get_str(String), test_for_string(String, Result)"))
         self.assertEqual(result[0]['Result'], 'true', 'A string return value should not be converted to an atom.')
-    
+
     def test_unifying_list_correctly(self):
         variable = Variable()
         variable.value = [1, 2]
@@ -81,7 +81,7 @@ class MyTestCase(unittest.TestCase):
         registerForeign(get_list_of_lists)
 
         prolog = Prolog()
-        
+
         result = list(prolog.query("get_list_of_lists(Result)"))
         self.assertTrue({'Result': [[1], [2]]} in result, 'Nested lists should be unified correctly as return value.')
 
