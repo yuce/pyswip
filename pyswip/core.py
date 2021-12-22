@@ -22,31 +22,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""
+To initialize the SWI-Prolog environment, two things need to be done: the
+first is to find where the SO/DLL is located and the second is to find the
+SWI-Prolog home, to get the saved state.
+
+The goal of the (entangled) process below is to make the library installation
+independent.
+"""
 from __future__ import print_function
 
 import atexit
 import glob
 import os
 import sys
+import re
 from contextlib import contextmanager
 from ctypes import *
 from ctypes.util import find_library
 from subprocess import Popen, PIPE
 
 
-# To initialize the SWI-Prolog environment, two things need to be done: the
-# first is to find where the SO/DLL is located and the second is to find the
-# SWI-Prolog home, to get the saved state.
-#
-# The goal of the (entangled) process below is to make the library installation
-# independent.
-
-
 def _findSwiplPathFromFindLib():
-    """
-    This function resorts to ctype's find_library to find the path to the
-    DLL. The biggest problem is that find_library does not give the path to the
-    resource file.
+    """This function uses to ctype's find_library to find
+    the path to the DLL.
+
+    :note:
+        The biggest problem is that find_library does not
+        give the path to the resource file.
 
     :returns:
         A path to the swipl SO/DLL or None if it is not found.
@@ -57,7 +60,7 @@ def _findSwiplPathFromFindLib():
 
     path = (find_library('swipl') or
             find_library('pl') or
-            find_library('libswipl')) # This last one is for Windows
+            find_library('libswipl'))  # This last one is for Windows
     return path
 
 
@@ -73,12 +76,17 @@ def _findSwiplFromExec():
         ({str, None}, {str, None})
     """
 
-    platform = sys.platform[:3]
-
     fullName = None
     swiHome = None
 
-    try: # try to get library path from swipl executable.
+    def _get_lib_path(path, dllName):
+        if os.path.exists(os.path.join(path, dllName)):
+            return os.path.join(path, dllName)
+        raise OSError(
+            ("The shared library '%s' was"
+             " not found in the expected path '%s'.") % dllName, path)
+
+    try:  # try to get library path from swipl executable.
 
         # We may have pl or swipl as the executable
         try:
@@ -88,77 +96,60 @@ def _findSwiplFromExec():
         ret = cmd.communicate()
 
         # Parse the output into a dictionary
-        ret = ret[0].decode().replace(';', '').splitlines()
-        ret = [line.split('=', 1) for line in ret]
-        rtvars = dict((name, value[1:-1]) for name, value in ret) # [1:-1] gets
-                                                                  # rid of the
-                                                                  # quotes
+        ret = [
+            line.rstrip(';').replace('"', '')
+            for line in ret[0].decode().splitlines()]
+
+        ret = [line.split('=') for line in ret]
+        rtvars = dict(ret)
 
         if rtvars['PLSHARED'] == 'no':
             raise ImportError('SWI-Prolog is not installed as a shared '
                               'library.')
-        else: # PLSHARED == 'yes'
-            swiHome = rtvars['PLBASE']   # The environment is in PLBASE
-            if not os.path.exists(swiHome):
-                swiHome = None
 
-            # determine platform specific path
-            if platform == "win":
-                dllName = rtvars['PLLIB'][:-4] + '.' + rtvars['PLSOEXT']
-                path = os.path.join(rtvars['PLBASE'], 'bin')
-                fullName = os.path.join(path, dllName)
+        if os.path.exists(rtvars['PLBASE']):
+            swiHome = rtvars['PLBASE']
 
-                if not os.path.exists(fullName):
-                    fullName = None
+        # determine platform specific path
+        if sys.platform.startswith('win'):
+            dllName = rtvars['PLLIB'][:-4] + '.' + rtvars['PLSOEXT']
+            path = os.path.join(rtvars['PLBASE'], 'bin')
 
-            elif platform == "cyg":
-                # e.g. /usr/lib/pl-5.6.36/bin/i686-cygwin/cygpl.dll
+            fullName = _get_lib_path(path, dllName)
 
-                dllName = 'cygpl.dll'
-                path = os.path.join(rtvars['PLBASE'], 'bin', rtvars['PLARCH'])
-                fullName = os.path.join(path, dllName)
+        elif sys.platform.startswith('cyg'):
+            # e.g. /usr/lib/pl-5.6.36/bin/i686-cygwin/cygpl.dll
 
-                if not os.path.exists(fullName):
-                    fullName = None
+            dllName = 'cygpl.dll'
+            path = os.path.join(rtvars['PLBASE'], 'bin', rtvars['PLARCH'])
 
-            elif platform == "dar":
-                dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + "dylib"
-                path = os.path.join(rtvars['PLBASE'], 'lib', rtvars['PLARCH'])
-                baseName = os.path.join(path, dllName)
+            fullName = _get_lib_path(path, dllName)
 
-                if os.path.exists(baseName):
-                    fullName = baseName
-                else:  # We will search for versions
-                    fullName = None
+        elif sys.platform.startswith('dar'):
+            dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + "dylib"
+            path = os.path.join(rtvars['PLBASE'], 'lib', rtvars['PLARCH'])
+            fullName = _get_lib_path(path, dllName)
 
-            else: # assume UNIX-like
-                # The SO name in some linuxes is of the form libswipl.so.5.10.2,
-                # so we have to use glob to find the correct one
-                dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + rtvars['PLSOEXT']
-                path = os.path.join(rtvars['PLBASE'], 'lib', rtvars['PLARCH'])
-                baseName = os.path.join(path, dllName)
+        else:  # assume UNIX-like
+            # The SO name in some linuxes is of the form libswipl.so.5.10.2,
+            # so we have to use glob to find the correct one
+            dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + rtvars['PLSOEXT']
+            path = os.path.join(rtvars['PLBASE'], 'lib', rtvars['PLARCH'])
+            fullName = _get_lib_path(path, dllName)
 
-                if os.path.exists(baseName):
-                    fullName = baseName
-                else:  # We will search for versions
-                    pattern = baseName + '.*'
-                    files = glob.glob(pattern)
-                    if len(files) == 0:
-                        fullName = None
-                    elif len(files) == 1:
-                        fullName = files[0]
-                    else:  # Will this ever happen?
-                        fullName = None
+            if not fullName:
+                pattern = os.path.join(path, dllName) + '.*'
+                files = glob.glob(pattern)
+                if len(files) == 1:
+                    fullName = files[0]
 
-    except (OSError, KeyError): # KeyError from accessing rtvars
+    except (OSError, KeyError):  # KeyError from accessing rtvars
         pass
 
     return (fullName, swiHome)
 
 
 def _findSwiplWin():
-    import re
-
     """
     This function uses several heuristics to gues where SWI-Prolog is installed
     in Windows. It always returns None as the path of the resource file because,
@@ -191,9 +182,13 @@ def _findSwiplWin():
     # Third try: use reg.exe to find the installation path in the registry
     # (reg should be installed in all Windows XPs)
     try:
-        cmd = Popen(['reg', 'query',
+        cmd = Popen([
+            'reg',
+            'query',
             r'HKEY_LOCAL_MACHINE\Software\SWI\Prolog',
-            '/v', 'home'], stdout=PIPE)
+            '/v',
+            'home'], stdout=PIPE)
+
         ret = cmd.communicate()
 
         # Result is like:
@@ -202,8 +197,9 @@ def _findSwiplWin():
         # HKEY_LOCAL_MACHINE\Software\SWI\Prolog
         #    home        REG_SZ  C:\Program Files\pl
         # (Note: spaces may be \t or spaces in the output)
-        ret = ret[0].splitlines()
-        ret = [line.decode("utf-8") for line in ret if len(line) > 0]
+        ret = [
+            line.decode("utf-8")
+            for line in ret[0].splitlines() if len(line) > 0]
         pattern = re.compile('[^h]*home[^R]*REG_SZ( |\t)*(.*)$')
         match = pattern.match(ret[-1])
         if match is not None:
@@ -219,7 +215,7 @@ def _findSwiplWin():
         # reg.exe not found? Weird...
         pass
 
-    # May the exec is on path?
+    # Maybe the exec is on path?
     (path, swiHome) = _findSwiplFromExec()
     if path is not None:
         return (path, swiHome)
@@ -230,6 +226,7 @@ def _findSwiplWin():
             return (dllName, None)
 
     return (None, None)
+
 
 def _findSwiplLin():
     """
@@ -275,53 +272,34 @@ def walk(path, name):
     """
     This function is a 2-time recursive func,
     that findin file in dirs
-    
+
     :parameters:
       -  `path` (str) - Directory path
-      -  `name` (str) - Name of file, that we lookin for
-      
+      -  `name` (str) - Name of file, that we looking for
+
     :returns:
         Path to the swipl so, path to the resource file
 
-    :returns type:
-        (str)
+    :rtype:
+        `str`
     """
-    back_path = path[:]
-    path = os.path.join(path, name)
-    
-    if os.path.exists(path):
-        return path
-    else:
-        for dir_ in os.listdir(back_path):
-            path = os.path.join(back_path, dir_)
 
-            if os.path.isdir(path):
-                res_path = walk(path, name)
-                if res_path is not None:
-                    return (res_path, back_path)
+    if os.path.exists(os.path.join(path, name)):
+        return os.path.join(path, name), path
+    else:
+        for dirpath, files, dirs in os.walk(path):
+            if name in files:
+                lib_path = os.path.join(path, name)
+                return lib_path, path
 
     return None
-
-
-def get_swi_ver():
-    import re
-    swi_ver = input(
-                'Please enter you SWI-Prolog version in format "X.Y.Z": ')
-    match = re.search(r'[0-9]+\.[0-9]+\.[0-9]+', swi_ver)
-    if match is None:
-        raise InputError('Error, type normal version')
-    
-    return swi_ver
 
 
 def _findSwiplMacOSHome():
     """
     This function is guesing where SWI-Prolog is
     installed in MacOS via .app.
-    
-    :parameters:
-      -  `swi_ver` (str) - Version of SWI-Prolog in '[0-9].[0-9].[0-9]' format
-      
+
     :returns:
         A tuple of (path to the swipl so, path to the resource file)
 
@@ -332,15 +310,15 @@ def _findSwiplMacOSHome():
     # Need more help with MacOS
     # That way works, but need more work
     names = ['libswipl.dylib', 'libpl.dylib']
-    
+
     path = os.environ.get('SWI_HOME_DIR')
     if path is None:
         path = os.environ.get('SWI_LIB_DIR')
         if path is None:
             path = os.environ.get('PLBASE')
-            if path is None:                
+            if path is None:
                 path = '/Applications/SWI-Prolog.app/Contents/'
-    
+
     paths = [path]
 
     for name in names:
@@ -404,17 +382,16 @@ def _findSwipl():
     """
 
     # Now begins the guesswork
-    platform = sys.platform[:3]
-    if platform == "win": # In Windows, we have the default installer
-                                   # path and the registry to look
+    if sys.platform.startswith('win'):  # In Windows, we have the default installer
+                                        # path and the registry to look
         (path, swiHome) = _findSwiplWin()
 
-    elif platform in ("lin", "cyg"):
+    elif sys.platform.startswith('lin') or sys.platform.startswith('cyg'):
         (path, swiHome) = _findSwiplLin()
 
-    elif platform == "dar":  # Help with MacOS is welcome!!
+    elif sys.platform.startswith('dar'):  # Help with MacOS is welcome!!
         (path, swiHome) = _findSwiplDar()
-        
+
         if path is None:
             (path, swiHome) = _findSwiplMacOSHome()
 
@@ -427,8 +404,8 @@ def _findSwipl():
         raise ImportError('Could not find the SWI-Prolog library in this '
                           'platform. If you are sure it is installed, please '
                           'open an issue.')
-    else:
-        return (path, swiHome)
+
+    return (path, swiHome)
 
 
 def _fixWindowsPath(dll):
@@ -441,8 +418,8 @@ def _fixWindowsPath(dll):
       -  `dll` (str) - File name of the DLL
     """
 
-    if sys.platform[:3] != 'win':
-        return # Nothing to do here
+    if not sys.platform.startswith('win'):
+        return  # Nothing to do here
 
     pathToDll = os.path.dirname(dll)
     currentWindowsPath = os.getenv('PATH')
@@ -452,7 +429,10 @@ def _fixWindowsPath(dll):
         newPath = pathToDll + ';' + currentWindowsPath
         os.putenv('PATH', newPath)
 
+
 _stringMap = {}
+
+
 def str_to_bytes(string):
     """
     Turns a string into a bytes if necessary (i.e. if it is not already a bytes
@@ -474,6 +454,7 @@ def str_to_bytes(string):
 
     return string
 
+
 def list_to_bytes_list(strList):
     """
     This function turns an array of strings into a pointer array
@@ -492,13 +473,14 @@ def list_to_bytes_list(strList):
         return strList
 
     if not isinstance(strList, (list, set, tuple)):
-        raise TypeError("strList must be list, set or tuple, not " +
-                str(type(strList)))
+        raise TypeError("strList must be list, set or tuple, not %s" %
+                        str(type(strList)))
 
     pList = pList()
     for i, elem in enumerate(strList):
         pList[i] = str_to_bytes(elem)
     return pList
+
 
 # create a decorator that turns the incoming strings into c_char_p compatible
 # butes or pointer arrays
@@ -521,10 +503,10 @@ def check_strings(strings, arrays):
         strings = []
 
     # check if all entries are integers
-    for i,k in enumerate(strings):
+    for i, k in enumerate(strings):
         if not isinstance(k, int):
-            raise TypeError(('Wrong type for index at {0} '+
-                    'in strings. Must be int, not {1}!').format(i,k))
+            raise TypeError(('Wrong type for index at {0} ' +
+                             'in strings. Must be int, not {1}!').format(i, k))
 
     # if given a single element, turn it into a list
     if isinstance(arrays, int):
@@ -533,15 +515,17 @@ def check_strings(strings, arrays):
         arrays = []
 
     # check if all entries are integers
-    for i,k in enumerate(arrays):
+    for i, k in enumerate(arrays):
         if not isinstance(k, int):
-            raise TypeError(('Wrong type for index at {0} '+
-                    'in arrays. Must be int, not {1}!').format(i,k))
+            raise TypeError(
+                ('Wrong type for index at {0} ' +
+                 'in arrays. Must be int, not {1}!').format(i, k))
 
     # check if some index occurs in both
     if set(strings).intersection(arrays):
-        raise ValueError('One or more elements occur in both arrays and ' +
-                ' strings. One parameter cannot be both list and string!')
+        raise ValueError((
+            'One or more elements occur in both arrays and '
+            ' strings. One parameter cannot be both list and string!'))
 
     # create the checker that will check all arguments given by argsToCheck
     # and turn them into the right datatype.
@@ -589,10 +573,10 @@ try:
     PL_version.restype = c_uint
 
     PL_VERSION = PL_version(PL_VERSION_SYSTEM)
-    if PL_VERSION<80200:
+    if PL_VERSION < 80200:
         raise Exception("swi-prolog>= 8.2.0 is required")
 except AttributeError:
-    PL_VERSION=70000  # Best guess. When was PL_version introduced?
+    PL_VERSION = 70000  # Best guess. When was PL_version introduced?
 
 
 # PySwip constants
@@ -608,7 +592,7 @@ c_uint_p = c_void_p
 # /* PL_unify_term( arguments */
 
 
-if PL_VERSION<80200:
+if PL_VERSION < 80200:
     # constants (from SWI-Prolog.h)
     # PL_unify_term() arguments
     PL_VARIABLE = 1  # nothing
@@ -646,7 +630,7 @@ if PL_VERSION<80200:
     #define PL_MBCODES   (35)       /* const char * */
     #define PL_MBSTRING  (36)       /* const char * */
 
-    REP_ISO_LATIN_1 = 0x0000 # output representation
+    REP_ISO_LATIN_1 = 0x0000  # output representation
     REP_UTF8 = 0x1000
     REP_MB = 0x2000
 
