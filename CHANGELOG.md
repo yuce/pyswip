@@ -1,5 +1,13 @@
 # CHANGELOG
 
+### 0.2.11 (Not Released)
+
+  * Improve list representations, unicode support and multiple threading usage, see: [97](https://github.com/yuce/pyswip/pull/97). Contributed by Guglielmo Gemignani.
+  * Added PL_STRINGS_MARK to getAtomChars, fixes [102](https://github.com/yuce/pyswip/issues/102). Contributed by Vince Jankovics.
+  * Backwards compatibility for Python 2 64bit, see: [104](https://github.com/yuce/pyswip/pull/104). Contributed by Tobias Grubenmann.
+  * Improved handling of lists, nested lists, strings, and atoms. see: [112](https://github.com/yuce/pyswip/pull/112). Contributed by Tobias Grubenmann.
+  * Fixes for changed constants, see: [125](https://github.com/yuce/pyswip/pull/125). Contributed by Arvid Norlander.
+
 ### 0.2.10
 
   * Synchronized type constants with SWI-Prolog.h
@@ -17,7 +25,6 @@
 ### 0.2.9
 
   * Added non deterministic foreign function support. Contributed by rmanhaeve.
-
   * Fixed issue [#67](https://github.com/yuce/pyswip/pull/67). Contributed by Galileo Sartor.
 
 ### 0.2.8
