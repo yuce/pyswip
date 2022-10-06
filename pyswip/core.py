@@ -1404,8 +1404,8 @@ def cleanupProlog():
         # If the program has come to an end the prolog system should not
         # interfere with that. Therefore we may want to use 1 instead of 0.
         try:
-            exit_code = _hook.exit_code
+            exit_code = int(_hook.exit_code or 0)
         except ValueError:
             exit_code = 0
-        PL_cleanup(int(exit_code or 0))
+        PL_cleanup(exit_code)
         _isCleaned = True
