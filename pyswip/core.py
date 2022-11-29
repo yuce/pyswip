@@ -102,8 +102,12 @@ def _findSwiplFromExec():
             if not os.path.exists(swiHome):
                 swiHome = None
 
+            # determine platform specific path.  First try runtime
+            # variable `PLLIBSWIPL` introduced in 9.1.1/9.0.1
+            if 'PLLIBSWIPL' in rtvars:
+                fullName = rtvars['PLLIBSWIPL']
             # determine platform specific path
-            if platform == "win":
+            elif platform == "win":
                 dllName = rtvars['PLLIB'][:-4] + '.' + rtvars['PLSOEXT']
                 path = os.path.join(rtvars['PLBASE'], 'bin')
                 fullName = os.path.join(path, dllName)
