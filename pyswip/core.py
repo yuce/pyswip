@@ -587,16 +587,24 @@ PL_VERSION_QLF_LOAD	=5	# Min loadable QLF format version
 PL_VERSION_VM		=6	# VM signature
 PL_VERSION_BUILT_IN	=7	# Built-in predicate signature
 
+
+# After SWI-Prolog 8.5.2, PL_version was renamed to PL_version_info
+# to avoid a conflict with Perl. For more details, see the following:
+# https://github.com/SWI-Prolog/swipl-devel/issues/900
+# https://github.com/SWI-Prolog/swipl-devel/issues/910
 try:
-    PL_version = _lib.PL_version
+    if _lib.PL_version_info != None:
+        PL_version = _lib.PL_version_info # swi-prolog > 8.5.2
+    else:
+        PL_version = _lib.PL_version # swi-prolog <= 8.5.2
     PL_version.argtypes = [c_int]
     PL_version.restype = c_uint
 
     PL_VERSION = PL_version(PL_VERSION_SYSTEM)
     if PL_VERSION<80200:
-        raise Exception("swi-prolog>= 8.2.0 is required")
+        raise Exception("swi-prolog >= 8.2.0 is required")
 except AttributeError:
-    PL_VERSION=70000  # Best guess. When was PL_version introduced?
+    raise Exception("swi-prolog version number could not be determined")
 
 
 # PySwip constants
