@@ -598,7 +598,7 @@ try:
 
     PL_VERSION = PL_version(PL_VERSION_SYSTEM)
     if PL_VERSION<80200:
-        raise Exception("swi-prolog>= 8.2.0 is required")
+        raise Exception("swi-prolog >= 8.2.0 is required")
 except AttributeError:
     raise Exception("swi-prolog version number could not be determined")
 
