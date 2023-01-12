@@ -85,6 +85,14 @@ class MyTestCase(unittest.TestCase):
         result = list(prolog.query("get_list_of_lists(Result)"))
         self.assertTrue({'Result': [[1], [2]]} in result, 'Nested lists should be unified correctly as return value.')
 
+    def test_dictionary(self):
+        prolog = Prolog()
+        result = list(prolog.query("X = dict{value1:value1 , value2: value2}"))
+        dict = result[0]
+        print(dict)
+        self.assertTrue({"value1":"value1", "value2":"value2"} == dict["X"], "Dictionary should be returned as a dictionary object")
+
+
 
 if __name__ == '__main__':
     unittest.main()
