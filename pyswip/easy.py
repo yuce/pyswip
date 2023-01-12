@@ -434,8 +434,43 @@ def getTerm(t):
             res = _getterm_router[p](t)
         elif PL_is_list(t):
             res = getList(t)
+        elif p == PL_DICT:
+            res = getDict(t)
         else:
             res = getFunctor(t)
+        return res
+
+
+def getDict(term):
+    """
+    Return term as a dictionary.
+    """
+
+    if isinstance(term, Term):
+        term = term.handle
+    elif not isinstance(term, (c_void_p, int)):
+        raise ArgumentTypeError((str(Term), str(int)), str(type(term)))
+
+    f = functor_t()
+    if PL_get_functor(term, byref(f)):
+        args = []
+        arity = PL_functor_arity(f.value)
+        a0 = PL_new_term_refs(arity)
+        for i, a in enumerate(range(1, arity + 1)):
+            if PL_get_arg(a, term, a0 + i):
+                args.append(getTerm(a0 + i))
+            else:
+                raise Exception("Missing arg")
+
+        def pairwise(t):
+            it = iter(t)
+            return zip(it, it)
+
+        d = {k.value: v for v, k in pairwise(args[1:])}
+
+        return d
+    else:
+        res = getFunctor(term)
         return res
 
 
