@@ -27,3 +27,4 @@ Vince Jankovics
 Tobias Grubenmann
 Arvid Norlander
 David Cox
+Maximilian Peltzer

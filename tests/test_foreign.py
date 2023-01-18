@@ -87,11 +87,30 @@ class MyTestCase(unittest.TestCase):
 
     def test_dictionary(self):
         prolog = Prolog()
-        result = list(prolog.query("X = dict{value1:value1 , value2: value2}"))
+        result = list(prolog.query("X = dict{key1:value1 , key2: value2}"))
         dict = result[0]
-        print(dict)
-        self.assertTrue({"value1":"value1", "value2":"value2"} == dict["X"], "Dictionary should be returned as a dictionary object")
+        self.assertTrue(
+            {"key1": "value1", "key2": "value2"} == dict["X"],
+            "Dictionary should be returned as a dictionary object",
+        )
 
+    def test_empty_dictionary(self):
+        prolog = Prolog()
+        result = list(prolog.query("X = dict{}"))
+        dict = result[0]
+        self.assertTrue(
+            dict["X"] == {},
+            "Empty dictionary should be returned as an empty dictionary object",
+        )
+
+    def test_nested_dictionary(self):
+        prolog = Prolog()
+        result = list(prolog.query("X = dict{key1:nested{key:value} , key2: value2}"))
+        dict = result[0]
+        self.assertTrue(
+            {"key1": {"key": "value"}, "key2": "value2"} == dict["X"],
+            "Nested Dictionary should be returned as a nested dictionary object",
+        )
 
 
 if __name__ == '__main__':

@@ -462,11 +462,8 @@ def getDict(term):
             else:
                 raise Exception("Missing arg")
 
-        def pairwise(t):
-            it = iter(t)
-            return zip(it, it)
-
-        d = {k.value: v for v, k in pairwise(args[1:])}
+        it = iter(args[1:])
+        d = {k.value: v for v, k in zip(it, it)}
 
         return d
     else:
