@@ -85,6 +85,33 @@ class MyTestCase(unittest.TestCase):
         result = list(prolog.query("get_list_of_lists(Result)"))
         self.assertTrue({'Result': [[1], [2]]} in result, 'Nested lists should be unified correctly as return value.')
 
+    def test_dictionary(self):
+        prolog = Prolog()
+        result = list(prolog.query("X = dict{key1:value1 , key2: value2}"))
+        dict = result[0]
+        self.assertTrue(
+            {"key1": "value1", "key2": "value2"} == dict["X"],
+            "Dictionary should be returned as a dictionary object",
+        )
+
+    def test_empty_dictionary(self):
+        prolog = Prolog()
+        result = list(prolog.query("X = dict{}"))
+        dict = result[0]
+        self.assertTrue(
+            dict["X"] == {},
+            "Empty dictionary should be returned as an empty dictionary object",
+        )
+
+    def test_nested_dictionary(self):
+        prolog = Prolog()
+        result = list(prolog.query("X = dict{key1:nested{key:value} , key2: value2}"))
+        dict = result[0]
+        self.assertTrue(
+            {"key1": {"key": "value"}, "key2": "value2"} == dict["X"],
+            "Nested Dictionary should be returned as a nested dictionary object",
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
