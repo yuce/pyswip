@@ -80,16 +80,19 @@ class Prolog:
 
     # We keep track of open queries to avoid nested queries.
     _queryIsOpen = False
+    _queryWrapper = None
 
     class _QueryWrapper(object):
 
         def __init__(self):
+            self._swipl_qid = None
+            self._swipl_fid = None
             if Prolog._queryIsOpen:
                 raise NestedQueryError("The last query was not closed")
 
         def __call__(self, query, maxresult, catcherrors, normalize):
             Prolog._init_prolog_thread()
-            swipl_fid = PL_open_foreign_frame()
+            self._swipl_fid = PL_open_foreign_frame()
 
             swipl_head = PL_new_term_ref()
             swipl_args = PL_new_term_refs(2)
@@ -144,6 +147,11 @@ class Prolog:
             print("{WARN} Single-threaded swipl build, beware!")
 
     @classmethod
+    def abort(cls):
+        # The clean_up method is called to make sure that no query is still running
+        cls._queryWrapper.clean_up()
+
+    @classmethod
     def asserta(cls, assertion, catcherrors=False):
         next(cls.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors))
 
@@ -183,7 +191,8 @@ class Prolog:
         >>> print sorted(prolog.query("father(michael,X)"))
         [{'X': 'gina'}, {'X': 'john'}]
         """
-        return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)
+        cls._queryWrapper = cls._QueryWrapper()
+        return cls._queryWrapper(query, maxresult, catcherrors, normalize)
 
 
 def normalize_values(values):
