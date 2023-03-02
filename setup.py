@@ -21,10 +21,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys
-import os
 import io
-import os.path
+
 from setuptools import setup
 
 with io.open("README.md", encoding="utf-8") as f:
@@ -32,7 +30,7 @@ with io.open("README.md", encoding="utf-8") as f:
 
 
 setup(name="pyswip",
-      version="0.2.10",
+      version="0.2.11",
       url="https://github.com/yuce/pyswip",
       download_url="https://github.com/yuce/pyswip/releases",
       author="Yuce Tekol",
@@ -54,4 +52,4 @@ setup(name="pyswip",
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-)
+      )

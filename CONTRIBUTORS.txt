@@ -3,7 +3,6 @@ Rodrigo Starr
 Markus Triska
 Sebastian Höhn
 Manuel Rotter
-Rodrigo Starr
 dia.aljrab
 dylan-google@dylex.net
 jpthompson23
@@ -24,4 +23,8 @@ Stuart Reynolds
 Prologrules
 Dylan Lukes
 Guglielmo Gemignani
-
+Vince Jankovics
+Tobias Grubenmann
+Arvid Norlander
+David Cox
+Maximilian Peltzer

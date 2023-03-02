@@ -21,22 +21,7 @@ See the [Python documentation](https://docs.python.org/3/library/venv.html) for 
 
 **IMPORTANT: Make sure the SWI-Prolog architecture is the same as the Python architecture. If you are using a 64bit build of Python, use a 64bit build of SWI-Prolog, etc.***
 
-
 ## Linux
-
-### Fedora
-
-[Till Hofmann](https://kbsg.rwth-aachen.de/~hofmann/) maintains the [Fedora package](https://apps.fedoraproject.org/packages/python3-pyswip/overview/).
-
-Install PySwip for Python 3 with dependencies using:
-```
-sudo dnf install python3-pyswip
-```
-
-Install PySwip for Python 2 with dependencies using:
-```
-sudo dnf install python3-pyswip
-```
 
 ### Arch Linux
 
@@ -46,6 +31,14 @@ Install PySwip with dependencies using:
 ```
 sudo pacman -S python-pyswip
 ```
+
+### Manjaro Linux
+
+Same as the Arch Linux instructions. See: https://discover.manjaro.org/packages/python-pyswip
+
+### Parabola GNU/Linux-libre
+
+Same as the Arch Linux instructions. See: https://www.parabola.nu/packages/?q=python-pyswip
 
 ### Debian, Ubuntu, Raspbian
 
@@ -86,7 +79,7 @@ There are no native packages for Debian-based distros. Follow these steps to ins
     prolog.assertz("father(michael,john)")
     ```
 
-## MacOS
+## MacOS Intel
 
 1) Get a recent version of SWI-Prolog from http://www.swi-prolog.org/Download.html and install it.
 
@@ -96,6 +89,23 @@ There are no native packages for Debian-based distros. Follow these steps to ins
     ```
     export PATH=$PATH:/Applications/SWI-Prolog.app/Contents/swipl/bin/x86_64-darwin15.6.0
     export DYLD_FALLBACK_LIBRARY_PATH=/Applications/SWI-Prolog.app/Contents/swipl/lib/x86_64-darwin15.6.0
+    ```
+
+4) Run a quick test by running following code at your Python console:
+    ```python
+    from pyswip import Prolog
+    prolog = Prolog()
+    prolog.assertz("father(michael,john)")
+    ```
+## MacOS M1
+1) Get a recent version of SWI-Prolog from http://www.swi-prolog.org/Download.html and install it.
+
+2) `pip install pyswip`
+
+3) Make sure `swipl` executable is on the `PATH` and the directory that contains `libswipl.dylib` is in the `DYLD_FALLBACK_LIBRARY_PATH` environment variable. For example, if SWI-Prolog is in `/Applications/SWI-Prolog.app` directory, the following may work:
+    ```
+    export DYLD_FALLBACK_LIBRARY_PATH=/Applications/SWI-Prolog.app/Contents/Frameworks
+    export PATH=$PATH:/Applications/SWI-Prolog.app/Contents/MacOS
     ```
 
 4) Run a quick test by running following code at your Python console:
@@ -122,3 +132,21 @@ There are no native packages for Debian-based distros. Follow these steps to ins
     prolog = Prolog()
     prolog.assertz("father(michael,john)")
     ```
+
+## Retired Distributions
+
+The following ports don't seem to be maintained anymore.
+
+### Fedora
+
+[Till Hofmann](https://kbsg.rwth-aachen.de/~hofmann/) maintains the [Fedora package](https://src.fedoraproject.org/rpms/python-pyswip).
+
+Install PySwip for Python 3 with dependencies using:
+```
+sudo dnf install python3-pyswip
+```
+
+Install PySwip for Python 2 with dependencies using:
+```
+sudo dnf install python3-pyswip
+```

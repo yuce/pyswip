@@ -277,8 +277,20 @@ class TestExamples(unittest.TestCase):
             else:
                 self.fail("Failed while running example number %d" % i)
 
+    def test_large_db(self):
+        """
+        Generates a large database, then runs query
+        """
+
+        num_facts = 1250000
+        prolog = Prolog()
+        for i in range(num_facts):
+            prolog.assertz('p(%s)' % i)
+
+        results = [r for r in prolog.query('p(I)')]
+        self.assertEqual(len(results), num_facts)
 
 def example_path(path):
     import os.path
-    return os.path.normpath(os.path.join(os.path.split(os.path.abspath(__file__))[0], "..", "examples", path))
+    return os.path.normpath(os.path.join(os.path.split(os.path.abspath(__file__))[0], "..", "examples", path)).replace("\\", "\\\\")
 
