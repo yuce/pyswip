@@ -149,10 +149,8 @@ def _findSwiplFromExec():
                     files = glob.glob(pattern)
                     if len(files) == 0:
                         fullName = None
-                    elif len(files) == 1:
+                    else:
                         fullName = files[0]
-                    else:  # Will this ever happen?
-                        fullName = None
 
     except (OSError, KeyError): # KeyError from accessing rtvars
         pass
