@@ -404,8 +404,11 @@ def _findSwipl():
     :rtype: Tuple of strings
     :raises ImportError: If we cannot guess the name of the library
     """
-
-    # Now begins the guesswork
+    # check environment
+    if 'LIBSWIPL_PATH' in os.environ:
+        return (os.environ['LIBSWIPL_PATH'], os.environ.get('SWI_HOME_DIR'))
+    
+    # Now begins the guesswork    
     platform = sys.platform[:3]
     if platform == "win": # In Windows, we have the default installer
                                    # path and the registry to look
