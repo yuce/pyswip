@@ -149,10 +149,8 @@ def _findSwiplFromExec():
                     files = glob.glob(pattern)
                     if len(files) == 0:
                         fullName = None
-                    elif len(files) == 1:
+                    else:
                         fullName = files[0]
-                    else:  # Will this ever happen?
-                        fullName = None
 
     except (OSError, KeyError): # KeyError from accessing rtvars
         pass
@@ -258,7 +256,7 @@ def _findSwiplLin():
         return (path, swiHome)
 
     # Our last try: some hardcoded paths.
-    paths = ['/lib', '/usr/lib', '/usr/local/lib', '.', './lib']
+    paths = ['/lib', '/usr/lib', '/usr/local/lib', '.', './lib', '/usr/lib/swi-prolog/lib/x86_64-linux']
     names = ['libswipl.so', 'libpl.so']
 
     path = None
@@ -406,8 +404,11 @@ def _findSwipl():
     :rtype: Tuple of strings
     :raises ImportError: If we cannot guess the name of the library
     """
-
-    # Now begins the guesswork
+    # check environment
+    if 'LIBSWIPL_PATH' in os.environ:
+        return (os.environ['LIBSWIPL_PATH'], os.environ.get('SWI_HOME_DIR'))
+    
+    # Now begins the guesswork    
     platform = sys.platform[:3]
     if platform == "win": # In Windows, we have the default installer
                                    # path and the registry to look

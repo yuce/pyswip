@@ -191,6 +191,7 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [MIDSI Project](https://github.com/devdaniellima/midsi) Solution for data discovery in projects applicable to the
   Semantic Web, enabling the loading of ontologies and inference of results using the WSML language.
 * [Popper](https://github.com/logic-and-learning-lab/Popper) An inductive logic programming system.
+* [Trabajo Final](https://github.com/NicolasLeidi/Trabajo-Final) Ingeniería para Sistemas de Información - Nicolás Leidi
 
 ### Blog Posts
 
