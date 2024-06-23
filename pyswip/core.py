@@ -594,10 +594,7 @@ PL_VERSION_BUILT_IN	=7	# Built-in predicate signature
 # https://github.com/SWI-Prolog/swipl-devel/issues/900
 # https://github.com/SWI-Prolog/swipl-devel/issues/910
 try:
-    if hasattr(_lib, "PL_version_info"):
-        PL_version = _lib.PL_version_info # swi-prolog > 8.5.2
-    else:
-        PL_version = _lib.PL_version # swi-prolog <= 8.5.2
+    PL_version = _lib.PL_version_info
     PL_version.argtypes = [c_int]
     PL_version.restype = c_uint
 
