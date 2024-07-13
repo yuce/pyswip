@@ -111,3 +111,38 @@ class TestProlog(unittest.TestCase):
         prolog = pl.Prolog()
         prolog.consult("tests/test_read.pl")
         list(prolog.query('read_file("tests/test_read.pl", S)'))
+
+    def test_abort_query(self):
+        """
+        SWI-Prolog cannot have nested queries called by the foreign function
+        interface, that is, if we open a query and are getting results from it,
+        we cannot open another query before closing that one.
+
+        However, the interface allows to interrupt a query via the abort method.
+        This test makes sure that this feature works correctly.
+        """
+        p = pl.Prolog()
+
+        # Add something to the base
+        p.assertz("father(john,mich)")
+        p.assertz("father(john,gina)")
+        p.assertz("mother(jane,mich)")
+
+        somequery = "father(john, Y)"
+        otherquery = "mother(jane, X)"
+
+
+        # This should not throw an exception
+        for q in p.query(somequery):
+            p.abort()
+            for j in p.query(otherquery):
+                # This should not throw an error, because we aborted the previous query
+                pass
+
+        # But this one should
+        with self.assertRaises(pl.NestedQueryError):
+            for q in p.query(somequery):
+                for j in p.query(otherquery):
+                    # This should throw an error, because I opened the second
+                    # query
+                    pass
