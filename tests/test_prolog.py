@@ -135,7 +135,6 @@ class TestProlog(unittest.TestCase):
         somequery = "father(john, Y)"
         otherquery = "mother(jane, X)"
 
-
         # This should not throw an exception
         for q in p.query(somequery):
             p.abort()
