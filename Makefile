@@ -8,10 +8,13 @@ clean:
 	rm -rf dist build pyswip.egg-info
 
 cover:
-	py.test --cov=pyswip tests
+	py.test tests --verbose --cov=pyswip
 
 test:
 	py.test tests --verbose
 
 upload:
 	twine upload dist/*
+
+check:
+	black --check .

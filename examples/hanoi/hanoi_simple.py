@@ -2,17 +2,17 @@
 
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2018 Yüce Tekol
-#  
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#  
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#  
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,16 +27,18 @@ from pyswip.easy import getList, registerForeign
 
 N = 3  # Number of disks
 
+
 def main():
     def notify(t):
         print("move disk from %s pole to %s pole." % tuple(t))
+
     notify.arity = 1
-        
+
     prolog = Prolog()
     registerForeign(notify)
     prolog.consult("hanoi.pl")
     list(prolog.query("hanoi(%d)" % N))
 
-    
+
 if __name__ == "__main__":
     main()
