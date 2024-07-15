@@ -40,32 +40,40 @@ class NestedQueryError(PrologError):
     As this error may be somewhat difficult to debug in foreign code, it is
     automatically treated inside pySWIP
     """
+
     pass
 
 
 def _initialize():
     args = []
     args.append("./")
-    args.append("-q")         # --quiet
-    args.append("--nosignals") # "Inhibit any signal handling by Prolog"
+    args.append("-q")  # --quiet
+    args.append("--nosignals")  # "Inhibit any signal handling by Prolog"
     if SWI_HOME_DIR is not None:
         args.append("--home=%s" % SWI_HOME_DIR)
 
-    result = PL_initialise(len(args),args)
+    result = PL_initialise(len(args), args)
     # result is a boolean variable (i.e. 0 or 1) indicating whether the
     # initialisation was successful or not.
     if not result:
-        raise PrologError("Could not initialize the Prolog environment."
-                          "PL_initialise returned %d" % result)
+        raise PrologError(
+            "Could not initialize the Prolog environment."
+            "PL_initialise returned %d" % result
+        )
 
     swipl_fid = PL_open_foreign_frame()
     swipl_load = PL_new_term_ref()
-    PL_chars_to_term("asserta(pyrun(GoalString,BindingList) :- "
-                     "(atom_chars(A,GoalString),"
-                     "atom_to_term(A,Goal,BindingList),"
-                     "call(Goal))).", swipl_load)
+    PL_chars_to_term(
+        "asserta(pyrun(GoalString,BindingList) :- "
+        "(atom_chars(A,GoalString),"
+        "atom_to_term(A,Goal,BindingList),"
+        "call(Goal))).",
+        swipl_load,
+    )
     PL_call(swipl_load, None)
     PL_discard_foreign_frame(swipl_fid)
+
+
 _initialize()
 
 
@@ -96,14 +104,16 @@ class Prolog:
             swipl_goalCharList = swipl_args
             swipl_bindingList = swipl_args + 1
 
-            PL_put_chars(swipl_goalCharList, PL_STRING|REP_UTF8, -1, query.encode("utf-8"))
+            PL_put_chars(
+                swipl_goalCharList, PL_STRING | REP_UTF8, -1, query.encode("utf-8")
+            )
 
             swipl_predicate = PL_predicate("pyrun", 2, None)
 
-            plq = catcherrors and (PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
+            plq = catcherrors and (PL_Q_NODEBUG | PL_Q_CATCH_EXCEPTION) or PL_Q_NORMAL
             swipl_qid = PL_open_query(None, plq, swipl_predicate, swipl_args)
 
-            Prolog._queryIsOpen = True # From now on, the query will be considered open
+            Prolog._queryIsOpen = True  # From now on, the query will be considered open
             try:
                 while maxresult and PL_next_solution(swipl_qid):
                     maxresult -= 1
@@ -125,10 +135,20 @@ class Prolog:
                 if PL_exception(swipl_qid):
                     term = getTerm(PL_exception(swipl_qid))
 
-                    raise PrologError("".join(["Caused by: '", query, "'. ",
-                                               "Returned: '", str(term), "'."]))
+                    raise PrologError(
+                        "".join(
+                            [
+                                "Caused by: '",
+                                query,
+                                "'. ",
+                                "Returned: '",
+                                str(term),
+                                "'.",
+                            ]
+                        )
+                    )
 
-            finally: # This ensures that, whatever happens, we close the query
+            finally:  # This ensures that, whatever happens, we close the query
                 PL_cut_query(swipl_qid)
                 PL_discard_foreign_frame(swipl_fid)
                 Prolog._queryIsOpen = False
@@ -188,17 +208,17 @@ class Prolog:
 
 def normalize_values(values):
     from pyswip.easy import Atom, Functor
+
     if isinstance(values, Atom):
         return values.value
     if isinstance(values, Functor):
         normalized = str(values.name.value)
         if values.arity:
-            normalized_args = ([str(normalize_values(arg)) for arg in values.args])
-            normalized = normalized + '(' + ', '.join(normalized_args) + ')'
+            normalized_args = [str(normalize_values(arg)) for arg in values.args]
+            normalized = normalized + "(" + ", ".join(normalized_args) + ")"
         return normalized
     elif isinstance(values, dict):
         return {key: normalize_values(v) for key, v in values.items()}
     elif isinstance(values, (list, tuple)):
         return [normalize_values(v) for v in values]
     return values
-

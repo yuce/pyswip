@@ -28,7 +28,10 @@ from pyswip.core import *
 
 # For backwards compability with Python 2 64bit
 if sys.version_info < (3,):
-    integer_types = (int, long,)
+    integer_types = (
+        int,
+        long,
+    )
 else:
     integer_types = (int,)
 
@@ -44,6 +47,7 @@ class ArgumentTypeError(Exception):
     """
     Thrown when an argument has the wrong type.
     """
+
     def __init__(self, expected, got):
         msg = "Expected an argument of type '%s' but got '%s'" % (expected, got)
         Exception.__init__(self, msg)
@@ -66,7 +70,7 @@ class Atom(object):
             if chars is None:
                 slen = c_size_t()
                 self.chars = PL_atom_wchars(self.handle, byref(slen))
-            else: # WA: PL_atom_wchars can fail to return correct string
+            else:  # WA: PL_atom_wchars can fail to return correct string
                 self.chars = chars
 
     def fromTerm(cls, term):
@@ -80,6 +84,7 @@ class Atom(object):
         a = atom_t()
         if PL_get_atom(term, byref(a)):
             return cls(a.value, getAtomChars(term))
+
     fromTerm = classmethod(fromTerm)
 
     def __del__(self):
@@ -118,7 +123,7 @@ class Term(object):
 
     def __init__(self, handle=None, a0=None):
         if handle:
-            #self.handle = PL_copy_term_ref(handle)
+            # self.handle = PL_copy_term_ref(handle)
             self.handle = handle
         else:
             self.handle = PL_new_term_ref()
@@ -144,9 +149,12 @@ class Term(object):
 # support unicode also in python 2
 try:
     isinstance("", basestring)
+
     def isstr(s):
         return isinstance(s, basestring)
+
 except NameError:
+
     def isstr(s):
         return isinstance(s, str)
 
@@ -160,13 +168,13 @@ class Variable(object):
             self.chars = name
         if handle:
             self.handle = handle
-            s = create_string_buffer(b"\00"*64)  # FIXME:
+            s = create_string_buffer(b"\00" * 64)  # FIXME:
             ptr = cast(s, c_char_p)
-            if PL_get_chars(handle, byref(ptr), CVT_VARIABLE|BUF_RING|REP_UTF8):
+            if PL_get_chars(handle, byref(ptr), CVT_VARIABLE | BUF_RING | REP_UTF8):
                 self.chars = ptr.value
         else:
             self.handle = PL_new_term_ref()
-            #PL_put_variable(self.handle)
+            # PL_put_variable(self.handle)
         if (self.chars is not None) and not isinstance(self.chars, str):
             self.chars = self.chars.decode()
 
@@ -195,8 +203,11 @@ class Variable(object):
         elif type(value) == list:
             fun = PL_unify_list
         else:
-            raise TypeError('Cannot unify {} with value {} due to the value unknown type {}'.
-                            format(self, value, type(value)))
+            raise TypeError(
+                "Cannot unify {} with value {} due to the value unknown type {}".format(
+                    self, value, type(value)
+                )
+            )
 
         if type(value) == list:
             a = PL_new_term_ref(self.handle)
@@ -228,7 +239,7 @@ class Variable(object):
         return "Variable(%s)" % self.handle
 
     def put(self, term):
-        #PL_put_variable(term)
+        # PL_put_variable(term)
         PL_put_term(term, self.handle)
 
     def __eq__(self, other):
@@ -291,12 +302,13 @@ class Functor(object):
                     args.append(getTerm(a0 + i))
 
             return cls(f.value, args=args, a0=a0)
+
     fromTerm = classmethod(fromTerm)
 
     value = property(lambda s: s.__value)
 
     def __call__(self, *args):
-        assert self.arity == len(args)   # FIXME: Put a decent error message
+        assert self.arity == len(args)  # FIXME: Put a decent error message
         a = PL_new_term_refs(len(args))
         for i, arg in enumerate(args):
             putTerm(a + i, arg)
@@ -307,14 +319,18 @@ class Functor(object):
 
     def __str__(self):
         if self.name is not None and self.arity is not None:
-            return "%s(%s)" % (self.name,
-                               ', '.join([str(arg) for arg in self.args]))
+            return "%s(%s)" % (self.name, ", ".join([str(arg) for arg in self.args]))
         else:
             return self.__repr__()
 
     def __repr__(self):
-        return "".join(["Functor(", ",".join(str(x) for x
-            in [self.handle,self.arity]+self.args), ")"])
+        return "".join(
+            [
+                "Functor(",
+                ",".join(str(x) for x in [self.handle, self.arity] + self.args),
+                ")",
+            ]
+        )
 
     def __eq__(self, other):
         if type(self) != type(other):
@@ -329,9 +345,10 @@ class Functor(object):
 def _unifier(arity, *args):
     assert arity == 2
     try:
-        return {args[0].value:args[1].value}
+        return {args[0].value: args[1].value}
     except AttributeError:
-        return {args[0].value:args[1]}
+        return {args[0].value: args[1]}
+
 
 _unify = Functor("=", 2)
 Functor.func[_unify.handle] = _unifier
@@ -361,30 +378,27 @@ def putTerm(term, value):
 def putList(l, ls):
     PL_put_nil(l)
     for item in reversed(ls):
-        a = PL_new_term_ref()  #PL_new_term_refs(len(ls))
+        a = PL_new_term_ref()  # PL_new_term_refs(len(ls))
         putTerm(a, item)
         PL_cons_list(l, a, l)
 
 
 def getAtomChars(t):
-    """If t is an atom, return it as a string, otherwise raise InvalidTypeError.
-    """
+    """If t is an atom, return it as a string, otherwise raise InvalidTypeError."""
     s = c_char_p()
-    if PL_get_chars(t, byref(s), CVT_ATOM|REP_UTF8):
+    if PL_get_chars(t, byref(s), CVT_ATOM | REP_UTF8):
         return s.value
     else:
         raise InvalidTypeError("atom")
 
 
 def getAtom(t):
-    """If t is an atom, return it , otherwise raise InvalidTypeError.
-    """
+    """If t is an atom, return it , otherwise raise InvalidTypeError."""
     return Atom.fromTerm(t)
 
 
 def getBool(t):
-    """If t is of type bool, return it, otherwise raise InvalidTypeError.
-    """
+    """If t is of type bool, return it, otherwise raise InvalidTypeError."""
     b = c_int()
     if PL_get_long(t, byref(b)):
         return bool(b.value)
@@ -393,8 +407,7 @@ def getBool(t):
 
 
 def getLong(t):
-    """If t is of type long, return it, otherwise raise InvalidTypeError.
-    """
+    """If t is of type long, return it, otherwise raise InvalidTypeError."""
     i = c_long()
     if PL_get_long(t, byref(i)):
         return i.value
@@ -406,8 +419,7 @@ getInteger = getLong  # just an alias for getLong
 
 
 def getFloat(t):
-    """If t is of type float, return it, otherwise raise InvalidTypeError.
-    """
+    """If t is of type float, return it, otherwise raise InvalidTypeError."""
     d = c_double()
     if PL_get_float(t, byref(d)):
         return d.value
@@ -416,10 +428,9 @@ def getFloat(t):
 
 
 def getString(t):
-    """If t is of type string, return it, otherwise raise InvalidTypeError.
-    """
+    """If t is of type string, return it, otherwise raise InvalidTypeError."""
     s = c_char_p()
-    if PL_get_chars(t, byref(s), REP_UTF8|CVT_STRING):
+    if PL_get_chars(t, byref(s), REP_UTF8 | CVT_STRING):
         return s.value
     else:
         raise InvalidTypeError("string")
@@ -487,8 +498,7 @@ def getList(x):
 
 
 def getFunctor(t):
-    """Return t as a functor
-    """
+    """Return t as a functor"""
     return Functor.fromTerm(t)
 
 
@@ -497,15 +507,16 @@ def getVariable(t):
 
 
 _getterm_router = {
-                   PL_VARIABLE: getVariable,
-                   PL_ATOM: getAtom,
-                   PL_STRING: getString,
-                   PL_INTEGER: getInteger,
-                   PL_FLOAT: getFloat,
-                   PL_TERM: getTerm,
-                  }
+    PL_VARIABLE: getVariable,
+    PL_ATOM: getAtom,
+    PL_STRING: getString,
+    PL_INTEGER: getInteger,
+    PL_FLOAT: getFloat,
+    PL_TERM: getTerm,
+}
 
 arities = {}
+
 
 def _callbackWrapper(arity=1, nondeterministic=False):
     global arities
@@ -528,6 +539,7 @@ def _foreignWrapper(fun, nondeterministic=False):
 
     res = funwraps.get(fun)
     if res is None:
+
         def wrapper(*args):
             if nondeterministic:
                 args = [getTerm(arg) for arg in args[:-1]] + [args[-1]]
@@ -616,7 +628,7 @@ class Query(object):
             if key not in ["flags", "module"]:
                 raise Exception("Invalid kwarg: %s" % key, key)
 
-        flags = kwargs.get("flags", PL_Q_NODEBUG|PL_Q_CATCH_EXCEPTION)
+        flags = kwargs.get("flags", PL_Q_NODEBUG | PL_Q_CATCH_EXCEPTION)
         module = kwargs.get("module", None)
 
         t = terms[0]
@@ -629,14 +641,17 @@ class Query(object):
 
     def nextSolution():
         return PL_next_solution(Query.qid)
+
     nextSolution = staticmethod(nextSolution)
 
     def cutQuery():
         PL_cut_query(Query.qid)
+
     cutQuery = staticmethod(cutQuery)
 
     def closeQuery():
         if Query.qid is not None:
             PL_close_query(Query.qid)
             Query.qid = None
+
     closeQuery = staticmethod(closeQuery)

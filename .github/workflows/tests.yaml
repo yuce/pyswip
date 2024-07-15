@@ -1,0 +1,45 @@
+name: "Run tests"
+
+on:
+  push:
+    branches:
+      - "master"
+
+  pull_request_target:
+    branches:
+      - "master"
+
+jobs:
+
+    run-tests:
+
+      name: "Run tests with Python ${{ matrix.python-version }} on ${{ matrix.os }}"
+
+      strategy:
+        matrix:
+          python-version: [ '3.8', '3.12' ]
+          os: [ "ubuntu-24.04" ]
+        fail-fast: false
+
+      runs-on: "${{ matrix.os }}"
+
+      steps:
+
+        - uses: "actions/checkout@v2"
+
+        - name: "Set up Python ${{ matrix.python-version }}"
+          uses: "actions/setup-python@v2"
+          with:
+            python-version: "${{ matrix.python-version }}"
+
+        - name: "Install test dependencies"
+          run: |
+            pip install -r dev-requirements.txt
+
+        - name: "Check style"
+          run: |
+            make check
+
+        - name: "Run tests"
+          run: |
+            make cover
