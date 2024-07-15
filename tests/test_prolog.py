@@ -3,17 +3,17 @@
 
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2012 Yüce Tekol
-#  
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#  
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#  
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -73,16 +73,18 @@ class TestProlog(unittest.TestCase):
 
     def test_prolog_functor_in_list(self):
         p = pl.Prolog()
-        p.assertz('f([g(a,b),h(a,b,c)])')
-        self.assertEqual([{"L": [u"g(a, b)", u"h(a, b, c)"]}], list(p.query("f(L)")))
+        p.assertz("f([g(a,b),h(a,b,c)])")
+        self.assertEqual([{"L": ["g(a, b)", "h(a, b, c)"]}], list(p.query("f(L)")))
         p.retract("f([g(a,b),h(a,b,c)])")
 
     def test_prolog_functor_in_functor(self):
         p = pl.Prolog()
         p.assertz("f([g([h(a,1), h(b,1)])])")
-        self.assertEqual([{'G': [u"g(['h(a, 1)', 'h(b, 1)'])"]}], list(p.query('f(G)')))
+        self.assertEqual([{"G": ["g(['h(a, 1)', 'h(b, 1)'])"]}], list(p.query("f(G)")))
         p.assertz("a([b(c(x), d([y, z, w]))])")
-        self.assertEqual([{'B': [u"b(c(x), d(['y', 'z', 'w']))"]}], list(p.query('a(B)')))
+        self.assertEqual(
+            [{"B": ["b(c(x), d(['y', 'z', 'w']))"]}], list(p.query("a(B)"))
+        )
         p.retract("f([g([h(a,1), h(b,1)])])")
         p.retract("a([b(c(x), d([y, z, w]))])")
 
@@ -102,7 +104,9 @@ class TestProlog(unittest.TestCase):
         self.assertEqual([{"X": b"a"}], list(p.query('X = "a"')))
 
         p.assertz('test_quoted_strings("hello","world")')
-        self.assertEqual([{"A": b"hello", "B": b"world"}], list(p.query('test_quoted_strings(A,B)')))
+        self.assertEqual(
+            [{"A": b"hello", "B": b"world"}], list(p.query("test_quoted_strings(A,B)"))
+        )
 
     def test_prolog_read_file(self):
         """

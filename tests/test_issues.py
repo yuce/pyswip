@@ -3,17 +3,17 @@
 
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2012 Yüce Tekol
-#  
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-#  
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-#  
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,7 @@ import unittest
 
 class TestIssues(unittest.TestCase):
     """Each test method is named after the issue it is testing. The docstring
-       contains the link for the issue and the issue's description.
+    contains the link for the issue and the issue's description.
     """
 
     def test_issue_13_17_and_6(self):
@@ -52,8 +52,7 @@ class TestIssues(unittest.TestCase):
         """
 
         # won't be very useful if it is not tested in several
-                           # OSes
-
+        # OSes
 
     def test_issue_1(self):
         """
@@ -61,13 +60,14 @@ class TestIssues(unittest.TestCase):
 
         Notes: This issue manifests only in 64bit stacks (note that a full 64
         bit stack is needed. If running 32 in 64bit, it will not happen.)
-        
+
         http://code.google.com/p/pyswip/issues/detail?id=1
         """
 
         # The simple code below should be enough to trigger the issue. As with
         # issue 13, if it does not work, it will segfault Python.
         from pyswip import Prolog
+
         prolog = Prolog()
         prolog.assertz("randomTerm(michael,john)")
 
@@ -81,8 +81,10 @@ class TestIssues(unittest.TestCase):
         from pyswip import Prolog, registerForeign
 
         callsToHello = []
+
         def hello(t):
             callsToHello.append(t)
+
         hello.arity = 1
 
         registerForeign(hello)
@@ -91,24 +93,27 @@ class TestIssues(unittest.TestCase):
         prolog.assertz("parent(michael,john)")
         prolog.assertz("parent(michael,gina)")
         p = prolog.query("parent(michael,X), hello(X)")
-        result = list(p)   # Will run over the iterator
-        
+        result = list(p)  # Will run over the iterator
+
         self.assertEqual(len(callsToHello), 2)  # ['john', 'gina']
-        self.assertEqual(len(result), 2) # [{'X': 'john'}, {'X': 'gina'}]
+        self.assertEqual(len(result), 2)  # [{'X': 'john'}, {'X': 'gina'}]
 
     def test_issue_15(self):
         """
-       	sys.exit does not work when importing pyswip
+        sys.exit does not work when importing pyswip
 
         https://code.google.com/p/pyswip/issues/detail?id=15
         """
 
         # We will use it to test several return codes
         pythonExec = sys.executable
+
         def runTestCode(code):
-            parameters = [pythonExec,
-                          '-c',
-                          'import sys; import pyswip; sys.exit(%d)' % code,]
+            parameters = [
+                pythonExec,
+                "-c",
+                "import sys; import pyswip; sys.exit(%d)" % code,
+            ]
             result = subprocess.call(parameters)
             self.assertEqual(result, code)
 
@@ -119,7 +124,7 @@ class TestIssues(unittest.TestCase):
 
     def test_issue_5(self):
         """
-       	Patch: hash and eq methods for Atom class.
+        Patch: hash and eq methods for Atom class.
 
         Ensures that the patch is working.
 
@@ -128,9 +133,9 @@ class TestIssues(unittest.TestCase):
 
         from pyswip import Atom, Variable
 
-        a = Atom('test')
-        b = Atom('test2')
-        c = Atom('test')    # Should be equal to a
+        a = Atom("test")
+        b = Atom("test2")
+        c = Atom("test")  # Should be equal to a
 
         self.assertNotEqual(a, b)
         self.assertNotEqual(c, b)
@@ -146,8 +151,8 @@ class TestIssues(unittest.TestCase):
         # The same semantics should be valid for other classes
         A = Variable()
         B = Variable()
-        C = Variable(A.handle)   # This is equal to A
-        
+        C = Variable(A.handle)  # This is equal to A
+
         self.assertNotEqual(A, B)
         self.assertNotEqual(C, B)
         self.assertEqual(A, C)
@@ -157,10 +162,10 @@ class TestIssues(unittest.TestCase):
         varSet.add(C)  # This is equal to A
         self.assertEqual(len(varSet), 2)
         self.assertEqual(varSet, set([A, B]))
-        
+
     def test_issue_4(self):
         """
-       	Patch for a dynamic method
+        Patch for a dynamic method
 
         Ensures that the patch is working.
 
@@ -168,39 +173,39 @@ class TestIssues(unittest.TestCase):
         """
 
         from pyswip import Prolog
-        
-        Prolog.dynamic('test_issue_4_d/1')
-        Prolog.assertz('test_issue_4_d(test1)')
-        Prolog.assertz('test_issue_4_d(test1)')
-        Prolog.assertz('test_issue_4_d(test1)')
-        Prolog.assertz('test_issue_4_d(test2)')
-        results = list(Prolog.query('test_issue_4_d(X)'))
+
+        Prolog.dynamic("test_issue_4_d/1")
+        Prolog.assertz("test_issue_4_d(test1)")
+        Prolog.assertz("test_issue_4_d(test1)")
+        Prolog.assertz("test_issue_4_d(test1)")
+        Prolog.assertz("test_issue_4_d(test2)")
+        results = list(Prolog.query("test_issue_4_d(X)"))
         self.assertEqual(len(results), 4)
-        
-        Prolog.retract('test_issue_4_d(test1)')
-        results = list(Prolog.query('test_issue_4_d(X)'))
+
+        Prolog.retract("test_issue_4_d(test1)")
+        results = list(Prolog.query("test_issue_4_d(X)"))
         self.assertEqual(len(results), 3)
-        
-        Prolog.retractall('test_issue_4_d(test1)')
-        results = list(Prolog.query('test_issue_4_d(X)'))
+
+        Prolog.retractall("test_issue_4_d(test1)")
+        results = list(Prolog.query("test_issue_4_d(X)"))
         self.assertEqual(len(results), 1)
 
     def test_issue_3(self):
         """
-       	Problem with variables in lists
+        Problem with variables in lists
 
         https://code.google.com/p/pyswip/issues/detail?id=3
         """
 
         from pyswip import Prolog, Functor, Variable, Atom
-         
+
         p = Prolog()
-         
-        f = Functor('f', 1)
+
+        f = Functor("f", 1)
         A = Variable()
         B = Variable()
         C = Variable()
-         
+
         x = f([A, B, C])
         x = Functor.fromTerm(x)
         args = x.args[0]
@@ -214,7 +219,7 @@ class TestIssues(unittest.TestCase):
         self.assertFalse(A == C, "Var B equals var C")
 
         # A more complex test
-        x = f([A, B, 'c'])
+        x = f([A, B, "c"])
         x = Functor.fromTerm(x)
         args = x.args[0]
         self.assertEqual(type(args[0]), Variable)
@@ -228,8 +233,10 @@ class TestIssues(unittest.TestCase):
         self.assertEqual(type(args[0]), Variable)
         self.assertEqual(type(args[1]), Variable)
         self.assertEqual(type(args[2]), Variable)
-        self.assertTrue(args[0] == args[2], "The first and last var of "
-                                            "f([A, B, A]) should be the same")
+        self.assertTrue(
+            args[0] == args[2],
+            "The first and last var of " "f([A, B, A]) should be the same",
+        )
 
     def test_issue_62(self):
         """
@@ -243,14 +250,12 @@ class TestIssues(unittest.TestCase):
         prolog.consult("tests/test_unicode.pl", catcherrors=True)
         atoms = list(prolog.query("unicode_atom(B)."))
 
-        self.assertEqual(len(atoms), 3,
-                         "Query should return exactly three atoms")
+        self.assertEqual(len(atoms), 3, "Query should return exactly three atoms")
 
         strings = list(prolog.query("unicode_string(B)."))
 
-        self.assertEqual(len(strings), 1,
-                         "Query should return exactly one string")
-        self.assertEqual(strings[0]['B'], b'\xd1\x82\xd0\xb5\xd1\x81\xd1\x82')
+        self.assertEqual(len(strings), 1, "Query should return exactly one string")
+        self.assertEqual(strings[0]["B"], b"\xd1\x82\xd0\xb5\xd1\x81\xd1\x82")
 
     def test_functor_return(self):
         """
@@ -262,9 +267,9 @@ class TestIssues(unittest.TestCase):
         Not a formal issue, but see forum topic:
         https://groups.google.com/forum/#!topic/pyswip/Mpnfq4DH-mI
         """
-        
+
         import pyswip.prolog as pl
-        
+
         p = pl.Prolog()
         p.consult("tests/test_functor_return.pl", catcherrors=True)
         query = "sentence(Parse_tree, [the,bat,eats,a,cat], [])"
@@ -272,9 +277,8 @@ class TestIssues(unittest.TestCase):
 
         # This should not throw an exception
         results = list(p.query(query))
-        self.assertEqual(len(results), 1,
-                         "Query should return exactly one result")
-        
+        self.assertEqual(len(results), 1, "Query should return exactly one result")
+
         ptree = results[0]["Parse_tree"]
         self.assertEqual(ptree, expectedTree)
 
@@ -286,7 +290,6 @@ class TestIssues(unittest.TestCase):
         p.assertz("father(son(miki),kur)")
         p.assertz("father(son(kiwi),kur)")
         p.assertz("father(son(wiki),kur)")
-        
-        soln = [s["Y"] for s in p.query("friend(john,Y), father(Y,kur)",
-                                         maxresult=1)]
+
+        soln = [s["Y"] for s in p.query("friend(john,Y), father(Y,kur)", maxresult=1)]
         self.assertEqual(soln[0], "son(miki)")
