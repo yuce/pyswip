@@ -1,5 +1,5 @@
 <a href="https://pypi.python.org/pypi/pyswip"><img src="https://img.shields.io/pypi/v/pyswip.svg?maxAge=2592&updated=2"></a>
-<a href="https://travis-ci.org/yuce/pyswip"><img src="https://api.travis-ci.org/yuce/pyswip.svg?branch=master"></a>
+<img src="https://img.shields.io/github/actions/workflow/status/yuce/pyswip/tests.yaml">
 <a href="https://coveralls.io/github/yuce/pyswip"><img src="https://coveralls.io/repos/github/yuce/pyswip/badge.svg?branch=master"></a>
 
 # PySwip
