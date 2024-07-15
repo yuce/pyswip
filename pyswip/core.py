@@ -55,9 +55,9 @@ def _findSwiplPathFromFindLib():
         {str, None}
     """
 
-    path = (find_library('swipl') or
-            find_library('pl') or
-            find_library('libswipl')) # This last one is for Windows
+    path = (
+        find_library("swipl") or find_library("pl") or find_library("libswipl")
+    )  # This last one is for Windows
     return path
 
 
@@ -78,38 +78,37 @@ def _findSwiplFromExec():
     fullName = None
     swiHome = None
 
-    try: # try to get library path from swipl executable.
+    try:  # try to get library path from swipl executable.
 
         # We may have pl or swipl as the executable
         try:
-            cmd = Popen(['swipl', '--dump-runtime-variables'], stdout=PIPE)
+            cmd = Popen(["swipl", "--dump-runtime-variables"], stdout=PIPE)
         except OSError:
-            cmd = Popen(['pl', '--dump-runtime-variables'], stdout=PIPE)
+            cmd = Popen(["pl", "--dump-runtime-variables"], stdout=PIPE)
         ret = cmd.communicate()
 
         # Parse the output into a dictionary
-        ret = ret[0].decode().replace(';', '').splitlines()
-        ret = [line.split('=', 1) for line in ret]
-        rtvars = dict((name, value[1:-1]) for name, value in ret) # [1:-1] gets
-                                                                  # rid of the
-                                                                  # quotes
+        ret = ret[0].decode().replace(";", "").splitlines()
+        ret = [line.split("=", 1) for line in ret]
+        rtvars = dict((name, value[1:-1]) for name, value in ret)  # [1:-1] gets
+        # rid of the
+        # quotes
 
-        if rtvars['PLSHARED'] == 'no':
-            raise ImportError('SWI-Prolog is not installed as a shared '
-                              'library.')
-        else: # PLSHARED == 'yes'
-            swiHome = rtvars['PLBASE']   # The environment is in PLBASE
+        if rtvars["PLSHARED"] == "no":
+            raise ImportError("SWI-Prolog is not installed as a shared " "library.")
+        else:  # PLSHARED == 'yes'
+            swiHome = rtvars["PLBASE"]  # The environment is in PLBASE
             if not os.path.exists(swiHome):
                 swiHome = None
 
             # determine platform specific path.  First try runtime
             # variable `PLLIBSWIPL` introduced in 9.1.1/9.0.1
-            if 'PLLIBSWIPL' in rtvars:
-                fullName = rtvars['PLLIBSWIPL']
+            if "PLLIBSWIPL" in rtvars:
+                fullName = rtvars["PLLIBSWIPL"]
             # determine platform specific path
             elif platform == "win":
-                dllName = rtvars['PLLIB'][:-4] + '.' + rtvars['PLSOEXT']
-                path = os.path.join(rtvars['PLBASE'], 'bin')
+                dllName = rtvars["PLLIB"][:-4] + "." + rtvars["PLSOEXT"]
+                path = os.path.join(rtvars["PLBASE"], "bin")
                 fullName = os.path.join(path, dllName)
 
                 if not os.path.exists(fullName):
@@ -118,16 +117,16 @@ def _findSwiplFromExec():
             elif platform == "cyg":
                 # e.g. /usr/lib/pl-5.6.36/bin/i686-cygwin/cygpl.dll
 
-                dllName = 'cygpl.dll'
-                path = os.path.join(rtvars['PLBASE'], 'bin', rtvars['PLARCH'])
+                dllName = "cygpl.dll"
+                path = os.path.join(rtvars["PLBASE"], "bin", rtvars["PLARCH"])
                 fullName = os.path.join(path, dllName)
 
                 if not os.path.exists(fullName):
                     fullName = None
 
             elif platform == "dar":
-                dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + "dylib"
-                path = os.path.join(rtvars['PLBASE'], 'lib', rtvars['PLARCH'])
+                dllName = "lib" + rtvars["PLLIB"][2:] + "." + "dylib"
+                path = os.path.join(rtvars["PLBASE"], "lib", rtvars["PLARCH"])
                 baseName = os.path.join(path, dllName)
 
                 if os.path.exists(baseName):
@@ -135,24 +134,24 @@ def _findSwiplFromExec():
                 else:  # We will search for versions
                     fullName = None
 
-            else: # assume UNIX-like
+            else:  # assume UNIX-like
                 # The SO name in some linuxes is of the form libswipl.so.5.10.2,
                 # so we have to use glob to find the correct one
-                dllName = 'lib' + rtvars['PLLIB'][2:] + '.' + rtvars['PLSOEXT']
-                path = os.path.join(rtvars['PLBASE'], 'lib', rtvars['PLARCH'])
+                dllName = "lib" + rtvars["PLLIB"][2:] + "." + rtvars["PLSOEXT"]
+                path = os.path.join(rtvars["PLBASE"], "lib", rtvars["PLARCH"])
                 baseName = os.path.join(path, dllName)
 
                 if os.path.exists(baseName):
                     fullName = baseName
                 else:  # We will search for versions
-                    pattern = baseName + '.*'
+                    pattern = baseName + ".*"
                     files = glob.glob(pattern)
                     if len(files) == 0:
                         fullName = None
                     else:
                         fullName = files[0]
 
-    except (OSError, KeyError): # KeyError from accessing rtvars
+    except (OSError, KeyError):  # KeyError from accessing rtvars
         pass
 
     return (fullName, swiHome)
@@ -174,13 +173,12 @@ def _findSwiplWin():
         ({str, None}, {str, None})
     """
 
-    dllNames = ('swipl.dll', 'libswipl.dll')
+    dllNames = ("swipl.dll", "libswipl.dll")
 
     # First try: check the usual installation path (this is faster but
     # hardcoded)
-    programFiles = os.getenv('ProgramFiles')
-    paths = [os.path.join(programFiles, r'pl\bin', dllName)
-             for dllName in dllNames]
+    programFiles = os.getenv("ProgramFiles")
+    paths = [os.path.join(programFiles, r"pl\bin", dllName) for dllName in dllNames]
     for path in paths:
         if os.path.exists(path):
             return (path, None)
@@ -193,9 +191,10 @@ def _findSwiplWin():
     # Third try: use reg.exe to find the installation path in the registry
     # (reg should be installed in all Windows XPs)
     try:
-        cmd = Popen(['reg', 'query',
-            r'HKEY_LOCAL_MACHINE\Software\SWI\Prolog',
-            '/v', 'home'], stdout=PIPE)
+        cmd = Popen(
+            ["reg", "query", r"HKEY_LOCAL_MACHINE\Software\SWI\Prolog", "/v", "home"],
+            stdout=PIPE,
+        )
         ret = cmd.communicate()
 
         # Result is like:
@@ -206,13 +205,12 @@ def _findSwiplWin():
         # (Note: spaces may be \t or spaces in the output)
         ret = ret[0].splitlines()
         ret = [line.decode("utf-8") for line in ret if len(line) > 0]
-        pattern = re.compile('[^h]*home[^R]*REG_SZ( |\t)*(.*)$')
+        pattern = re.compile("[^h]*home[^R]*REG_SZ( |\t)*(.*)$")
         match = pattern.match(ret[-1])
         if match is not None:
             path = match.group(2)
 
-            paths = [os.path.join(path, 'bin', dllName)
-                     for dllName in dllNames]
+            paths = [os.path.join(path, "bin", dllName) for dllName in dllNames]
             for path in paths:
                 if os.path.exists(path):
                     return (path, None)
@@ -232,6 +230,7 @@ def _findSwiplWin():
             return (dllName, None)
 
     return (None, None)
+
 
 def _findSwiplLin():
     """
@@ -256,8 +255,15 @@ def _findSwiplLin():
         return (path, swiHome)
 
     # Our last try: some hardcoded paths.
-    paths = ['/lib', '/usr/lib', '/usr/local/lib', '.', './lib', '/usr/lib/swi-prolog/lib/x86_64-linux']
-    names = ['libswipl.so', 'libpl.so']
+    paths = [
+        "/lib",
+        "/usr/lib",
+        "/usr/local/lib",
+        ".",
+        "./lib",
+        "/usr/lib/swi-prolog/lib/x86_64-linux",
+    ]
+    names = ["libswipl.so", "libpl.so"]
 
     path = None
     for name in names:
@@ -277,11 +283,11 @@ def walk(path, name):
     """
     This function is a 2-time recursive func,
     that findin file in dirs
-    
+
     :parameters:
       -  `path` (str) - Directory path
       -  `name` (str) - Name of file, that we lookin for
-      
+
     :returns:
         Path to the swipl so, path to the resource file
 
@@ -290,7 +296,7 @@ def walk(path, name):
     """
     back_path = path[:]
     path = os.path.join(path, name)
-    
+
     if os.path.exists(path):
         return path
     else:
@@ -307,12 +313,12 @@ def walk(path, name):
 
 def get_swi_ver():
     import re
-    swi_ver = input(
-                'Please enter you SWI-Prolog version in format "X.Y.Z": ')
-    match = re.search(r'[0-9]+\.[0-9]+\.[0-9]+', swi_ver)
+
+    swi_ver = input('Please enter you SWI-Prolog version in format "X.Y.Z": ')
+    match = re.search(r"[0-9]+\.[0-9]+\.[0-9]+", swi_ver)
     if match is None:
-        raise InputError('Error, type normal version')
-    
+        raise InputError("Error, type normal version")
+
     return swi_ver
 
 
@@ -320,10 +326,10 @@ def _findSwiplMacOSHome():
     """
     This function is guesing where SWI-Prolog is
     installed in MacOS via .app.
-    
+
     :parameters:
       -  `swi_ver` (str) - Version of SWI-Prolog in '[0-9].[0-9].[0-9]' format
-      
+
     :returns:
         A tuple of (path to the swipl so, path to the resource file)
 
@@ -333,16 +339,16 @@ def _findSwiplMacOSHome():
 
     # Need more help with MacOS
     # That way works, but need more work
-    names = ['libswipl.dylib', 'libpl.dylib']
-    
-    path = os.environ.get('SWI_HOME_DIR')
+    names = ["libswipl.dylib", "libpl.dylib"]
+
+    path = os.environ.get("SWI_HOME_DIR")
     if path is None:
-        path = os.environ.get('SWI_LIB_DIR')
+        path = os.environ.get("SWI_LIB_DIR")
         if path is None:
-            path = os.environ.get('PLBASE')
-            if path is None:                
-                path = '/Applications/SWI-Prolog.app/Contents/'
-    
+            path = os.environ.get("PLBASE")
+            if path is None:
+                path = "/Applications/SWI-Prolog.app/Contents/"
+
     paths = [path]
 
     for name in names:
@@ -350,7 +356,7 @@ def _findSwiplMacOSHome():
             (path_res, back_path) = walk(path, name)
 
             if path_res is not None:
-                os.environ['SWI_LIB_DIR'] = back_path
+                os.environ["SWI_LIB_DIR"] = back_path
                 return (path_res, None)
 
     return (None, None)
@@ -379,8 +385,8 @@ def _findSwiplDar():
         return (path, swiHome)
 
     # Last guess, searching for the file
-    paths = ['.', './lib', '/usr/lib/', '/usr/local/lib', '/opt/local/lib']
-    names = ['libswipl.dylib', 'libpl.dylib']
+    paths = [".", "./lib", "/usr/lib/", "/usr/local/lib", "/opt/local/lib"]
+    names = ["libswipl.dylib", "libpl.dylib"]
 
     for name in names:
         for path in paths:
@@ -405,13 +411,13 @@ def _findSwipl():
     :raises ImportError: If we cannot guess the name of the library
     """
     # check environment
-    if 'LIBSWIPL_PATH' in os.environ:
-        return (os.environ['LIBSWIPL_PATH'], os.environ.get('SWI_HOME_DIR'))
-    
-    # Now begins the guesswork    
+    if "LIBSWIPL_PATH" in os.environ:
+        return (os.environ["LIBSWIPL_PATH"], os.environ.get("SWI_HOME_DIR"))
+
+    # Now begins the guesswork
     platform = sys.platform[:3]
-    if platform == "win": # In Windows, we have the default installer
-                                   # path and the registry to look
+    if platform == "win":  # In Windows, we have the default installer
+        # path and the registry to look
         (path, swiHome) = _findSwiplWin()
 
     elif platform in ("lin", "cyg"):
@@ -419,7 +425,7 @@ def _findSwipl():
 
     elif platform == "dar":  # Help with MacOS is welcome!!
         (path, swiHome) = _findSwiplDar()
-        
+
         if path is None:
             (path, swiHome) = _findSwiplMacOSHome()
 
@@ -429,9 +435,11 @@ def _findSwipl():
 
     # This is a catch all raise
     if path is None:
-        raise ImportError('Could not find the SWI-Prolog library in this '
-                          'platform. If you are sure it is installed, please '
-                          'open an issue.')
+        raise ImportError(
+            "Could not find the SWI-Prolog library in this "
+            "platform. If you are sure it is installed, please "
+            "open an issue."
+        )
     else:
         return (path, swiHome)
 
@@ -446,18 +454,21 @@ def _fixWindowsPath(dll):
       -  `dll` (str) - File name of the DLL
     """
 
-    if sys.platform[:3] != 'win':
-        return # Nothing to do here
+    if sys.platform[:3] != "win":
+        return  # Nothing to do here
 
     pathToDll = os.path.dirname(dll)
-    currentWindowsPath = os.getenv('PATH')
+    currentWindowsPath = os.getenv("PATH")
 
     if pathToDll not in currentWindowsPath:
         # We will prepend the path, to avoid conflicts between DLLs
-        newPath = pathToDll + ';' + currentWindowsPath
-        os.putenv('PATH', newPath)
+        newPath = pathToDll + ";" + currentWindowsPath
+        os.putenv("PATH", newPath)
+
 
 _stringMap = {}
+
+
 def str_to_bytes(string):
     """
     Turns a string into a bytes if necessary (i.e. if it is not already a bytes
@@ -479,6 +490,7 @@ def str_to_bytes(string):
 
     return string
 
+
 def list_to_bytes_list(strList):
     """
     This function turns an array of strings into a pointer array
@@ -497,13 +509,13 @@ def list_to_bytes_list(strList):
         return strList
 
     if not isinstance(strList, (list, set, tuple)):
-        raise TypeError("strList must be list, set or tuple, not " +
-                str(type(strList)))
+        raise TypeError("strList must be list, set or tuple, not " + str(type(strList)))
 
     pList = pList()
     for i, elem in enumerate(strList):
         pList[i] = str_to_bytes(elem)
     return pList
+
 
 # create a decorator that turns the incoming strings into c_char_p compatible
 # butes or pointer arrays
@@ -526,10 +538,13 @@ def check_strings(strings, arrays):
         strings = []
 
     # check if all entries are integers
-    for i,k in enumerate(strings):
+    for i, k in enumerate(strings):
         if not isinstance(k, int):
-            raise TypeError(('Wrong type for index at {0} '+
-                    'in strings. Must be int, not {1}!').format(i,k))
+            raise TypeError(
+                (
+                    "Wrong type for index at {0} " + "in strings. Must be int, not {1}!"
+                ).format(i, k)
+            )
 
     # if given a single element, turn it into a list
     if isinstance(arrays, int):
@@ -538,15 +553,20 @@ def check_strings(strings, arrays):
         arrays = []
 
     # check if all entries are integers
-    for i,k in enumerate(arrays):
+    for i, k in enumerate(arrays):
         if not isinstance(k, int):
-            raise TypeError(('Wrong type for index at {0} '+
-                    'in arrays. Must be int, not {1}!').format(i,k))
+            raise TypeError(
+                (
+                    "Wrong type for index at {0} " + "in arrays. Must be int, not {1}!"
+                ).format(i, k)
+            )
 
     # check if some index occurs in both
     if set(strings).intersection(arrays):
-        raise ValueError('One or more elements occur in both arrays and ' +
-                ' strings. One parameter cannot be both list and string!')
+        raise ValueError(
+            "One or more elements occur in both arrays and "
+            + " strings. One parameter cannot be both list and string!"
+        )
 
     # create the checker that will check all arguments given by argsToCheck
     # and turn them into the right datatype.
@@ -580,13 +600,13 @@ _lib = CDLL(_path, mode=RTLD_GLOBAL)
 #        *	      VERSIONS		*
 #        *******************************/
 
-PL_VERSION_SYSTEM	=1	# Prolog version
-PL_VERSION_FLI		=2	# PL_* compatibility
-PL_VERSION_REC		=3	# PL_record_external() compatibility
-PL_VERSION_QLF		=4	# Saved QLF format version
-PL_VERSION_QLF_LOAD	=5	# Min loadable QLF format version
-PL_VERSION_VM		=6	# VM signature
-PL_VERSION_BUILT_IN	=7	# Built-in predicate signature
+PL_VERSION_SYSTEM = 1  # Prolog version
+PL_VERSION_FLI = 2  # PL_* compatibility
+PL_VERSION_REC = 3  # PL_record_external() compatibility
+PL_VERSION_QLF = 4  # Saved QLF format version
+PL_VERSION_QLF_LOAD = 5  # Min loadable QLF format version
+PL_VERSION_VM = 6  # VM signature
+PL_VERSION_BUILT_IN = 7  # Built-in predicate signature
 
 
 # After SWI-Prolog 8.5.2, PL_version was renamed to PL_version_info
@@ -595,14 +615,14 @@ PL_VERSION_BUILT_IN	=7	# Built-in predicate signature
 # https://github.com/SWI-Prolog/swipl-devel/issues/910
 try:
     if hasattr(_lib, "PL_version_info"):
-        PL_version = _lib.PL_version_info # swi-prolog > 8.5.2
+        PL_version = _lib.PL_version_info  # swi-prolog > 8.5.2
     else:
-        PL_version = _lib.PL_version # swi-prolog <= 8.5.2
+        PL_version = _lib.PL_version  # swi-prolog <= 8.5.2
     PL_version.argtypes = [c_int]
     PL_version.restype = c_uint
 
     PL_VERSION = PL_version(PL_VERSION_SYSTEM)
-    if PL_VERSION<80200:
+    if PL_VERSION < 80200:
         raise Exception("swi-prolog >= 8.2.0 is required")
 except AttributeError:
     raise Exception("swi-prolog version number could not be determined")
@@ -621,7 +641,7 @@ c_uint_p = c_void_p
 # /* PL_unify_term( arguments */
 
 
-if PL_VERSION<80200:
+if PL_VERSION < 80200:
     # constants (from SWI-Prolog.h)
     # PL_unify_term() arguments
     PL_VARIABLE = 1  # nothing
@@ -636,84 +656,84 @@ if PL_VERSION<80200:
     PL_CHARS = 12  # const char *
     PL_POINTER = 13  # void *
     #               /* PlArg::PlArg(text, type) */
-    #define PL_CODE_LIST     (14)       /* [ascii...] */
-    #define PL_CHAR_LIST     (15)       /* [h,e,l,l,o] */
-    #define PL_BOOL      (16)       /* PL_set_feature() */
-    #define PL_FUNCTOR_CHARS (17)       /* PL_unify_term() */
-    #define _PL_PREDICATE_INDICATOR (18)    /* predicate_t (Procedure) */
-    #define PL_SHORT     (19)       /* short */
-    #define PL_INT       (20)       /* int */
-    #define PL_LONG      (21)       /* long */
-    #define PL_DOUBLE    (22)       /* double */
-    #define PL_NCHARS    (23)       /* unsigned, const char * */
-    #define PL_UTF8_CHARS    (24)       /* const char * */
-    #define PL_UTF8_STRING   (25)       /* const char * */
-    #define PL_INT64     (26)       /* int64_t */
-    #define PL_NUTF8_CHARS   (27)       /* unsigned, const char * */
-    #define PL_NUTF8_CODES   (29)       /* unsigned, const char * */
-    #define PL_NUTF8_STRING  (30)       /* unsigned, const char * */
-    #define PL_NWCHARS   (31)       /* unsigned, const wchar_t * */
-    #define PL_NWCODES   (32)       /* unsigned, const wchar_t * */
-    #define PL_NWSTRING  (33)       /* unsigned, const wchar_t * */
-    #define PL_MBCHARS   (34)       /* const char * */
-    #define PL_MBCODES   (35)       /* const char * */
-    #define PL_MBSTRING  (36)       /* const char * */
+    # define PL_CODE_LIST     (14)       /* [ascii...] */
+    # define PL_CHAR_LIST     (15)       /* [h,e,l,l,o] */
+    # define PL_BOOL      (16)       /* PL_set_feature() */
+    # define PL_FUNCTOR_CHARS (17)       /* PL_unify_term() */
+    # define _PL_PREDICATE_INDICATOR (18)    /* predicate_t (Procedure) */
+    # define PL_SHORT     (19)       /* short */
+    # define PL_INT       (20)       /* int */
+    # define PL_LONG      (21)       /* long */
+    # define PL_DOUBLE    (22)       /* double */
+    # define PL_NCHARS    (23)       /* unsigned, const char * */
+    # define PL_UTF8_CHARS    (24)       /* const char * */
+    # define PL_UTF8_STRING   (25)       /* const char * */
+    # define PL_INT64     (26)       /* int64_t */
+    # define PL_NUTF8_CHARS   (27)       /* unsigned, const char * */
+    # define PL_NUTF8_CODES   (29)       /* unsigned, const char * */
+    # define PL_NUTF8_STRING  (30)       /* unsigned, const char * */
+    # define PL_NWCHARS   (31)       /* unsigned, const wchar_t * */
+    # define PL_NWCODES   (32)       /* unsigned, const wchar_t * */
+    # define PL_NWSTRING  (33)       /* unsigned, const wchar_t * */
+    # define PL_MBCHARS   (34)       /* const char * */
+    # define PL_MBCODES   (35)       /* const char * */
+    # define PL_MBSTRING  (36)       /* const char * */
 
-    REP_ISO_LATIN_1 = 0x0000 # output representation
+    REP_ISO_LATIN_1 = 0x0000  # output representation
     REP_UTF8 = 0x1000
     REP_MB = 0x2000
 
 else:
-    PL_VARIABLE     = 1            # nothing
-    PL_ATOM         = 2            # const char *
-    PL_INTEGER      = 3            # int
-    PL_RATIONAL     = 4            # rational number
-    PL_FLOAT        = 5            # double
-    PL_STRING       = 6            # const char *
-    PL_TERM         = 7
+    PL_VARIABLE = 1  # nothing
+    PL_ATOM = 2  # const char *
+    PL_INTEGER = 3  # int
+    PL_RATIONAL = 4  # rational number
+    PL_FLOAT = 5  # double
+    PL_STRING = 6  # const char *
+    PL_TERM = 7
 
-    PL_NIL          = 8            # The constant []
-    PL_BLOB         = 9            # non-atom blob
-    PL_LIST_PAIR    = 10           # [_|_] term
+    PL_NIL = 8  # The constant []
+    PL_BLOB = 9  # non-atom blob
+    PL_LIST_PAIR = 10  # [_|_] term
 
     # # PL_unify_term(
-    PL_FUNCTOR      = 11           # functor_t, arg ...
-    PL_LIST         = 12           # length, arg ...
-    PL_CHARS        = 13           # const char *
-    PL_POINTER      = 14           # void *
+    PL_FUNCTOR = 11  # functor_t, arg ...
+    PL_LIST = 12  # length, arg ...
+    PL_CHARS = 13  # const char *
+    PL_POINTER = 14  # void *
     # PlArg::PlArg(text, type
-    PL_CODE_LIST    = 15           # [ascii...]
-    PL_CHAR_LIST    = 16           # [h,e,l,l,o]
-    PL_BOOL         = 17           # PL_set_prolog_flag(
-    PL_FUNCTOR_CHARS= 18           # PL_unify_term(
-    _PL_PREDICATE_INDICATOR= 19    # predicate_t= Procedure
-    PL_SHORT        = 20           # short
-    PL_INT          = 21           # int
-    PL_LONG         = 22           # long
-    PL_DOUBLE       = 23           # double
-    PL_NCHARS       = 24           # size_t, const char *
-    PL_UTF8_CHARS   = 25           # const char *
-    PL_UTF8_STRING  = 26           # const char *
-    PL_INT64        = 27           # int64_t
-    PL_NUTF8_CHARS  = 28           # size_t, const char *
-    PL_NUTF8_CODES  = 29           # size_t, const char *
-    PL_NUTF8_STRING = 30           # size_t, const char *
-    PL_NWCHARS      = 31           # size_t, const wchar_t *
-    PL_NWCODES      = 32           # size_t, const wchar_t *
-    PL_NWSTRING     = 33           # size_t, const wchar_t *
-    PL_MBCHARS      = 34           # const char *
-    PL_MBCODES      = 35           # const char *
-    PL_MBSTRING     = 36           # const char *
-    PL_INTPTR       = 37           # intptr_t
-    PL_CHAR         = 38           # int
-    PL_CODE         = 39           # int
-    PL_BYTE         = 40           # int
+    PL_CODE_LIST = 15  # [ascii...]
+    PL_CHAR_LIST = 16  # [h,e,l,l,o]
+    PL_BOOL = 17  # PL_set_prolog_flag(
+    PL_FUNCTOR_CHARS = 18  # PL_unify_term(
+    _PL_PREDICATE_INDICATOR = 19  # predicate_t= Procedure
+    PL_SHORT = 20  # short
+    PL_INT = 21  # int
+    PL_LONG = 22  # long
+    PL_DOUBLE = 23  # double
+    PL_NCHARS = 24  # size_t, const char *
+    PL_UTF8_CHARS = 25  # const char *
+    PL_UTF8_STRING = 26  # const char *
+    PL_INT64 = 27  # int64_t
+    PL_NUTF8_CHARS = 28  # size_t, const char *
+    PL_NUTF8_CODES = 29  # size_t, const char *
+    PL_NUTF8_STRING = 30  # size_t, const char *
+    PL_NWCHARS = 31  # size_t, const wchar_t *
+    PL_NWCODES = 32  # size_t, const wchar_t *
+    PL_NWSTRING = 33  # size_t, const wchar_t *
+    PL_MBCHARS = 34  # const char *
+    PL_MBCODES = 35  # const char *
+    PL_MBSTRING = 36  # const char *
+    PL_INTPTR = 37  # intptr_t
+    PL_CHAR = 38  # int
+    PL_CODE = 39  # int
+    PL_BYTE = 40  # int
     # PL_skip_list(
-    PL_PARTIAL_LIST = 41           # a partial list
-    PL_CYCLIC_TERM  = 42           # a cyclic list/term
-    PL_NOT_A_LIST   = 43           # Object is not a list
+    PL_PARTIAL_LIST = 41  # a partial list
+    PL_CYCLIC_TERM = 42  # a cyclic list/term
+    PL_NOT_A_LIST = 43  # Object is not a list
     # dicts
-    PL_DICT         = 44
+    PL_DICT = 44
 
     REP_ISO_LATIN_1 = 0x0000  # output representation
     REP_UTF8 = 0x00100000
@@ -735,7 +755,7 @@ PL_REDO = 2
 
 PL_FA_NOTRACE = 0x01  # foreign cannot be traced
 PL_FA_TRANSPARENT = 0x02  # foreign is module transparent
-PL_FA_NONDETERMINISTIC  = 0x04  # foreign is non-deterministic
+PL_FA_NONDETERMINISTIC = 0x04  # foreign is non-deterministic
 PL_FA_VARARGS = 0x08  # call using t0, ac, ctx
 PL_FA_CREF = 0x10  # Internal: has clause-reference */
 
@@ -745,7 +765,7 @@ PL_FA_CREF = 0x10  # Internal: has clause-reference */
 
 PL_Q_DEBUG = 0x01  # = TRUE for backward compatibility
 PL_Q_NORMAL = 0x02  # normal usage
-PL_Q_NODEBUG =  0x04  # use this one
+PL_Q_NODEBUG = 0x04  # use this one
 PL_Q_CATCH_EXCEPTION = 0x08  # handle exceptions in C
 PL_Q_PASS_EXCEPTION = 0x10  # pass to parent environment
 PL_Q_DETERMINISTIC = 0x20  # call was deterministic
@@ -754,14 +774,14 @@ PL_Q_DETERMINISTIC = 0x20  # call was deterministic
 #        *         BLOBS        *
 #        *******************************/
 
-#define PL_BLOB_MAGIC_B 0x75293a00  /* Magic to validate a blob-type */
-#define PL_BLOB_VERSION 1       /* Current version */
-#define PL_BLOB_MAGIC   (PL_BLOB_MAGIC_B|PL_BLOB_VERSION)
+# define PL_BLOB_MAGIC_B 0x75293a00  /* Magic to validate a blob-type */
+# define PL_BLOB_VERSION 1       /* Current version */
+# define PL_BLOB_MAGIC   (PL_BLOB_MAGIC_B|PL_BLOB_VERSION)
 
-#define PL_BLOB_UNIQUE  0x01        /* Blob content is unique */
-#define PL_BLOB_TEXT    0x02        /* blob contains text */
-#define PL_BLOB_NOCOPY  0x04        /* do not copy the data */
-#define PL_BLOB_WCHAR   0x08        /* wide character string */
+# define PL_BLOB_UNIQUE  0x01        /* Blob content is unique */
+# define PL_BLOB_TEXT    0x02        /* blob contains text */
+# define PL_BLOB_NOCOPY  0x04        /* do not copy the data */
+# define PL_BLOB_WCHAR   0x08        /* wide character string */
 
 #        /*******************************
 #        *      CHAR BUFFERS    *
@@ -779,7 +799,7 @@ if PL_VERSION < 80122:
     CVT_ATOMIC = CVT_NUMBER | CVT_ATOM | CVT_STRING
     CVT_WRITE = 0x0040  # as of version 3.2.10
     CVT_ALL = CVT_ATOMIC | CVT_LIST
-    CVT_MASK = 0x00ff
+    CVT_MASK = 0x00FF
 
     BUF_DISCARDABLE = 0x0000
     BUF_RING = 0x0100
@@ -800,7 +820,7 @@ else:
     CVT_WRITE_CANONICAL = 0x00000080
     CVT_WRITEQ = 0x000000C0
     CVT_ALL = CVT_ATOMIC | CVT_LIST
-    CVT_MASK = 0x00000fff
+    CVT_MASK = 0x00000FFF
 
     BUF_DISCARDABLE = 0x00000000
     BUF_STACK = 0x00010000
@@ -809,9 +829,6 @@ else:
     BUF_ALLOW_STACK = 0x00040000
 
     CVT_EXCEPTION = 0x00001000  # throw exception on error
-
-
-
 
 
 argv = list_to_bytes_list(sys.argv + [None])
@@ -865,6 +882,7 @@ PL_mark_string_buffers.argtypes = [buf_mark_t]
 PL_release_string_buffers_from_mark = _lib.PL_release_string_buffers_from_mark
 PL_release_string_buffers_from_mark.argtypes = [buf_mark_t]
 
+
 @contextmanager
 def PL_STRINGS_MARK():
     __PL_mark = buf_mark_t()
@@ -873,6 +891,7 @@ def PL_STRINGS_MARK():
         yield
     finally:
         PL_release_string_buffers_from_mark(__PL_mark)
+
 
 PL_open_foreign_frame = _lib.PL_open_foreign_frame
 PL_open_foreign_frame.restype = fid_t
@@ -924,38 +943,38 @@ PL_put_list_chars.restype = c_int
 
 PL_put_list_chars = check_strings(1, None)(PL_put_list_chars)
 
-#PL_EXPORT(void)                PL_register_atom(atom_t a);
+# PL_EXPORT(void)                PL_register_atom(atom_t a);
 PL_register_atom = _lib.PL_register_atom
 PL_register_atom.argtypes = [atom_t]
 PL_register_atom.restype = None
 
-#PL_EXPORT(void)                PL_unregister_atom(atom_t a);
+# PL_EXPORT(void)                PL_unregister_atom(atom_t a);
 PL_unregister_atom = _lib.PL_unregister_atom
 PL_unregister_atom.argtypes = [atom_t]
 PL_unregister_atom.restype = None
 
-#PL_EXPORT(atom_t)      PL_functor_name(functor_t f);
+# PL_EXPORT(atom_t)      PL_functor_name(functor_t f);
 PL_functor_name = _lib.PL_functor_name
 PL_functor_name.argtypes = [functor_t]
 PL_functor_name.restype = atom_t
 
-#PL_EXPORT(int)         PL_functor_arity(functor_t f);
+# PL_EXPORT(int)         PL_functor_arity(functor_t f);
 PL_functor_arity = _lib.PL_functor_arity
 PL_functor_arity.argtypes = [functor_t]
 PL_functor_arity.restype = c_int
 
 #                       /* Get C-values from Prolog terms */
-#PL_EXPORT(int)         PL_get_atom(term_t t, atom_t *a);
+# PL_EXPORT(int)         PL_get_atom(term_t t, atom_t *a);
 PL_get_atom = _lib.PL_get_atom
 PL_get_atom.argtypes = [term_t, POINTER(atom_t)]
 PL_get_atom.restype = c_int
 
-#PL_EXPORT(int)         PL_get_bool(term_t t, int *value);
+# PL_EXPORT(int)         PL_get_bool(term_t t, int *value);
 PL_get_bool = _lib.PL_get_bool
 PL_get_bool.argtypes = [term_t, POINTER(c_int)]
 PL_get_bool.restype = c_int
 
-#PL_EXPORT(int)         PL_get_atom_chars(term_t t, char **a);
+# PL_EXPORT(int)         PL_get_atom_chars(term_t t, char **a);
 PL_get_atom_chars = _lib.PL_get_atom_chars  # FIXME
 PL_get_atom_chars.argtypes = [term_t, POINTER(c_char_p)]
 PL_get_atom_chars.restype = c_int
@@ -1025,7 +1044,7 @@ PL_predicate = _lib.PL_predicate
 PL_predicate.argtypes = [c_char_p, c_int, c_char_p]
 PL_predicate.restype = predicate_t
 
-PL_predicate = check_strings([0,2], None)(PL_predicate)
+PL_predicate = check_strings([0, 2], None)(PL_predicate)
 
 PL_pred = _lib.PL_pred
 PL_pred.argtypes = [functor_t, module_t]
@@ -1256,13 +1275,11 @@ PL_thread_attach_engine.restype = c_int
 
 
 class _mbstate_t_value(Union):
-    _fields_ = [("__wch", wint_t),
-                ("__wchb", c_char * 4)]
+    _fields_ = [("__wch", wint_t), ("__wchb", c_char * 4)]
 
 
 class mbstate_t(Structure):
-    _fields_ = [("__count", c_int),
-                ("__value", _mbstate_t_value)]
+    _fields_ = [("__count", c_int), ("__value", _mbstate_t_value)]
 
 
 # stream related funcs
@@ -1276,52 +1293,73 @@ Scontrol_function = CFUNCTYPE(c_int, c_void_p, c_int, c_void_p)
 # IOLOCK
 IOLOCK = c_void_p
 
+
 # IOFUNCTIONS
 class IOFUNCTIONS(Structure):
-    _fields_ = [("read",Sread_function),
-                ("write",Swrite_function),
-                ("seek",Sseek_function),
-                ("close",Sclose_function),
-                ("seek64",Sseek64_function),
-                ("reserved",intptr_t*2)]
+    _fields_ = [
+        ("read", Sread_function),
+        ("write", Swrite_function),
+        ("seek", Sseek_function),
+        ("close", Sclose_function),
+        ("seek64", Sseek64_function),
+        ("reserved", intptr_t * 2),
+    ]
+
 
 # IOENC
-ENC_UNKNOWN,ENC_OCTET,ENC_ASCII,ENC_ISO_LATIN_1,ENC_ANSI,ENC_UTF8,ENC_UNICODE_BE,ENC_UNICODE_LE,ENC_WCHAR = tuple(range(9))
+(
+    ENC_UNKNOWN,
+    ENC_OCTET,
+    ENC_ASCII,
+    ENC_ISO_LATIN_1,
+    ENC_ANSI,
+    ENC_UTF8,
+    ENC_UNICODE_BE,
+    ENC_UNICODE_LE,
+    ENC_WCHAR,
+) = tuple(range(9))
 IOENC = c_int
+
 
 # IOPOS
 class IOPOS(Structure):
-    _fields_ = [("byteno",c_int64),
-                ("charno",c_int64),
-                ("lineno",c_int),
-                ("linepos",c_int),
-                ("reserved", intptr_t*2)]
+    _fields_ = [
+        ("byteno", c_int64),
+        ("charno", c_int64),
+        ("lineno", c_int),
+        ("linepos", c_int),
+        ("reserved", intptr_t * 2),
+    ]
+
 
 # IOSTREAM
 class IOSTREAM(Structure):
-    _fields_ = [("bufp",c_char_p),
-                ("limitp",c_char_p),
-                ("buffer",c_char_p),
-                ("unbuffer",c_char_p),
-                ("lastc",c_int),
-                ("magic",c_int),
-                ("bufsize",c_int),
-                ("flags",c_int),
-                ("posbuf",IOPOS),
-                ("position",POINTER(IOPOS)),
-                ("handle",c_void_p),
-                ("functions",IOFUNCTIONS),
-                ("locks",c_int),
-                ("mutex",IOLOCK),
-                ("closure_hook",CFUNCTYPE(None, c_void_p)),
-                ("closure",c_void_p),
-                ("timeout",c_int),
-                ("message",c_char_p),
-                ("encoding",IOENC)]
-IOSTREAM._fields_.extend([("tee",IOSTREAM),
-                ("mbstate",POINTER(mbstate_t)),
-                ("reserved",intptr_t*6)])
+    _fields_ = [
+        ("bufp", c_char_p),
+        ("limitp", c_char_p),
+        ("buffer", c_char_p),
+        ("unbuffer", c_char_p),
+        ("lastc", c_int),
+        ("magic", c_int),
+        ("bufsize", c_int),
+        ("flags", c_int),
+        ("posbuf", IOPOS),
+        ("position", POINTER(IOPOS)),
+        ("handle", c_void_p),
+        ("functions", IOFUNCTIONS),
+        ("locks", c_int),
+        ("mutex", IOLOCK),
+        ("closure_hook", CFUNCTYPE(None, c_void_p)),
+        ("closure", c_void_p),
+        ("timeout", c_int),
+        ("message", c_char_p),
+        ("encoding", IOENC),
+    ]
 
+
+IOSTREAM._fields_.extend(
+    [("tee", IOSTREAM), ("mbstate", POINTER(mbstate_t)), ("reserved", intptr_t * 6)]
+)
 
 
 Sopen_string = _lib.Sopen_string
@@ -1334,7 +1372,8 @@ Sclose.argtypes = [POINTER(IOSTREAM)]
 PL_unify_stream = _lib.PL_unify_stream
 PL_unify_stream.argtypes = [term_t, POINTER(IOSTREAM)]
 
-#create an exit hook which captures the exit code for our cleanup function
+
+# create an exit hook which captures the exit code for our cleanup function
 class ExitHook(object):
     def __init__(self):
         self.exit_code = None
@@ -1348,18 +1387,20 @@ class ExitHook(object):
         self.exit_code = code
         self._orig_exit(code)
 
+
 _hook = ExitHook()
 _hook.hook()
 
 _isCleaned = False
-#create a property for Atom's delete method in order to avoid segmentation fault
+# create a property for Atom's delete method in order to avoid segmentation fault
 cleaned = property(_isCleaned)
 
-#register the cleanup function to be executed on system exit
+
+# register the cleanup function to be executed on system exit
 @atexit.register
 def cleanupProlog():
     # only do something if prolog has been initialised
-    if PL_is_initialised(None,None):
+    if PL_is_initialised(None, None):
 
         # clean up the prolog system using the caught exit code
         # if exit code is None, the program exits normally and we can use 0
