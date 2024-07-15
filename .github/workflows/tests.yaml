@@ -40,6 +40,10 @@ jobs:
           run: |
             make check
 
+        - name: "Install SWI-Prolog"
+          run: |
+            sudo apt-get install -y swi-prolog-nox
+
         - name: "Run tests"
           run: |
             make cover
