@@ -45,6 +45,8 @@ jobs:
             sudo apt-get install -y swi-prolog-nox
 
         - name: "Run tests"
+          env:
+            GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           run: |
             make cover
             coveralls
