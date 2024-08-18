@@ -208,7 +208,7 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [Path Follower: Arduino+Rasp on ROS](http://blog.giacomocerquone.com/path-follower-maze-solving-car-arduino/) and its [Project code](https://github.com/giacomocerquone/robotics-MazeSolver)
 * [10 minutes to make a GUI for your SWI-Prolog App via Python](http://pbrown.me/blog/quick_gui/)
 * [Playing with Prolog – Prolog’s Role in the LLM Era, Part 3](https://eugeneasahara.com/2024/08/12/playing-with-prolog-prologs-role-in-the-llm-era-part-3/)
-* [https://sut-ai.github.io/supplementary/notebooks/logic_programming/](https://sut-ai.github.io/supplementary/notebooks/logic_programming/)
+* [Prolog - Gateway to Logic Programming](https://sut-ai.github.io/supplementary/notebooks/logic_programming/)
 
 ## Companies using PySwip
 
