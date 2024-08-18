@@ -159,6 +159,10 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [Dependency-based Text Graphs for Keyphrase and Summary Extraction with Applications to Interactive Content Retrieval](https://arxiv.org/pdf/1909.09742.pdf) (PDF)
 * [Information Retrieval Based on Knowledge-Enhanced Word Embedding Through Dialog: A Case Study](https://www.atlantis-press.com/journals/ijcis/125936225/view)
 * [Exploring the world of declarative programming](https://fedoramagazine.org/exploring-the-world-of-declarative-programming/)
+* [Development of a Prototype of a Medical Application Using a Type-2 Fuzzy Inference System](https://www.researchgate.net/publication/377771997_Development_of_a_Prototype_of_a_Medical_Application_Using_a_Type-2_Fuzzy_Inference_System)
+* [Learning Where and When to Reason in Neuro-Symbolic Inference](https://openreview.net/pdf?id=en9V5F8PR) (PDF)
+* [MMDect: Metamorphic Malware Detection Using Logic Programming](http://platon.etsii.urjc.es/~jarias/tfg/23-Luciana.pdf) (PDF)
+* [Continuous QoS-compliant orchestration in the Cloud-Edge continuum](https://onlinelibrary.wiley.com/doi/10.1002/spe.3334) ([Code](https://github.com/di-unipi-socc/FogArm))
 
 ### Videos
 
@@ -166,6 +170,10 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [PySwip, Prolog, Javascript and HTML](https://www.youtube.com/watch?v=Oj8xsW2vaLA) (Spanish)
 * [Get out of the maze with Prolog and Python](https://www.youtube.com/watch?v=MW3S0Jfa0LU) (Spanish)
 * [Les robots deviennent (vraiment) intelligents ! (NAO discute avec Kylo Ren)](https://www.youtube.com/watch?v=JlfnpyIly-Y)
+* [Connect Python and Prolog | Using Pyswip Module | Using Prolog as Backend](https://www.youtube.com/watch?v=1jwAHIz8WXc)
+* [How to connect Prolog and Python Using Pyswip Module](https://www.youtube.com/watch?v=R_dpVolI7bg)
+* [Praktikum Sistem Pakar 01 - Pengenalan Prolog, SWI-Prolog, PySwip](https://www.youtube.com/watch?v=wY5C48NMDp4) (Indonesian)
+* [Curso Básico de Prolog: 4 - Interconectando Python con Prolog a través de PySwip](https://www.youtube.com/watch?v=5xDqp_lYlcM) (Spanish)
 
 ### Projects
 
@@ -199,6 +207,8 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [Python v. Prolog: Round 1: Fight!](http://www.kuliniewicz.org/blog/archives/2007/10/21/python-v-prolog-round-1-fight/)
 * [Path Follower: Arduino+Rasp on ROS](http://blog.giacomocerquone.com/path-follower-maze-solving-car-arduino/) and its [Project code](https://github.com/giacomocerquone/robotics-MazeSolver)
 * [10 minutes to make a GUI for your SWI-Prolog App via Python](http://pbrown.me/blog/quick_gui/)
+* [Playing with Prolog – Prolog’s Role in the LLM Era, Part 3](https://eugeneasahara.com/2024/08/12/playing-with-prolog-prologs-role-in-the-llm-era-part-3/)
+* [https://sut-ai.github.io/supplementary/notebooks/logic_programming/](https://sut-ai.github.io/supplementary/notebooks/logic_programming/)
 
 ## Companies using PySwip
 
