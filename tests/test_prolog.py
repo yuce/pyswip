@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2012 Yüce Tekol
 #
@@ -28,7 +27,6 @@ Tests the Prolog class.
 """
 
 import unittest
-import doctest
 
 import pyswip.prolog as pl  # This implicitly tests library loading code
 

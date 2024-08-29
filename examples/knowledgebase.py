@@ -25,7 +25,7 @@ from pyswip import *
 
 
 def main():
-    p = Prolog()
+    _ = Prolog()
 
     assertz = Functor("assertz")
     parent = Functor("parent", 2)

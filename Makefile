@@ -1,20 +1,22 @@
-.PHONY: build clean cover test upload
+.PHONY: build clean coverage upload-coverage test upload
 
 build:
-	python setup.py sdist
-	python setup.py bdist_wheel --universal
+	hatch build
 
-clean:
+clean:coveralls
 	rm -rf dist build pyswip.egg-info
 
 cover:
-	py.test tests --verbose --cov=pyswip
+	hatch run test:coverage
+
+upload-coverage:
+	hatch run upload-coverage:coveralls
 
 test:
-	py.test tests --verbose
+	hatch run test:all
 
 upload:
 	twine upload dist/*
 
 check:
-	black --check .
+	ruff check

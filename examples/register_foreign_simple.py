@@ -25,7 +25,7 @@
 
 from __future__ import print_function
 from pyswip.prolog import Prolog
-from pyswip.easy import registerForeign, getAtomChars
+from pyswip.easy import registerForeign
 
 
 def hello(t):

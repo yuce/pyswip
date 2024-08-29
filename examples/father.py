@@ -30,13 +30,11 @@ def main():
 
     father = Functor("father", 2)
     mother = Functor("mother", 2)
-    assertz = Functor("assertz", 1)
 
     p.assertz("father(john,mich)")
     p.assertz("father(john,gina)")
     p.assertz("mother(jane,mich)")
 
-    X = Variable()
     Y = Variable()
     Z = Variable()
 

@@ -1,0 +1,82 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyswip"
+dynamic = ["version"]
+description = "PySwip enables querying SWI-Prolog in your Python programs."
+readme = "README.md"
+requires-python = ">=3.6"
+license = "MIT"
+authors = [
+    { name = "Yuce Tekol", email = "yucetekol@gmail.com" },
+]
+keywords = [
+    "ai",
+    "artificial intelligence",
+    "ctypes",
+    "ffi",
+    "prolog",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+
+[project.urls]
+Download = "https://github.com/yuce/pyswip/releases"
+Homepage = "https://github.com/yuce/pyswip"
+
+[tool.hatch.version]
+path = "pyswip/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/pyswip",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/foo"]
+
+[tool.hatch.envs.test]
+dependencies = [
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.hatch.envs.test.scripts]
+all = "py.test tests --verbose"
+coverage = "py.test tests --verbose --cov=pyswip"
+
+[tool.hatch.envs.upload-coverage]
+dependencies = [
+    "coveralls",
+]
+
+[tool.hatch.envs.upload-coverage.scripts]
+coveralls = "coveralls"
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:pyswip tests}"
+
+[tool.ruff.lint]
+ignore = ["F403", "F405", "E721"]

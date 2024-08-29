@@ -199,7 +199,7 @@ class TestIssues(unittest.TestCase):
 
         from pyswip import Prolog, Functor, Variable, Atom
 
-        p = Prolog()
+        _ = Prolog()
 
         f = Functor("f", 1)
         A = Variable()

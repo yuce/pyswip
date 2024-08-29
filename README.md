@@ -8,9 +8,9 @@
 
 ## Installing the Latest Version
 
-The latest SWI-Prolog supported by Ubuntu 18.04 and 20.04 are 7.6.4. We generally want to support LTS releases of
-Ubuntu. The compatibility of PySwip with 7.6.4 on master is broken, so we are not able to release a new version until
-this is fixed. In the meantime, you can use the following to install PySwip from the master branch:
+The latest SWI-Prolog supported by Ubuntu 22.04 are 9.0.4.
+We generally want to support LTS releases of Ubuntu.
+You can use the following to install PySwip from the master branch:
 
 ```
 pip install git+https://github.com/yuce/pyswip@master#egg=pyswip
@@ -19,9 +19,7 @@ pip install git+https://github.com/yuce/pyswip@master#egg=pyswip
 ## The End of Python 2 Support
 
 Python 2 has reached end of life on January 1st, 2020 as documented [here](https://www.python.org/doc/sunset-python-2/).
-So, PySwip 0.2.10 will be the last version which officially supports Python 2.
-
-Do you still require Python 2 support? Let us know at: https://github.com/yuce/pyswip/issues/94
+So, PySwip 0.2.10 is the last version which officially supports Python 2.
 
 ---
 
@@ -29,15 +27,21 @@ Do you still require Python 2 support? Let us know at: https://github.com/yuce/p
 
 See the [CHANGELOG](CHANGELOG.md).
 
-**WARNING! PySwip has no Windows installers! If you are a Windows user, see [INSTALL](https://github.com/yuce/pyswip/blob/master/INSTALL.md#windows). There are some "free download" sites that claim to be hosting PySwip installers. DO NOT TRUST THEM!**
+---
+
+**WARNING! PySwip has no Windows installers!
+If you are a Windows user, see [INSTALL](https://github.com/yuce/pyswip/blob/master/INSTALL.md#windows).
+There are some "free download" sites that claim to be hosting PySwip installers.
+DO NOT TRUST THEM!**
+
+---
 
 Thanks to all [contributors](CONTRIBUTORS.txt).
 
 ## Introduction
 
 PySwip is a Python - SWI-Prolog bridge enabling to query [SWI-Prolog](http://www.swi-prolog.org) in your Python programs.
-It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a
-Pythonic interface.
+It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a Pythonic interface.
 
 Since PySwip uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
 
@@ -45,13 +49,14 @@ Since PySwip uses SWI-Prolog as a shared library and ctypes to access it, it doe
 
 * Python 3.6 and higher.
   * PyPy is currently not supported.
-* SWI-Prolog 8.2 and higher.
+* SWI-Prolog 9.0.4 and higher.
 * `libswipl` as a shared library. *This is the default on most platforms.*
 * Works on Linux, Windows, MacOS and FreeBSD. Should work on other POSIX.
 
 ## Install
 
-**IMPORTANT: Make sure the SWI-Prolog architecture is the same as the Python architecture. If you are using a 64bit build of Python, use a 64bit build of SWI-Prolog, etc.**
+**IMPORTANT: Make sure the SWI-Prolog architecture is the same as the Python architecture.
+If you are using a 64bit build of Python, use a 64bit build of SWI-Prolog, etc.**
 
 See [INSTALL](INSTALL.md) for instructions.
 
@@ -117,7 +122,6 @@ q.closeQuery()
 # Outputs:
 #    Hello, john
 #    Hello, gina
-
 ```
 
 The core functionality of `Prolog.query` is based on Nathan Denny's public domain prolog.py.
@@ -217,7 +221,7 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 ## License
 
 ```
-Copyright (c) 2007-2020 Yüce Tekol and PySwip contributors
+Copyright (c) 2007-2024 Yüce Tekol and PySwip contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

@@ -29,15 +29,9 @@ from __future__ import print_function
 from pyswip.prolog import Prolog
 from pyswip.easy import *
 
-try:
-    from html.parser import HTMLParser
-except:
-    from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 
-try:
-    import urllib.request as urllib_request
-except ImportError:
-    import urllib as urllib_request
+import urllib.request as urllib_request
 
 
 class DailySudokuPuzzle(HTMLParser):
