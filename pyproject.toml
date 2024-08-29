@@ -7,7 +7,7 @@ name = "pyswip"
 dynamic = ["version"]
 description = "PySwip enables querying SWI-Prolog in your Python programs."
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 license = "MIT"
 authors = [
     { name = "Yuce Tekol", email = "yucetekol@gmail.com" },
@@ -28,8 +28,6 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",

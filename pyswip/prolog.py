@@ -61,7 +61,8 @@ def _initialize():
 
     swipl_fid = PL_open_foreign_frame()
     swipl_load = PL_new_term_ref()
-    PL_chars_to_term("""
+    PL_chars_to_term(
+        """
         asserta(pyrun(GoalString,BindingList) :-
             (read_term_from_atom(GoalString, Goal, [variable_names(BindingList)]),
             call(Goal))).
@@ -88,7 +89,6 @@ class Prolog:
     _queryIsOpen = False
 
     class _QueryWrapper(object):
-
         def __init__(self):
             if Prolog._queryIsOpen:
                 raise NestedQueryError("The last query was not closed")

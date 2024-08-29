@@ -19,4 +19,5 @@ upload:
 	twine upload dist/*
 
 check:
+	ruff format --check
 	ruff check
