@@ -41,12 +41,10 @@ Download = "https://github.com/yuce/pyswip/releases"
 Homepage = "https://github.com/yuce/pyswip"
 
 [tool.hatch.version]
-path = "pyswip/__init__.py"
+path = "src/pyswip/__init__.py"
 
 [tool.hatch.build.targets.sdist]
-include = [
-    "/pyswip",
-]
+packages = ["src/pyswip"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pyswip"]

@@ -3,7 +3,7 @@
 build:
 	hatch build
 
-clean:coveralls
+clean:
 	rm -rf dist build pyswip.egg-info
 
 coverage:
