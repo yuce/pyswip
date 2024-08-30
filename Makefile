@@ -6,11 +6,11 @@ build:
 clean:coveralls
 	rm -rf dist build pyswip.egg-info
 
-cover:
+coverage:
 	hatch run test:coverage
 
 upload-coverage:
-	hatch run upload-coverage:coveralls
+	hatch run upload-coverage:run-coveralls
 
 test:
 	hatch run test:all

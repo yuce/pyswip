@@ -67,7 +67,7 @@ dependencies = [
 ]
 
 [tool.hatch.envs.upload-coverage.scripts]
-coveralls = "coveralls"
+run-coveralls = "coveralls"
 
 [tool.hatch.envs.types]
 extra-dependencies = [
