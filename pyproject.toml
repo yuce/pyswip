@@ -49,7 +49,7 @@ include = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["pyswip"]
+packages = ["src/pyswip"]
 
 [tool.hatch.envs.test]
 dependencies = [
