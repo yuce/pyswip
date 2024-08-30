@@ -70,7 +70,7 @@ class TestExamples(unittest.TestCase):
         Tests usage of modules.
         """
 
-        p = Prolog()
+        _ = Prolog()
 
         assertz = Functor("assertz")
         parent = Functor("parent", 2)
@@ -116,7 +116,6 @@ class TestExamples(unittest.TestCase):
         p.assertz("father(john,gina)")
         p.assertz("mother(jane,mich)")
 
-        X = Variable()
         Y = Variable()
         Z = Variable()
 

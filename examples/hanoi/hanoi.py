@@ -25,12 +25,7 @@ from __future__ import print_function
 from collections import deque
 
 from pyswip.prolog import Prolog
-from pyswip.easy import getList, registerForeign
-
-try:
-    input = raw_input
-except NameError:
-    pass
+from pyswip.easy import registerForeign
 
 
 class Notifier:

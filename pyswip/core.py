@@ -79,12 +79,8 @@ def _findSwiplFromExec():
     swiHome = None
 
     try:  # try to get library path from swipl executable.
-
         # We may have pl or swipl as the executable
-        try:
-            cmd = Popen(["swipl", "--dump-runtime-variables"], stdout=PIPE)
-        except OSError:
-            cmd = Popen(["pl", "--dump-runtime-variables"], stdout=PIPE)
+        cmd = Popen(["swipl", "--dump-runtime-variables"], stdout=PIPE)
         ret = cmd.communicate()
 
         # Parse the output into a dictionary
@@ -1401,7 +1397,6 @@ cleaned = property(_isCleaned)
 def cleanupProlog():
     # only do something if prolog has been initialised
     if PL_is_initialised(None, None):
-
         # clean up the prolog system using the caught exit code
         # if exit code is None, the program exits normally and we can use 0
         # instead.

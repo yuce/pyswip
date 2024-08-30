@@ -23,7 +23,7 @@
 
 from __future__ import print_function
 from pyswip.prolog import Prolog
-from pyswip.easy import getList, registerForeign
+from pyswip.easy import registerForeign
 
 N = 3  # Number of disks
 

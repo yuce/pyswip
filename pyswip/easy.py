@@ -375,7 +375,7 @@ def putTerm(term, value):
         raise Exception("Not implemented")
 
 
-def putList(l, ls):
+def putList(l, ls):  # noqa: E741
     PL_put_nil(l)
     for item in reversed(ls):
         a = PL_new_term_ref()  # PL_new_term_refs(len(ls))

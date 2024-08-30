@@ -23,8 +23,6 @@
 # SOFTWARE.
 
 
-import sys
-
 from pyswip.core import *
 
 
@@ -64,10 +62,11 @@ def _initialize():
     swipl_fid = PL_open_foreign_frame()
     swipl_load = PL_new_term_ref()
     PL_chars_to_term(
-        "asserta(pyrun(GoalString,BindingList) :- "
-        "(atom_chars(A,GoalString),"
-        "atom_to_term(A,Goal,BindingList),"
-        "call(Goal))).",
+        """
+        asserta(pyrun(GoalString,BindingList) :-
+            (read_term_from_atom(GoalString, Goal, [variable_names(BindingList)]),
+            call(Goal))).
+        """,
         swipl_load,
     )
     PL_call(swipl_load, None)
@@ -78,7 +77,7 @@ _initialize()
 
 
 # NOTE: This import MUST be after _initialize is called!!
-from pyswip.easy import getTerm
+from pyswip.easy import getTerm  # noqa: E402
 
 
 class Prolog:
@@ -90,7 +89,6 @@ class Prolog:
     _queryIsOpen = False
 
     class _QueryWrapper(object):
-
         def __init__(self):
             if Prolog._queryIsOpen:
                 raise NestedQueryError("The last query was not closed")
@@ -99,7 +97,6 @@ class Prolog:
             Prolog._init_prolog_thread()
             swipl_fid = PL_open_foreign_frame()
 
-            swipl_head = PL_new_term_ref()
             swipl_args = PL_new_term_refs(2)
             swipl_goalCharList = swipl_args
             swipl_bindingList = swipl_args + 1
@@ -117,7 +114,6 @@ class Prolog:
             try:
                 while maxresult and PL_next_solution(swipl_qid):
                     maxresult -= 1
-                    bindings = []
                     swipl_list = PL_copy_term_ref(swipl_bindingList)
                     t = getTerm(swipl_list)
                     if normalize:
