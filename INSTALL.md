@@ -1,8 +1,15 @@
-# PySwip INSTALL
+# Installing PySwip
 
-PySwip has no dependencies beyond Python's standard library. Some operating systems do not install the full standard library. In that case make sure that your Python setup includes `ctypes`.
+Requirements:
 
-We recommend installing PySwip into a virtual environment. Python3 already has built-in support for that. You can create a virtual environment in `pyswip_env` directory using:
+
+PySwip has no dependencies beyond Python's standard library.
+Some operating systems do not install the full standard library.
+In that case make sure that your Python setup includes the `ctypes` module.
+
+We recommend installing PySwip into a virtual environment.
+Python3 already has built-in support for that.
+You can create a virtual environment in `pyswip_env` directory using:
 ```
 python3 -m venv pyswip_env
 ```
@@ -25,7 +32,7 @@ See the [Python documentation](https://docs.python.org/3/library/venv.html) for 
 
 ### Arch Linux
 
-[Alexander Rødseth](https://roboticoverlords.org) maintains the [Arch Linux package](https://www.archlinux.org/packages/community/any/python-pyswip/).
+[Alexander Rødseth](https://roboticoverlords.org) maintains the [Arch Linux package](https://archlinux.org/packages/extra/any/python-pyswip/).
 
 Install PySwip with dependencies using:
 ```
@@ -34,7 +41,7 @@ sudo pacman -S python-pyswip
 
 ### Manjaro Linux
 
-Same as the Arch Linux instructions. See: https://discover.manjaro.org/packages/python-pyswip
+Same as the Arch Linux instructions. See: https://manjaristas.org/branch_compare?q=pyswip
 
 ### Parabola GNU/Linux-libre
 
