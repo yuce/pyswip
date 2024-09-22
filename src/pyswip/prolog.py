@@ -47,7 +47,7 @@ def _initialize():
     args.append("./")
     args.append("-q")  # --quiet
     args.append("--nosignals")  # "Inhibit any signal handling by Prolog"
-    if SWI_HOME_DIR is not None:
+    if SWI_HOME_DIR:
         args.append("--home=%s" % SWI_HOME_DIR)
 
     result = PL_initialise(len(args), args)

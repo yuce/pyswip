@@ -33,6 +33,9 @@ from ctypes import *
 from ctypes.util import find_library
 from subprocess import Popen, PIPE
 
+ENV_LIBSWIPL_PATH = "LIBSWIPL_PATH"
+ENV_SWI_HOME_DIR = "SWI_HOME_DIR"
+
 
 # To initialize the SWI-Prolog environment, two things need to be done: the
 # first is to find where the SO/DLL is located and the second is to find the
@@ -153,14 +156,10 @@ def _findSwiplFromExec():
     return (fullName, swiHome)
 
 
-def _findSwiplWin():
-    import re
-
+def _find_swipl_windows():
     """
     This function uses several heuristics to gues where SWI-Prolog is installed
-    in Windows. It always returns None as the path of the resource file because,
-    in Windows, the way to find it is more robust so the SWI-Prolog DLL is
-    always able to find it.
+    in Windows.
 
     :returns:
         A tuple of (path to the swipl DLL, path to the resource file)
@@ -169,66 +168,31 @@ def _findSwiplWin():
         ({str, None}, {str, None})
     """
 
-    dllNames = ("swipl.dll", "libswipl.dll")
+    libswipl = "libswipl.dll"
+    # tru to get the SWI dir from registry
+    swi_dir = find_swipl_dir_from_registry()
+    if swi_dir:
+        # libswipl.dll must be in SWI_DIR/bin
+        libswipl_path = os.path.join(swi_dir, "bin", libswipl)
+        if not os.path.exists(libswipl_path):
+            raise FileNotFoundError(f"could not locate {libswipl}", libswipl_path)
+        return libswipl_path, swi_dir
 
-    # First try: check the usual installation path (this is faster but
-    # hardcoded)
-    programFiles = os.getenv("ProgramFiles")
-    paths = [os.path.join(programFiles, r"pl\bin", dllName) for dllName in dllNames]
-    for path in paths:
-        if os.path.exists(path):
-            return (path, None)
+    raise FileNotFoundError("could not locate SWI home directory")
 
-    # Second try: use the find_library
-    path = _findSwiplPathFromFindLib()
-    if path is not None and os.path.exists(path):
-        return (path, None)
 
-    # Third try: use reg.exe to find the installation path in the registry
-    # (reg should be installed in all Windows XPs)
+def find_swipl_dir_from_registry():
+    import winreg
+
     try:
-        cmd = Popen(
-            ["reg", "query", r"HKEY_LOCAL_MACHINE\Software\SWI\Prolog", "/v", "home"],
-            stdout=PIPE,
-        )
-        ret = cmd.communicate()
-
-        # Result is like:
-        # ! REG.EXE VERSION 3.0
-        #
-        # HKEY_LOCAL_MACHINE\Software\SWI\Prolog
-        #    home        REG_SZ  C:\Program Files\pl
-        # (Note: spaces may be \t or spaces in the output)
-        ret = ret[0].splitlines()
-        ret = [line.decode("utf-8") for line in ret if len(line) > 0]
-        pattern = re.compile("[^h]*home[^R]*REG_SZ( |\t)*(.*)$")
-        match = pattern.match(ret[-1])
-        if match is not None:
-            path = match.group(2)
-
-            paths = [os.path.join(path, "bin", dllName) for dllName in dllNames]
-            for path in paths:
-                if os.path.exists(path):
-                    return (path, None)
-
-    except OSError:
-        # reg.exe not found? Weird...
-        pass
-
-    # May the exec is on path?
-    (path, swiHome) = _findSwiplFromExec()
-    if path is not None:
-        return (path, swiHome)
-
-    # Last try: maybe it is in the current dir
-    for dllName in dllNames:
-        if os.path.exists(dllName):
-            return (dllName, None)
-
-    return (None, None)
+        with winreg.OpenKeyEx(winreg.HKEY_LOCAL_MACHINE, r"Software\SWI\Prolog") as key:
+            path, _ = winreg.QueryValueEx(key, "home")
+            return path
+    except FileNotFoundError:
+        return ""
 
 
-def _findSwiplLin():
+def _find_swipl_unix():
     """
     This function uses several heuristics to guess where SWI-Prolog is
     installed in Linuxes.
@@ -259,7 +223,7 @@ def _findSwiplLin():
         "./lib",
         "/usr/lib/swi-prolog/lib/x86_64-linux",
     ]
-    names = ["libswipl.so", "libpl.so"]
+    names = ["libswipl.so"]
 
     path = None
     for name in names:
@@ -275,39 +239,7 @@ def _findSwiplLin():
     return (None, None)
 
 
-def walk(path, name):
-    """
-    This function is a 2-time recursive func,
-    that findin file in dirs
-
-    :parameters:
-      -  `path` (str) - Directory path
-      -  `name` (str) - Name of file, that we lookin for
-
-    :returns:
-        Path to the swipl so, path to the resource file
-
-    :returns type:
-        (str)
-    """
-    back_path = path[:]
-    path = os.path.join(path, name)
-
-    if os.path.exists(path):
-        return path
-    else:
-        for dir_ in os.listdir(back_path):
-            path = os.path.join(back_path, dir_)
-
-            if os.path.isdir(path):
-                res_path = walk(path, name)
-                if res_path is not None:
-                    return (res_path, back_path)
-
-    return None
-
-
-def _findSwiplMacOSHome():
+def find_swipl_macos_home():
     """
     This function is guesing where SWI-Prolog is
     installed in MacOS via .app.
@@ -322,32 +254,27 @@ def _findSwiplMacOSHome():
         ({str, None}, {str, None})
     """
 
-    # Need more help with MacOS
-    # That way works, but need more work
-    names = ["libswipl.dylib", "libpl.dylib"]
+    swi_home = os.environ.get("SWI_HOME_DIR")
+    if not swi_home:
+        swi_home = "/Applications/SWI-Prolog.app/Contents/swipl"
+    if os.path.exists(swi_home):
+        swi_base = os.path.split(swi_home)[0]
+        lib = find_swipl_dylib(swi_base)
+        if lib:
+            lib_path = os.path.join(swi_base, "Frameworks", lib)
+            return lib_path, swi_home
 
-    path = os.environ.get("SWI_HOME_DIR")
-    if path is None:
-        path = os.environ.get("SWI_LIB_DIR")
-        if path is None:
-            path = os.environ.get("PLBASE")
-            if path is None:
-                path = "/Applications/SWI-Prolog.app/Contents/"
-
-    paths = [path]
-
-    for name in names:
-        for path in paths:
-            (path_res, back_path) = walk(path, name)
-
-            if path_res is not None:
-                os.environ["SWI_LIB_DIR"] = back_path
-                return (path_res, None)
-
-    return (None, None)
+    raise FileNotFoundError("SWI-Prolog home was not found")
 
 
-def _findSwiplDar():
+def find_swipl_dylib(root) -> str:
+    for item in os.listdir(root):
+        if item.startswith("libswipl") and item.endswith(".dylib"):
+            return item
+    return ""
+
+
+def _find_swipl_darwin() -> (str, str):
     """
     This function uses several heuristics to guess where SWI-Prolog is
     installed in MacOS.
@@ -360,29 +287,44 @@ def _findSwiplDar():
     """
 
     # If the exec is in path
-    (path, swiHome) = _findSwiplFromExec()
-    if path is not None:
-        return (path, swiHome)
+    path, swi_home = _findSwiplFromExec()
+    if path:
+        return path, swi_home
 
     # If it is not, use  find_library
     path = _findSwiplPathFromFindLib()
-    if path is not None:
-        return (path, swiHome)
+    if path:
+        swi_home = find_swi_home(os.path.dirname(path))
+        return path, swi_home
 
-    # Last guess, searching for the file
-    paths = [".", "./lib", "/usr/lib/", "/usr/local/lib", "/opt/local/lib"]
-    names = ["libswipl.dylib", "libpl.dylib"]
+    # Check the standard install path
+    swi_home = os.environ.get("SWI_HOME_DIR")
+    if not swi_home:
+        swi_home = "/Applications/SWI-Prolog.app/Contents/swipl"
+    if os.path.exists(swi_home):
+        swi_base = os.path.split(swi_home)[0]
+        lib = find_swipl_dylib(swi_base)
+        if lib:
+            lib_path = os.path.join(swi_base, "Frameworks", lib)
+            return lib_path, swi_home
 
-    for name in names:
-        for path in paths:
-            path = os.path.join(path, name)
-            if os.path.exists(path):
-                return (path, None)
-
-    return (None, None)
+    raise FileNotFoundError("SWI-Prolog was not found")
 
 
-def _findSwipl():
+def find_swi_home(path) -> str:
+    while True:
+        swi_home = os.path.join(path, "swipl.home")
+        if os.path.exists(swi_home):
+            with open(swi_home) as f:
+                sub_path = f.read().strip()
+                return os.path.join(path, sub_path)
+        path, leaf = os.path.split(path)
+        if not leaf:
+            break
+    return ""
+
+
+def _findSwipl() -> (str, str):
     """
     This function makes a big effort to find the path to the SWI-Prolog shared
     library. Since this is both OS dependent and installation dependent, we may
@@ -395,41 +337,30 @@ def _findSwipl():
     :rtype: Tuple of strings
     :raises ImportError: If we cannot guess the name of the library
     """
-    # check environment
-    if "LIBSWIPL_PATH" in os.environ:
-        return (os.environ["LIBSWIPL_PATH"], os.environ.get("SWI_HOME_DIR"))
+    # Check the environment first
+    libswipl_path = os.environ.get(ENV_LIBSWIPL_PATH)
+    swi_home_dir = os.environ.get(ENV_SWI_HOME_DIR)
+    if libswipl_path and swi_home_dir:
+        return libswipl_path, swi_home_dir
 
     # Now begins the guesswork
-    platform = sys.platform[:3]
-    if platform == "win":  # In Windows, we have the default installer
-        # path and the registry to look
-        (path, swiHome) = _findSwiplWin()
-
-    elif platform in ("lin", "cyg"):
-        (path, swiHome) = _findSwiplLin()
-
-    elif platform == "dar":  # Help with MacOS is welcome!!
-        (path, swiHome) = _findSwiplDar()
-
-        if path is None:
-            (path, swiHome) = _findSwiplMacOSHome()
+    platform = sys.platform
+    if platform == "win32":
+        libswipl_path, swi_home_dir = _find_swipl_windows()
+        fix_windows_path(libswipl_path)
+        return libswipl_path, swi_home_dir
+    elif platform == "darwin":
+        libswipl_path, swi_home_dir = _find_swipl_darwin()
+        if not libswipl_path:
+            libswipl_path, swi_home_dir = find_swipl_macos_home()
+        return libswipl_path, swi_home_dir
 
     else:
-        # This should work for other UNIX
-        (path, swiHome) = _findSwiplLin()
-
-    # This is a catch all raise
-    if path is None:
-        raise ImportError(
-            "Could not find the SWI-Prolog library in this "
-            "platform. If you are sure it is installed, please "
-            "open an issue."
-        )
-    else:
-        return (path, swiHome)
+        # This should work for other Linux and BSD
+        return _find_swipl_unix()
 
 
-def _fixWindowsPath(dll):
+def fix_windows_path(dll):
     """
     When the path to the DLL is not in Windows search path, Windows will not be
     able to find other DLLs on the same directory, so we have to add it to the
@@ -438,9 +369,6 @@ def _fixWindowsPath(dll):
     :parameters:
       -  `dll` (str) - File name of the DLL
     """
-
-    if sys.platform[:3] != "win":
-        return  # Nothing to do here
 
     pathToDll = os.path.dirname(dll)
     currentWindowsPath = os.getenv("PATH")
@@ -574,9 +502,7 @@ def check_strings(strings, arrays):
 
 # Find the path and resource file. SWI_HOME_DIR shall be treated as a constant
 # by users of this module
-(_path, SWI_HOME_DIR) = _findSwipl()
-_fixWindowsPath(_path)
-
+_path, SWI_HOME_DIR = _findSwipl()
 
 # Load the library
 _lib = CDLL(_path, mode=RTLD_GLOBAL)
@@ -592,7 +518,6 @@ PL_VERSION_QLF = 4  # Saved QLF format version
 PL_VERSION_QLF_LOAD = 5  # Min loadable QLF format version
 PL_VERSION_VM = 6  # VM signature
 PL_VERSION_BUILT_IN = 7  # Built-in predicate signature
-
 
 # After SWI-Prolog 8.5.2, PL_version was renamed to PL_version_info
 # to avoid a conflict with Perl. For more details, see the following:
@@ -612,14 +537,12 @@ try:
 except AttributeError:
     raise Exception("swi-prolog version number could not be determined")
 
-
 # PySwip constants
 PYSWIP_MAXSTR = 1024
 c_int_p = c_void_p
 c_long_p = c_void_p
 c_double_p = c_void_p
 c_uint_p = c_void_p
-
 
 #
 # constants (from SWI-Prolog.h)
@@ -814,7 +737,6 @@ else:
     BUF_ALLOW_STACK = 0x00040000
 
     CVT_EXCEPTION = 0x00001000  # throw exception on error
-
 
 argv = list_to_bytes_list(sys.argv + [None])
 argc = len(sys.argv)
@@ -1345,7 +1267,6 @@ class IOSTREAM(Structure):
 IOSTREAM._fields_.extend(
     [("tee", IOSTREAM), ("mbstate", POINTER(mbstate_t)), ("reserved", intptr_t * 6)]
 )
-
 
 Sopen_string = _lib.Sopen_string
 Sopen_string.argtypes = [POINTER(IOSTREAM), c_char_p, c_size_t, c_char_p]
