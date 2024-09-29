@@ -1,14 +1,13 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyswip"
-dynamic = ["version"]
+version = "0.3.0"
 description = "PySwip enables querying SWI-Prolog in your Python programs."
 readme = "README.md"
 requires-python = ">=3.8"
-license = "MIT"
 authors = [
     { name = "Yuce Tekol", email = "yucetekol@gmail.com" },
 ]
@@ -40,39 +39,10 @@ classifiers = [
 Download = "https://github.com/yuce/pyswip/releases"
 Homepage = "https://github.com/yuce/pyswip"
 
-[tool.hatch.version]
-path = "src/pyswip/__init__.py"
-
-[tool.hatch.build.targets.sdist]
-packages = ["src/pyswip"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/pyswip"]
-
-[tool.hatch.envs.test]
-dependencies = [
-    "pytest",
-    "pytest-cov",
-]
-
-[tool.hatch.envs.test.scripts]
-all = "py.test tests --verbose"
-coverage = "py.test tests --verbose --cov=pyswip"
-
-[tool.hatch.envs.upload-coverage]
-dependencies = [
-    "coveralls",
-]
-
-[tool.hatch.envs.upload-coverage.scripts]
-run-coveralls = "coveralls"
-
-[tool.hatch.envs.types]
-extra-dependencies = [
-  "mypy>=1.0.0",
-]
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:pyswip tests}"
-
 [tool.ruff.lint]
 ignore = ["F403", "F405", "E721"]
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]

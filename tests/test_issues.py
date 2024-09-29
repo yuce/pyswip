@@ -28,6 +28,9 @@
 import subprocess
 import sys
 import unittest
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestIssues(unittest.TestCase):
@@ -247,7 +250,8 @@ class TestIssues(unittest.TestCase):
         from pyswip import Prolog
 
         prolog = Prolog()
-        prolog.consult("tests/test_unicode.pl", catcherrors=True)
+        path = os.path.join(current_dir, "test_unicode.pl")
+        prolog.consult(path, catcherrors=True)
         atoms = list(prolog.query("unicode_atom(B)."))
 
         self.assertEqual(len(atoms), 3, "Query should return exactly three atoms")
@@ -271,7 +275,8 @@ class TestIssues(unittest.TestCase):
         import pyswip.prolog as pl
 
         p = pl.Prolog()
-        p.consult("tests/test_functor_return.pl", catcherrors=True)
+        path = os.path.join(current_dir, "test_functor_return.pl")
+        p.consult(path, catcherrors=True)
         query = "sentence(Parse_tree, [the,bat,eats,a,cat], [])"
         expectedTree = "s(np(d(the), n(bat)), vp(v(eats), np(d(a), n(cat))))"
 

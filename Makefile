@@ -1,19 +1,19 @@
 .PHONY: build clean coverage upload-coverage test upload
 
 build:
-	hatch build
+	build
 
 clean:
 	rm -rf dist build pyswip.egg-info
 
 coverage:
-	hatch run test:coverage
+	py.test tests --verbose --cov=pyswip
 
-upload-coverage:
-	hatch run upload-coverage:run-coveralls
+upload-coverage: coverage
+	coveralls
 
 test:
-	hatch run test:all
+	PYTHONPATH=src py.test tests --verbose -m "not slow"
 
 upload:
 	twine upload dist/*
