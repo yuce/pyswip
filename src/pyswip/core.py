@@ -39,13 +39,11 @@ ENV_SWI_HOME_DIR = "SWI_HOME_DIR"
 
 
 class PySwipError(Exception):
-
     def __init__(self, message):
         super().__init__(message)
 
 
 class SwiPrologNotFoundError(PySwipError):
-
     def __init__(self, message="SWI-Prolog not found"):
         super().__init__(message)
 
@@ -188,7 +186,9 @@ def _find_swipl_windows():
         # libswipl.dll must be in SWI_DIR/bin
         libswipl_path = os.path.join(swi_dir, "bin", libswipl)
         if not os.path.exists(libswipl_path):
-            raise SwiPrologNotFoundError(f"could not locate {libswipl} at {libswipl_path}")
+            raise SwiPrologNotFoundError(
+                f"could not locate {libswipl} at {libswipl_path}"
+            )
         return libswipl_path, swi_dir
 
     raise SwiPrologNotFoundError
