@@ -333,7 +333,7 @@ def find_swi_home(path) -> str:
     return ""
 
 
-def _findSwipl() -> (str, str):
+def _find_swipl() -> (str, str):
     """
     This function makes a big effort to find the path to the SWI-Prolog shared
     library. Since this is both OS dependent and installation dependent, we may
@@ -507,7 +507,7 @@ def check_strings(strings, arrays):
 
 # Find the path and resource file. SWI_HOME_DIR shall be treated as a constant
 # by users of this module
-_path, SWI_HOME_DIR = _findSwipl()
+_path, SWI_HOME_DIR = _find_swipl()
 
 # Load the library
 _lib = CDLL(_path, mode=RTLD_GLOBAL)

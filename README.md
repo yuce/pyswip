@@ -4,39 +4,18 @@
 
 # PySwip
 
----
-
-## Installing the Latest Version
-
-The latest SWI-Prolog supported by Ubuntu 22.04 are 9.0.4.
-We generally want to support LTS releases of Ubuntu.
-You can use the following to install PySwip from the master branch:
-
-```
-pip install git+https://github.com/yuce/pyswip@master#egg=pyswip
-```
-
-## The End of Python 2 Support
-
-Python 2 has reached end of life on January 1st, 2020 as documented [here](https://www.python.org/doc/sunset-python-2/).
-So, PySwip 0.2.10 is the last version which officially supports Python 2.
-
----
-
 ## What's New?
 
 See the [CHANGELOG](CHANGELOG.md).
 
----
+## Install
 
-**WARNING! PySwip has no Windows installers!
-If you are a Windows user, see [INSTALL](https://github.com/yuce/pyswip/blob/master/INSTALL.md#windows).
-There are some "free download" sites that claim to be hosting PySwip installers.
-DO NOT TRUST THEM!**
+If you have SWI-Prolog installed, it's just:
+```
+pip install pyswip
+```
 
----
-
-Thanks to all [contributors](CONTRIBUTORS.txt).
+See [INSTALL](INSTALL.md) for detailed instructions.
 
 ## Introduction
 
@@ -45,20 +24,8 @@ It features an (incomplete) SWI-Prolog foreign language interface, a utility cla
 
 Since PySwip uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
 
-## Requirements:
-
-* Python 3.8 and higher.
-  * PyPy is currently not supported.
-* SWI-Prolog 9.0.4 and higher.
-* `libswipl` as a shared library. *This is the default on most platforms.*
-* Works on Linux, Windows, MacOS and FreeBSD. Should work on other POSIX.
-
-## Install
-
-**IMPORTANT: Make sure the SWI-Prolog architecture is the same as the Python architecture.
-If you are using a 64bit build of Python, use a 64bit build of SWI-Prolog, etc.**
-
-See [INSTALL](INSTALL.md) for instructions.
+PySwip was brought to you by the PySwip community.
+Thanks to all [contributors](CONTRIBUTORS.txt).
 
 ## Examples
 
@@ -203,7 +170,8 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [MIDSI Project](https://github.com/devdaniellima/midsi) Solution for data discovery in projects applicable to the
   Semantic Web, enabling the loading of ontologies and inference of results using the WSML language.
 * [Popper](https://github.com/logic-and-learning-lab/Popper) An inductive logic programming system.
-* [Trabajo Final](https://github.com/NicolasLeidi/Trabajo-Final) Ingeniería para Sistemas de Información - Nicolás Leidi
+* [Trabajo Final](https://github.com/NicolasLeidi/Trabajo-Final) Ingeniería para Sistemas de Información (Spanish)
+* [norms-games](https://github.com/nmontesg/norms-games) Integration of normative systems and game theory
 
 ### Blog Posts
 
