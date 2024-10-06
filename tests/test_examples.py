@@ -28,6 +28,8 @@ ensure stability in several platforms.
 
 import unittest
 
+import pytest
+
 from pyswip import *
 
 
@@ -285,6 +287,7 @@ class TestExamples(unittest.TestCase):
             else:
                 self.fail("Failed while running example number %d" % i)
 
+    @pytest.mark.slow
     def test_large_db(self):
         """
         Generates a large database, then runs query

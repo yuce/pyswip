@@ -9,3 +9,4 @@ pyswip.egg-info/
 build/
 /.idea/
 /.mypy_cache/
+.venv

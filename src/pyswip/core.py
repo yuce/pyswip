@@ -32,9 +32,22 @@ from contextlib import contextmanager
 from ctypes import *
 from ctypes.util import find_library
 from subprocess import Popen, PIPE
+from typing import Tuple
 
 ENV_LIBSWIPL_PATH = "LIBSWIPL_PATH"
 ENV_SWI_HOME_DIR = "SWI_HOME_DIR"
+
+
+class PySwipError(Exception):
+
+    def __init__(self, message):
+        super().__init__(message)
+
+
+class SwiPrologNotFoundError(PySwipError):
+
+    def __init__(self, message="SWI-Prolog not found"):
+        super().__init__(message)
 
 
 # To initialize the SWI-Prolog environment, two things need to be done: the
@@ -153,7 +166,7 @@ def _findSwiplFromExec():
     except (OSError, KeyError):  # KeyError from accessing rtvars
         pass
 
-    return (fullName, swiHome)
+    return fullName, swiHome
 
 
 def _find_swipl_windows():
@@ -175,10 +188,10 @@ def _find_swipl_windows():
         # libswipl.dll must be in SWI_DIR/bin
         libswipl_path = os.path.join(swi_dir, "bin", libswipl)
         if not os.path.exists(libswipl_path):
-            raise FileNotFoundError(f"could not locate {libswipl}", libswipl_path)
+            raise SwiPrologNotFoundError(f"could not locate {libswipl} at {libswipl_path}")
         return libswipl_path, swi_dir
 
-    raise FileNotFoundError("could not locate SWI home directory")
+    raise SwiPrologNotFoundError
 
 
 def find_swipl_dir_from_registry():
@@ -205,14 +218,15 @@ def _find_swipl_unix():
     """
 
     # Maybe the exec is on path?
-    (path, swiHome) = _findSwiplFromExec()
+    path, swi_home = _findSwiplFromExec()
     if path is not None:
-        return (path, swiHome)
+        return path, swi_home
 
     # If it is not, use  find_library
     path = _findSwiplPathFromFindLib()
     if path is not None:
-        return (path, swiHome)
+        swi_home = find_swi_home(path)
+        return path, swi_home
 
     # Our last try: some hardcoded paths.
     paths = [
@@ -234,12 +248,13 @@ def _find_swipl_unix():
                 break
 
     if path is not None:
-        return (path, swiHome)
+        swi_home = find_swi_home(path)
+        return path, swi_home
 
-    return (None, None)
+    raise SwiPrologNotFoundError
 
 
-def find_swipl_macos_home():
+def find_swipl_macos_home() -> Tuple[str, str]:
     """
     This function is guesing where SWI-Prolog is
     installed in MacOS via .app.
@@ -259,12 +274,13 @@ def find_swipl_macos_home():
         swi_home = "/Applications/SWI-Prolog.app/Contents/swipl"
     if os.path.exists(swi_home):
         swi_base = os.path.split(swi_home)[0]
-        lib = find_swipl_dylib(swi_base)
+        framework_path = os.path.join(swi_base, "Frameworks")
+        lib = find_swipl_dylib(framework_path)
         if lib:
-            lib_path = os.path.join(swi_base, "Frameworks", lib)
+            lib_path = os.path.join(framework_path, lib)
             return lib_path, swi_home
 
-    raise FileNotFoundError("SWI-Prolog home was not found")
+    return "", ""
 
 
 def find_swipl_dylib(root) -> str:
@@ -286,6 +302,10 @@ def _find_swipl_darwin() -> (str, str):
         ({str, None}, {str, None})
     """
 
+    path, swi_home = find_swipl_macos_home()
+    if path and swi_home:
+        return path, swi_home
+
     # If the exec is in path
     path, swi_home = _findSwiplFromExec()
     if path:
@@ -297,18 +317,7 @@ def _find_swipl_darwin() -> (str, str):
         swi_home = find_swi_home(os.path.dirname(path))
         return path, swi_home
 
-    # Check the standard install path
-    swi_home = os.environ.get("SWI_HOME_DIR")
-    if not swi_home:
-        swi_home = "/Applications/SWI-Prolog.app/Contents/swipl"
-    if os.path.exists(swi_home):
-        swi_base = os.path.split(swi_home)[0]
-        lib = find_swipl_dylib(swi_base)
-        if lib:
-            lib_path = os.path.join(swi_base, "Frameworks", lib)
-            return lib_path, swi_home
-
-    raise FileNotFoundError("SWI-Prolog was not found")
+    raise SwiPrologNotFoundError
 
 
 def find_swi_home(path) -> str:
@@ -324,7 +333,7 @@ def find_swi_home(path) -> str:
     return ""
 
 
-def _findSwipl() -> (str, str):
+def _find_swipl() -> (str, str):
     """
     This function makes a big effort to find the path to the SWI-Prolog shared
     library. Since this is both OS dependent and installation dependent, we may
@@ -350,11 +359,7 @@ def _findSwipl() -> (str, str):
         fix_windows_path(libswipl_path)
         return libswipl_path, swi_home_dir
     elif platform == "darwin":
-        libswipl_path, swi_home_dir = _find_swipl_darwin()
-        if not libswipl_path:
-            libswipl_path, swi_home_dir = find_swipl_macos_home()
-        return libswipl_path, swi_home_dir
-
+        return _find_swipl_darwin()
     else:
         # This should work for other Linux and BSD
         return _find_swipl_unix()
@@ -502,7 +507,7 @@ def check_strings(strings, arrays):
 
 # Find the path and resource file. SWI_HOME_DIR shall be treated as a constant
 # by users of this module
-_path, SWI_HOME_DIR = _findSwipl()
+_path, SWI_HOME_DIR = _find_swipl()
 
 # Load the library
 _lib = CDLL(_path, mode=RTLD_GLOBAL)
