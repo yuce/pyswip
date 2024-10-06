@@ -23,7 +23,11 @@ jobs:
 
       steps:
 
-        - uses: "actions/checkout@v4"
+        - name: "Checkout"
+          uses: "actions/checkout@v4"
+          if: github.event_name == 'pull_request_target'
+          with:
+            ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
         - name: "Set up Python ${{ matrix.python-version }}"
           uses: "actions/setup-python@v5"
