@@ -134,6 +134,8 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [Learning Where and When to Reason in Neuro-Symbolic Inference](https://openreview.net/pdf?id=en9V5F8PR) (PDF)
 * [MMDect: Metamorphic Malware Detection Using Logic Programming](http://platon.etsii.urjc.es/~jarias/tfg/23-Luciana.pdf) (PDF)
 * [Continuous QoS-compliant orchestration in the Cloud-Edge continuum](https://onlinelibrary.wiley.com/doi/10.1002/spe.3334) ([Code](https://github.com/di-unipi-socc/FogArm))
+* [ProPy: Prolog-based Fault Localization Tool for Python](https://ieeexplore.ieee.org/document/9825788)
+* [Building a Fuzzy Expert System for Assessing the Severity of Pneumonia](https://www.researchgate.net/publication/363190862_Building_a_Fuzzy_Expert_System_for_Assessing_the_Severity_of_Pneumonia)
 
 ### Videos
 
@@ -172,6 +174,7 @@ If you would like to reference PySwip in a LaTeX document, you can use the provi
 * [Popper](https://github.com/logic-and-learning-lab/Popper) An inductive logic programming system.
 * [Trabajo Final](https://github.com/NicolasLeidi/Trabajo-Final) Ingeniería para Sistemas de Información (Spanish)
 * [norms-games](https://github.com/nmontesg/norms-games) Integration of normative systems and game theory
+* [NAAV Language](https://github.com/atharva-date/SER502-NAAV-Team17)
 
 ### Blog Posts
 
