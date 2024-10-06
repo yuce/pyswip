@@ -1,6 +1,8 @@
 # CHANGELOG
 
-### 0.3.0 (Not Released)
+### 0.3.1 (Not Released)
+
+### 0.3.0
 
 * Improve list representations, unicode support and multiple threading usage, see: [97](https://github.com/yuce/pyswip/pull/97). Contributed by Guglielmo Gemignani.
 * Added PL_STRINGS_MARK to getAtomChars, fixes [102](https://github.com/yuce/pyswip/issues/102). Contributed by Vince Jankovics.
