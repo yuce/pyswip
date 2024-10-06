@@ -21,3 +21,6 @@ upload:
 check:
 	ruff format --check
 	ruff check
+
+reformat:
+	ruff format

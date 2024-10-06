@@ -25,6 +25,7 @@
 """
 Tests the Prolog class.
 """
+
 import os.path
 import unittest
 
