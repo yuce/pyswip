@@ -145,8 +145,8 @@ To install PySwip, use the `pip install` way explained above.
 ## Test Drive
 
 Run a quick test by running following code at your Python console:
-    ```python
-    from pyswip import Prolog
-    prolog = Prolog()
-    prolog.assertz("father(michael,john)")
-    ```
+```python
+from pyswip import Prolog
+prolog = Prolog()
+prolog.assertz("father(michael,john)")
+```
