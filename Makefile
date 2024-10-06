@@ -7,7 +7,7 @@ clean:
 	rm -rf dist build pyswip.egg-info
 
 coverage:
-	py.test tests --verbose --cov=pyswip
+	PYTHONPATH=src py.test tests --verbose --cov=pyswip
 
 upload-coverage: coverage
 	coveralls

@@ -3,7 +3,7 @@
 ## Requirements
 
 * Python 3.8 or later
-* SWI-Prolog 9.0.4 or later
+* SWI-Prolog 8.4.2 or later
 * 64bit Intel or ARM processor
 
 > [!IMPORTANT]
@@ -87,6 +87,7 @@ See: https://www.parabola.nu/packages/?q=python-pyswip
 
 ### Debian, Ubuntu, Raspbian
 
+Ubuntu 22.04 has SWI-Prolog 8.4.3 in its repository.
 Debian Bookworm, Ubuntu 24.04 and Raspberry Pi OS Bookworm have SWI-Prolog 9.0.4 in their repositories.
 
 To install PySwip, use the `pip install` way explained above.
