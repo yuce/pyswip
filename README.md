@@ -8,7 +8,7 @@
 
 ## What's New?
 
-See the [CHANGELOG](CHANGELOG.md).
+See the [Change Log](https://pyswip.org/change-log.html).
 
 ## Install
 
@@ -103,4 +103,14 @@ The core functionality of `Prolog.query` is based on Nathan Denny's public domai
 
 ## PySwip Community Home
 
-Check out [PySwip Community](https://pyswip.org/community.html) for more information and community links.
+PySwip was used in scientific articles, dissertations, and student projects over the years.
+Head out to [PySwip Community](https://pyswip.org/community.html) for more information and community links.
+
+**Do you have a project, video or publication that uses/mentions PySwip?**
+**[file an issue](https://github.com/yuce/pyswip/issues/new?title=Powered%20by%20PySwip) or send a pull request.**
+
+If you would like to reference PySwip in a LaTeX document, you can use the provided [BibTeX file](https://pyswip.org/pyswip.bibtex).
+You can also use the following information to refer to PySwip:
+* Author: Yüce Tekol and PySwip contributors
+* Title: PySwip VERSION
+* URL: https://pyswip.org
