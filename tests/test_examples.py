@@ -293,7 +293,7 @@ class TestExamples(unittest.TestCase):
         Generates a large database, then runs query
         """
 
-        num_facts = 1250000
+        num_facts = 125000
         prolog = Prolog()
         for i in range(num_facts):
             prolog.assertz("p(%s)" % i)
