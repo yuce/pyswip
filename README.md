@@ -7,6 +7,7 @@
 <div align="center">
     <img src="https://pyswip.org/images/pyswip_logo_sm_256colors.gif" alt="PySwip logo">
 </div>
+
 ## What's New?
 
 See the [Change Log](https://pyswip.org/change-log.html).
