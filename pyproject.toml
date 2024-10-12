@@ -37,7 +37,7 @@ classifiers = [
 
 [project.urls]
 Download = "https://github.com/yuce/pyswip/releases"
-Homepage = "https://github.com/yuce/pyswip"
+Homepage = "https://pyswip.org"
 
 [tool.ruff.lint]
 ignore = ["F403", "F405", "E721"]
