@@ -116,3 +116,7 @@ You can also use the following information to refer to PySwip:
 * Author: Yüce Tekol and PySwip contributors
 * Title: PySwip VERSION
 * URL: https://pyswip.org
+
+## License
+
+PySwip is licensed under the [MIT license](LICENSE).
