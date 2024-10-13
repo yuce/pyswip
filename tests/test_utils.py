@@ -41,15 +41,12 @@ class UtilsTestCase(unittest.TestCase):
         self.assertEqual(current_dir / filename, path)
 
     def test_resolve_path_symbolic_link(self):
-        if sys.platform == "win32":
-            self.skipTest("this feature is supported only on UNIX")
         current_dir = Path(__file__).parent.absolute()
         path = current_dir / "test_read.pl"
         temp_dir = tempfile.TemporaryDirectory("pyswip")
         try:
             symlink = Path(temp_dir.name) / "symlinked"
             os.symlink(path, symlink)
-            resolved_path = resolve_path("test_read.pl", symlink)
-            self.assertEqual(path, resolved_path)
+            self.assertRaises(ValueError, lambda: resolve_path("test_read.pl", symlink))
         finally:
             temp_dir.cleanup()

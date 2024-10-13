@@ -28,13 +28,10 @@ def resolve_path(filename: str, relative_to: Union[str, Path] = "") -> Path:
     relative_to = Path(relative_to)
     if not relative_to.exists():
         raise FileNotFoundError(
-            None, "resolve_filename: relative_to does not exist", str(relative_to)
+            None, "Relative path does not exist", str(relative_to)
         )
     if relative_to.is_symlink():
-        try:
-            relative_to = relative_to.readlink()
-        except NotImplementedError:
-            pass
+        raise ValueError("Symbolic links are not supported")
     if relative_to.is_dir():
         return relative_to / filename
     elif relative_to.is_file():
