@@ -22,12 +22,14 @@ from typing import Union
 from pathlib import Path
 
 
-def resolve_path(filename: str, relative_to: Union[str, Path]= "") -> Path:
+def resolve_path(filename: str, relative_to: Union[str, Path] = "") -> Path:
     if not relative_to:
         return Path(filename)
     relative_to = Path(relative_to)
     if not relative_to.exists():
-        raise FileNotFoundError(None, f"resolve_filename: relative_to does not exist", str(relative_to))
+        raise FileNotFoundError(
+            None, f"resolve_filename: relative_to does not exist", str(relative_to)
+        )
     if relative_to.is_symlink():
         try:
             relative_to = relative_to.readlink()
@@ -38,4 +40,3 @@ def resolve_path(filename: str, relative_to: Union[str, Path]= "") -> Path:
     elif relative_to.is_file():
         return relative_to.parent / filename
     raise ValueError("relative_to must be either a filename or a directory")
-

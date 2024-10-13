@@ -23,15 +23,30 @@ from pathlib import Path
 
 from pyswip.utils import resolve_path
 from pyswip.core import (
-    SWI_HOME_DIR, PL_STRING, REP_UTF8,
-    PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_Q_NORMAL,
-    PL_initialise, PL_open_foreign_frame, PL_new_term_ref,
-    PL_chars_to_term, PL_call, PL_discard_foreign_frame,
-    PL_new_term_refs, PL_put_chars, PL_predicate,
-    PL_open_query, PL_next_solution, PL_copy_term_ref,
-    PL_exception, PL_cut_query, PL_thread_self,
+    SWI_HOME_DIR,
+    PL_STRING,
+    REP_UTF8,
+    PL_Q_NODEBUG,
+    PL_Q_CATCH_EXCEPTION,
+    PL_Q_NORMAL,
+    PL_initialise,
+    PL_open_foreign_frame,
+    PL_new_term_ref,
+    PL_chars_to_term,
+    PL_call,
+    PL_discard_foreign_frame,
+    PL_new_term_refs,
+    PL_put_chars,
+    PL_predicate,
+    PL_open_query,
+    PL_next_solution,
+    PL_copy_term_ref,
+    PL_exception,
+    PL_cut_query,
+    PL_thread_self,
     PL_thread_attach_engine,
 )
+
 
 class PrologError(Exception):
     pass
@@ -187,7 +202,9 @@ class Prolog:
         next(cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors))
 
     @classmethod
-    def consult(cls, filename: str, *, catcherrors=False, relative_to: Union[str, Path]=""):
+    def consult(
+        cls, filename: str, *, catcherrors=False, relative_to: Union[str, Path] = ""
+    ):
         path = resolve_path(filename, relative_to)
         next(cls.query(str(path).join(["consult('", "')"]), catcherrors=catcherrors))
 

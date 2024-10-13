@@ -23,6 +23,7 @@
 
 from pyswip.prolog import Prolog
 
+
 def main():
     prolog = Prolog()
     prolog.consult("coins.pl", relative_to=__file__)

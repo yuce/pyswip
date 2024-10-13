@@ -29,7 +29,6 @@ from pyswip.utils import resolve_path
 
 
 class UtilsTestCase(unittest.TestCase):
-
     def test_resolve_path_given_file(self):
         filename = "test_read.pl"
         path = resolve_path(filename)
@@ -54,8 +53,3 @@ class UtilsTestCase(unittest.TestCase):
             self.assertEqual(path, resolved_path)
         finally:
             temp_dir.cleanup()
-
-
-
-
-
