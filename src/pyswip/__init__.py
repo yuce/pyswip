@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-
-
-# pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2018 Yüce Tekol
+# Copyright (c) 2007-2024 Yüce Tekol and PySwip Contributors
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
-# PySwip version
 __VERSION__ = "0.3.1"
 
 from pyswip.prolog import Prolog as Prolog

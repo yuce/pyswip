@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-
-
-# pyswip.easy -- PySwip helper functions
-# Copyright (c) 2007-2018 Yüce Tekol
+# Copyright (c) 2007-2024 Yüce Tekol and PySwip Contributors
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,18 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 from pyswip.core import *
 
 
-# For backwards compability with Python 2 64bit
-if sys.version_info < (3,):
-    integer_types = (
-        int,
-        long,
-    )
-else:
-    integer_types = (int,)
+integer_types = (int,)
 
 
 class InvalidTypeError(TypeError):
@@ -146,17 +134,8 @@ class Term(object):
         return self.handle
 
 
-# support unicode also in python 2
-try:
-    isinstance("", basestring)
-
-    def isstr(s):
-        return isinstance(s, basestring)
-
-except NameError:
-
-    def isstr(s):
-        return isinstance(s, str)
+def isstr(s):
+    return isinstance(s, str)
 
 
 class Variable(object):

@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-
-
-# prolog.py -- Prolog class
-# Copyright (c) 2007-2012 Yüce Tekol
+# Copyright (c) 2007-2024 Yüce Tekol and PySwip Contributors
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +18,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import Union
+from pathlib import Path
 
-from pyswip.core import *
+from pyswip.utils import resolve_path
+from pyswip.core import (
+    SWI_HOME_DIR,
+    PL_STRING,
+    REP_UTF8,
+    PL_Q_NODEBUG,
+    PL_Q_CATCH_EXCEPTION,
+    PL_Q_NORMAL,
+    PL_initialise,
+    PL_open_foreign_frame,
+    PL_new_term_ref,
+    PL_chars_to_term,
+    PL_call,
+    PL_discard_foreign_frame,
+    PL_new_term_refs,
+    PL_put_chars,
+    PL_predicate,
+    PL_open_query,
+    PL_next_solution,
+    PL_copy_term_ref,
+    PL_exception,
+    PL_cut_query,
+    PL_thread_self,
+    PL_thread_attach_engine,
+)
 
 
 class PrologError(Exception):
@@ -180,8 +202,11 @@ class Prolog:
         next(cls.query(term.join(["retractall((", "))."]), catcherrors=catcherrors))
 
     @classmethod
-    def consult(cls, filename, catcherrors=False):
-        next(cls.query(filename.join(["consult('", "')"]), catcherrors=catcherrors))
+    def consult(
+        cls, filename: str, *, catcherrors=False, relative_to: Union[str, Path] = ""
+    ):
+        path = resolve_path(filename, relative_to)
+        next(cls.query(str(path).join(["consult('", "')"]), catcherrors=catcherrors))
 
     @classmethod
     def query(cls, query, maxresult=-1, catcherrors=True, normalize=True):
