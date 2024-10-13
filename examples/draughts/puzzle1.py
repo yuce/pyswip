@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2018 Yüce Tekol
 #
@@ -35,19 +33,12 @@
 # are four guards watching each wall.  How can they be rearranged such
 # that there are five watching each wall?"
 
-from __future__ import print_function
 from pyswip.prolog import Prolog
-
-
-try:
-    input = raw_input
-except NameError:
-    pass
 
 
 def main():
     prolog = Prolog()
-    prolog.consult("puzzle1.pl")
+    prolog.consult("puzzle1.pl", relative_to=__file__)
 
     for soln in prolog.query("solve(B)."):
         B = soln["B"]

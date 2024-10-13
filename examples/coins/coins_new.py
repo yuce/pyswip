@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2018 Yüce Tekol
 #
@@ -23,19 +21,12 @@
 
 # 100 coins must sum to $5.00
 
-from __future__ import print_function
 from pyswip import Prolog, Functor, Variable, Query
-
-
-try:
-    input = raw_input
-except NameError:
-    pass
 
 
 def main():
     prolog = Prolog()
-    prolog.consult("coins.pl")
+    prolog.consult("coins.pl", relative_to=__file__)
     count = int(input("How many coins (default: 100)? ") or 100)
     total = int(input("What should be the total (default: 500)? ") or 500)
     coins = Functor("coins", 3)
@@ -47,7 +38,7 @@ def main():
         s = zip(S.value, [1, 5, 10, 50, 100])
         print(i, end=" ")
         for c, v in s:
-            print("%dx%d" % (c, v), end=" ")
+            print(f"{c}x{v}", end=" ")
         print()
         i += 1
     q.closeQuery()

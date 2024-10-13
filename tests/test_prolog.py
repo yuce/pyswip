@@ -30,7 +30,6 @@ import os.path
 import unittest
 
 import pyswip.prolog as pl  # This implicitly tests library loading code
-from tests.test_issues import current_dir
 
 
 class TestProlog(unittest.TestCase):
@@ -112,6 +111,7 @@ class TestProlog(unittest.TestCase):
         """
         See: https://github.com/yuce/pyswip/issues/10
         """
+        current_dir = os.path.dirname(os.path.abspath(__file__))
         prolog = pl.Prolog()
         path = os.path.join(current_dir, "test_read.pl")
         prolog.consult(path)

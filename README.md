@@ -59,7 +59,6 @@ prolog.consult("knowledge_base.pl")
 ### Foreign Functions
 
 ```python
-from __future__ import print_function
 from pyswip import Prolog, registerForeign
 
 def hello(t):
@@ -77,7 +76,6 @@ print(list(prolog.query("father(michael,X), hello(X)")))
 ### Pythonic interface (Experimental)
 
 ```python
-from __future__ import print_function
 from pyswip import Functor, Variable, Query, call
 
 assertz = Functor("assertz", 1)

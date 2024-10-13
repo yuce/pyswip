@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # pyswip -- Python SWI-Prolog bridge
 # Copyright (c) 2007-2018 Yüce Tekol
 #
@@ -21,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import print_function
 from collections import deque
 
 from pyswip.prolog import Prolog
@@ -78,15 +75,13 @@ class Tower:
 
 
 def main():
-    N = 3
-    INTERACTIVITY = True
-
+    n = 3
     prolog = Prolog()
-    tower = Tower(N, INTERACTIVITY)
+    tower = Tower(n, True)
     notifier = Notifier(tower.move)
     registerForeign(notifier.notify)
-    prolog.consult("hanoi.pl")
-    list(prolog.query("hanoi(%d)" % N))
+    prolog.consult("hanoi.pl", relative_to=__file__)
+    list(prolog.query("hanoi(%d)" % n))
 
 
 if __name__ == "__main__":

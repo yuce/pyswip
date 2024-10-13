@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
 # pyswip -- Python SWI-Prolog bridge
-# Copyright (c) 2007-2018 Yüce Tekol
+# Copyright (c) 2007-2024 Yüce Tekol
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,12 +27,11 @@
 # So, what should be the values of S, E, N, D, M, O, R, Y
 # if they are all distinct digits.
 
-from __future__ import print_function
 from pyswip import Prolog
 
-letters = "S E N D M O R Y".split()
+letters = list("SENDMORY")
 prolog = Prolog()
-prolog.consult("money.pl")
+prolog.consult("money.pl", relative_to=__file__)
 for result in prolog.query("sendmore(X)"):
     r = result["X"]
     for i, letter in enumerate(letters):
