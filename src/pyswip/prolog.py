@@ -203,9 +203,9 @@ class Prolog:
 
     @classmethod
     def consult(
-        cls, filename: str, *, catcherrors=False, relative_to: Union[str, Path] = ""
+        cls, path: Union[str, Path], *, catcherrors=False, relative_to: Union[str, Path] = ""
     ):
-        path = resolve_path(filename, relative_to)
+        path = resolve_path(path, relative_to)
         next(cls.query(str(path).join(["consult('", "')"]), catcherrors=catcherrors))
 
     @classmethod

@@ -49,3 +49,15 @@ class UtilsTestCase(unittest.TestCase):
             self.assertRaises(ValueError, lambda: resolve_path("test_read.pl", symlink))
         finally:
             temp_dir.cleanup()
+
+    def test_resolve_path_absolute(self):
+        path = resolve_path("/home/pyswip/file")
+        self.assertEqual(Path("/home/pyswip/file"), path)
+
+    def test_resolve_path_without_resolve(self):
+        path = resolve_path("files/file1.pl")
+        self.assertEqual(Path("files/file1.pl"), path)
+
+    def test_resolve_path_expanduser(self):
+        path = resolve_path("~/foo/bar")
+        self.assertEqual(Path.home() / "foo/bar", path)
