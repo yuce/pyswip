@@ -22,16 +22,15 @@ from typing import Union
 from pathlib import Path
 
 
-def resolve_path(filename: str, relative_to: Union[str, Path] = "") -> Path:
-    if not relative_to:
-        return Path(filename)
-    relative_to = Path(relative_to)
-    if not relative_to.exists():
-        raise FileNotFoundError(None, "Relative path does not exist", str(relative_to))
+def resolve_path(path: Union[str, Path], relative_to: Union[str, Path] = "") -> Path:
+    path = Path(path).expanduser()
+    if path.is_absolute() or not relative_to:
+        return path
+    relative_to = Path(relative_to).expanduser()
     if relative_to.is_symlink():
         raise ValueError("Symbolic links are not supported")
     if relative_to.is_dir():
-        return relative_to / filename
+        return relative_to / path
     elif relative_to.is_file():
-        return relative_to.parent / filename
+        return relative_to.parent / path
     raise ValueError("relative_to must be either a filename or a directory")
