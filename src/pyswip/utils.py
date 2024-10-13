@@ -28,7 +28,7 @@ def resolve_path(filename: str, relative_to: Union[str, Path] = "") -> Path:
     relative_to = Path(relative_to)
     if not relative_to.exists():
         raise FileNotFoundError(
-            None, f"resolve_filename: relative_to does not exist", str(relative_to)
+            None, "resolve_filename: relative_to does not exist", str(relative_to)
         )
     if relative_to.is_symlink():
         try:
