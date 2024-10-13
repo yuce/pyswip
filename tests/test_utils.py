@@ -20,7 +20,6 @@
 # SOFTWARE.
 
 import os
-import sys
 import unittest
 import tempfile
 from pathlib import Path
