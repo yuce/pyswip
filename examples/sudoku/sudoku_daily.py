@@ -25,13 +25,10 @@
 # Sudoku auto-solver. Get today's sudoku at http://www.sudoku.org.uk/daily.asp
 # and solve it
 
-from __future__ import print_function
-from pyswip.prolog import Prolog
-from pyswip.easy import *
-
 from html.parser import HTMLParser
-
 import urllib.request as urllib_request
+
+from pyswip.prolog import Prolog
 
 
 class DailySudokuPuzzle(HTMLParser):
@@ -75,7 +72,7 @@ def get_daily_sudoku(url):
 
 
 def solve(problem):
-    prolog.consult("sudoku.pl")
+    prolog.consult("sudoku.pl", relative_to=__file__)
     p = str(problem).replace("0", "_")
     result = list(prolog.query("Puzzle=%s,sudoku(Puzzle)" % p, maxresult=1))
     if result:
@@ -94,7 +91,7 @@ if __name__ == "__main__":
     print("-- PUZZLE --")
     pretty_print(puzzle)
     print()
-    print(" -- SOLUTION --")
+    print("-- SOLUTION --")
     solution = solve(puzzle)
     if solution:
         pretty_print(solution)

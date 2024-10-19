@@ -21,9 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import print_function
 from pyswip.prolog import Prolog
-from pyswip.easy import *
 
 
 _ = 0
@@ -61,7 +59,7 @@ def pretty_print(table):
 
 
 def solve(problem):
-    prolog.consult("sudoku.pl")
+    prolog.consult("sudoku.pl", relative_to=__file__)
     p = str(problem).replace("0", "_")
     result = list(prolog.query("L=%s,sudoku(L)" % p, maxresult=1))
     if result:

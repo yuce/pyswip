@@ -23,7 +23,6 @@
 
 # Demonstrates registering a Python function as a Prolog predicate through SWI-Prolog's FFI.
 
-from __future__ import print_function
 from pyswip.prolog import Prolog
 from pyswip.easy import registerForeign
 
