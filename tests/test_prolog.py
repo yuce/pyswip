@@ -112,7 +112,6 @@ class TestProlog(unittest.TestCase):
         See: https://github.com/yuce/pyswip/issues/10
         """
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        prolog = pl.Prolog()
         path = os.path.join(current_dir, "test_read.pl")
-        prolog.consult(path)
-        list(prolog.query(f'read_file("{path}", S)'))
+        pl.Prolog.consult(path)
+        list(pl.Prolog.query(f'read_file("{path}", S)'))

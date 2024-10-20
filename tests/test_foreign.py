@@ -23,10 +23,9 @@ class MyTestCase(unittest.TestCase):
 
         registerForeign(hello)
 
-        prolog = Prolog()
-        prolog.assertz("father(michael,john)")
-        prolog.assertz("father(michael,gina)")
-        result = list(prolog.query("father(michael,X), hello(X)"))
+        Prolog.assertz("mother(emily,john)")
+        Prolog.assertz("mother(emily,gina)")
+        result = list(Prolog.query("mother(emily,X), hello(X)"))
         self.assertEqual(len(result), 2, "Query should return two results")
         for name in ("john", "gina"):
             self.assertTrue(
@@ -34,8 +33,6 @@ class MyTestCase(unittest.TestCase):
             )
 
     def test_nondeterministic_foreign(self):
-        prolog = Prolog()
-
         def nondet(a, context):
             control = PL_foreign_control(context)
             context = PL_foreign_context(context)
@@ -55,7 +52,7 @@ class MyTestCase(unittest.TestCase):
 
         nondet.arity = 1
         registerForeign(nondet, flags=PL_FA_NONDETERMINISTIC)
-        result = list(prolog.query("nondet(X)"))
+        result = list(Prolog.query("nondet(X)"))
 
         self.assertEqual(len(result), 10, "Query should return 10 results")
         for i in range(10):
@@ -78,9 +75,7 @@ class MyTestCase(unittest.TestCase):
         registerForeign(get_str)
         registerForeign(test_for_string)
 
-        prolog = Prolog()
-
-        result = list(prolog.query("get_str(String), test_for_string(String, Result)"))
+        result = list(Prolog.query("get_str(String), test_for_string(String, Result)"))
         self.assertEqual(
             result[0]["Result"],
             "true",
@@ -100,17 +95,14 @@ class MyTestCase(unittest.TestCase):
 
         registerForeign(get_list_of_lists)
 
-        prolog = Prolog()
-
-        result = list(prolog.query("get_list_of_lists(Result)"))
+        result = list(Prolog.query("get_list_of_lists(Result)"))
         self.assertTrue(
             {"Result": [[1], [2]]} in result,
             "Nested lists should be unified correctly as return value.",
         )
 
     def test_dictionary(self):
-        prolog = Prolog()
-        result = list(prolog.query("X = dict{key1:value1 , key2: value2}"))
+        result = list(Prolog.query("X = dict{key1:value1 , key2: value2}"))
         dict = result[0]
         self.assertTrue(
             {"key1": "value1", "key2": "value2"} == dict["X"],
@@ -118,8 +110,7 @@ class MyTestCase(unittest.TestCase):
         )
 
     def test_empty_dictionary(self):
-        prolog = Prolog()
-        result = list(prolog.query("X = dict{}"))
+        result = list(Prolog.query("X = dict{}"))
         dict = result[0]
         self.assertTrue(
             dict["X"] == {},
@@ -127,8 +118,7 @@ class MyTestCase(unittest.TestCase):
         )
 
     def test_nested_dictionary(self):
-        prolog = Prolog()
-        result = list(prolog.query("X = dict{key1:nested{key:value} , key2: value2}"))
+        result = list(Prolog.query("X = dict{key1:nested{key:value} , key2: value2}"))
         dict = result[0]
         self.assertTrue(
             {"key1": {"key": "value"}, "key2": "value2"} == dict["X"],

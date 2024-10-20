@@ -76,12 +76,11 @@ class Tower:
 
 def main():
     n = 3
-    prolog = Prolog()
     tower = Tower(n, True)
     notifier = Notifier(tower.move)
     registerForeign(notifier.notify)
-    prolog.consult("hanoi.pl", relative_to=__file__)
-    list(prolog.query("hanoi(%d)" % n))
+    Prolog.consult("hanoi.pl", relative_to=__file__)
+    list(Prolog.query("hanoi(%d)" % n))
 
 
 if __name__ == "__main__":

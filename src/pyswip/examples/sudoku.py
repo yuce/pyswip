@@ -28,12 +28,13 @@ from io import StringIO
 from pyswip.prolog import Prolog
 
 
-__all__ = "Matrix", "solve"
+__all__ = "Matrix", "solve", "prolog_source"
 
-DIMENSION = 9
+_DIMENSION = 9
+_SOURCE_PATH = "sudoku.pl"
 
 
-Prolog.consult("sudoku.pl", relative_to=__file__)
+Prolog.consult(_SOURCE_PATH, relative_to=__file__)
 
 
 class Matrix:
@@ -41,7 +42,7 @@ class Matrix:
     def __init__(self, matrix: List[List[int]]) -> None:
         if not matrix:
             raise ValueError("matrix must be given")
-        if len(matrix) != DIMENSION:
+        if len(matrix) != _DIMENSION:
             raise ValueError("Matrix dimension must be 9")
         self._dimension = len(matrix)
         self._validate(self._dimension, matrix)
@@ -105,6 +106,13 @@ def solve(matrix: Matrix) -> Union[Matrix, Literal[False]]:
     return Matrix(result)
 
 
+def prolog_source() -> str:
+    from pathlib import Path
+    path = Path(__file__).parent / _SOURCE_PATH
+    with open(path) as f:
+        return f.read()
+
+
 def main():
     puzzle = Matrix.from_text("""
 . 6 . 1 . 4 . 5 .
@@ -123,7 +131,6 @@ def main():
     solution = solve(puzzle)
     if solution:
         solution.pretty_print()
-        print(repr(solution))
     else:
         print("This puzzle has no solutions. Is it valid?")
 

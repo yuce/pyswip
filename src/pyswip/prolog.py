@@ -218,14 +218,13 @@ class Prolog:
         If the query is a yes/no question, returns {} for yes, and nothing for no.
         Otherwise returns a generator of dicts with variables as keys.
 
-        >>> prolog = Prolog()
-        >>> prolog.assertz("father(michael,john)")
-        >>> prolog.assertz("father(michael,gina)")
-        >>> bool(list(prolog.query("father(michael,john)")))
+        >>> Prolog.assertz("father(michael,john)")
+        >>> Prolog.assertz("father(michael,gina)")
+        >>> bool(list(Prolog.query("father(michael,john)")))
         True
-        >>> bool(list(prolog.query("father(michael,olivia)")))
+        >>> bool(list(Prolog.query("father(michael,olivia)")))
         False
-        >>> print sorted(prolog.query("father(michael,X)"))
+        >>> print sorted(Prolog.query("father(michael,X)"))
         [{'X': 'gina'}, {'X': 'john'}]
         """
         return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)

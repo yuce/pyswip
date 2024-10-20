@@ -30,9 +30,8 @@
 from pyswip import Prolog
 
 letters = list("SENDMORY")
-prolog = Prolog()
-prolog.consult("money.pl", relative_to=__file__)
-for result in prolog.query("sendmore(X)"):
+Prolog.consult("money.pl", relative_to=__file__)
+for result in Prolog.query("sendmore(X)"):
     r = result["X"]
     for i, letter in enumerate(letters):
         print(letter, "=", r[i])

@@ -37,10 +37,9 @@ from pyswip.prolog import Prolog
 
 
 def main():
-    prolog = Prolog()
-    prolog.consult("puzzle1.pl", relative_to=__file__)
+    Prolog.consult("puzzle1.pl", relative_to=__file__)
 
-    for soln in prolog.query("solve(B)."):
+    for soln in Prolog.query("solve(B)."):
         B = soln["B"]
 
         # [NW,N,NE,W,E,SW,S,SE]

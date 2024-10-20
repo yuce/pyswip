@@ -59,9 +59,9 @@ def pretty_print(table):
 
 
 def solve(problem):
-    prolog.consult("sudoku.pl", relative_to=__file__)
+    Prolog.consult("sudoku.pl", relative_to=__file__)
     p = str(problem).replace("0", "_")
-    result = list(prolog.query("L=%s,sudoku(L)" % p, maxresult=1))
+    result = list(Prolog.query("L=%s,sudoku(L)" % p, maxresult=1))
     if result:
         result = result[0]
         return result["L"]
@@ -83,5 +83,4 @@ def main():
 
 
 if __name__ == "__main__":
-    prolog = Prolog()
     main()

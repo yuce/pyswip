@@ -36,10 +36,9 @@ hello.arity = 1
 
 def main():
     registerForeign(hello)
-    prolog = Prolog()
-    prolog.assertz("father(michael,john)")
-    prolog.assertz("father(michael,gina)")
-    list(prolog.query("father(michael,X), hello(X)"))
+    Prolog.assertz("father(michael,john)")
+    Prolog.assertz("father(michael,gina)")
+    list(Prolog.query("father(michael,X), hello(X)"))
 
 
 if __name__ == "__main__":

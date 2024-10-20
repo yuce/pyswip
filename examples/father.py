@@ -25,14 +25,12 @@ from pyswip import *
 
 
 def main():
-    p = Prolog()
-
     father = Functor("father", 2)
     mother = Functor("mother", 2)
 
-    p.assertz("father(john,mich)")
-    p.assertz("father(john,gina)")
-    p.assertz("mother(jane,mich)")
+    Prolog.assertz("father(john,mich)")
+    Prolog.assertz("father(john,gina)")
+    Prolog.assertz("mother(jane,mich)")
 
     Y = Variable()
     Z = Variable()
@@ -46,7 +44,7 @@ def main():
     q.closeQuery()  # Newer versions of SWI-Prolog do not allow nested queries
 
     print("\nQuery with strings\n")
-    for s in p.query("father(john,Y),mother(Z,Y)"):
+    for s in Prolog.query("father(john,Y),mother(Z,Y)"):
         print(s["Y"], s["Z"])
 
 

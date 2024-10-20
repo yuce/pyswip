@@ -68,8 +68,7 @@ class TestIssues(unittest.TestCase):
         # issue 13, if it does not work, it will segfault Python.
         from pyswip import Prolog
 
-        prolog = Prolog()
-        prolog.assertz("randomTerm(michael,john)")
+        Prolog.assertz("randomTerm(michael,john)")
 
     def test_issue_8(self):
         """
@@ -89,10 +88,9 @@ class TestIssues(unittest.TestCase):
 
         registerForeign(hello)
 
-        prolog = Prolog()
-        prolog.assertz("parent(michael,john)")
-        prolog.assertz("parent(michael,gina)")
-        p = prolog.query("parent(michael,X), hello(X)")
+        Prolog.assertz("parent(michael,john)")
+        Prolog.assertz("parent(michael,gina)")
+        p = Prolog.query("parent(michael,X), hello(X)")
         result = list(p)  # Will run over the iterator
 
         self.assertEqual(len(callsToHello), 2)  # ['john', 'gina']
@@ -246,13 +244,12 @@ class TestIssues(unittest.TestCase):
         """
         from pyswip import Prolog
 
-        prolog = Prolog()
-        prolog.consult("test_unicode.pl", catcherrors=True, relative_to=__file__)
-        atoms = list(prolog.query("unicode_atom(B)."))
+        Prolog.consult("test_unicode.pl", catcherrors=True, relative_to=__file__)
+        atoms = list(Prolog.query("unicode_atom(B)."))
 
         self.assertEqual(len(atoms), 3, "Query should return exactly three atoms")
 
-        strings = list(prolog.query("unicode_string(B)."))
+        strings = list(Prolog.query("unicode_string(B)."))
 
         self.assertEqual(len(strings), 1, "Query should return exactly one string")
         self.assertEqual(strings[0]["B"], b"\xd1\x82\xd0\xb5\xd1\x81\xd1\x82")

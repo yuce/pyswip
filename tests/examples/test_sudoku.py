@@ -1,6 +1,6 @@
 import unittest
 
-from pyswip.examples.sudoku import Matrix, solve
+from pyswip.examples.sudoku import Matrix, solve, prolog_source
 
 
 class MatrixTestCase(unittest.TestCase):
@@ -53,3 +53,7 @@ class MatrixTestCase(unittest.TestCase):
         puzzle = Matrix.from_text(fixture)
         solution = solve(puzzle)
         self.assertFalse(solution)
+
+    def test_prolog_source(self):
+        text = prolog_source()
+        self.assertIn("Prolog Sudoku Solver", text)

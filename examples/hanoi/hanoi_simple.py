@@ -31,10 +31,9 @@ def main():
 
     notify.arity = 1
 
-    prolog = Prolog()
     registerForeign(notify)
-    prolog.consult("hanoi.pl", relative_to=__file__)
-    list(prolog.query(f"hanoi({N})"))
+    Prolog.consult("hanoi.pl", relative_to=__file__)
+    list(Prolog.query(f"hanoi({N})"))
 
 
 if __name__ == "__main__":

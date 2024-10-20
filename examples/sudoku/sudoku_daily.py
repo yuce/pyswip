@@ -72,9 +72,9 @@ def get_daily_sudoku(url):
 
 
 def solve(problem):
-    prolog.consult("sudoku.pl", relative_to=__file__)
+    Prolog.consult("sudoku.pl", relative_to=__file__)
     p = str(problem).replace("0", "_")
-    result = list(prolog.query("Puzzle=%s,sudoku(Puzzle)" % p, maxresult=1))
+    result = list(Prolog.query(f"Puzzle={p},sudoku(Puzzle)", maxresult=1))
     if result:
         result = result[0]
         return result["Puzzle"]
@@ -83,9 +83,8 @@ def solve(problem):
 
 
 if __name__ == "__main__":
-    URL = "http://www.sudoku.org.uk/daily.asp"
+    URL = "https://www.sudoku.org.uk/daily.asp"
 
-    prolog = Prolog()  # having this in `solve` bites! because of __del__
     print("Getting puzzle from:", URL)
     puzzle = get_daily_sudoku(URL)
     print("-- PUZZLE --")

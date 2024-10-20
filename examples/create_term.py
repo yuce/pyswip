@@ -26,8 +26,6 @@ from pyswip.prolog import Prolog
 
 
 def main():
-    prolog = Prolog()
-
     a1 = PL_new_term_refs(2)
     a2 = a1 + 1
     t = PL_new_term_ref()
@@ -42,7 +40,7 @@ def main():
     PL_cons_functor_v(ta, assertz, t)
     PL_call(ta, None)
 
-    print(list(prolog.query("animal(X,Y)", catcherrors=True)))
+    print(list(Prolog.query("animal(X,Y)", catcherrors=True)))
 
 
 if __name__ == "__main__":
