@@ -33,6 +33,11 @@ Since PySwip uses SWI-Prolog as a shared library and ctypes to access it, it doe
 PySwip was brought to you by the PySwip community.
 Thanks to all [contributors](CONTRIBUTORS.txt).
 
+## Documentation
+
+* [PySwip Home](https://pyswip.org)
+* [PySwip Documentation](https://pyswip.readthedocs.io/en/latest/)
+
 ## Examples
 
 ### Using Prolog
