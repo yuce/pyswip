@@ -21,14 +21,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""
+Sudoku example
+
+You can run this module using::
+
+    $ python3 -m pyswip.examples.sudoku
+"""
+
 import sys
-from typing import List, Union, Literal
+from optparse import Option
+from typing import List, Union, Literal, TextIO, Optional, IO
 from io import StringIO
 
 from pyswip.prolog import Prolog
 
-
-__all__ = "Matrix", "solve", "prolog_source"
+__all__ = "Matrix", "prolog_source", "sample_puzzle", "solve"
 
 _DIMENSION = 9
 _SOURCE_PATH = "sudoku.pl"
@@ -38,6 +46,8 @@ Prolog.consult(_SOURCE_PATH, relative_to=__file__)
 
 
 class Matrix:
+    """Represents a 9x9 Sudoku puzzle"""
+
     def __init__(self, matrix: List[List[int]]) -> None:
         if not matrix:
             raise ValueError("matrix must be given")
@@ -49,7 +59,33 @@ class Matrix:
 
     @classmethod
     def from_text(cls, text: str) -> "Matrix":
-        lines = text.strip().split("\n")
+        """
+        Create a Matrix from the given string
+
+        The following are valid characters in the string:
+
+        * `.`: Blank column
+        * `1-9`: Numbers
+
+        The text must contain exactly 9 rows and 9 columns.
+        Each row ends with a newline character.
+        You can use blank lines and spaces/tabs between columns.
+
+        :param text: The text to use for creating the Matrix
+
+        >>> puzzle = Matrix.from_text('''
+        ... . . 5 . 7 . 2 6 8
+        ... . . 4 . . 2 . . .
+        ... . . 1 . 9 . . . .
+        ... . 8 . . . . 1 . .
+        ... . 2 . 9 . . . 7 .
+        ... . . 6 . . . . 3 .
+        ... . . 2 . 4 . 7 . .
+        ... . . . 5 . . 9 . .
+        ... 9 5 7 . 3 . . . .
+        ... ''')
+        """
+        lines = [l for line in text.strip().split("\n") if (l := line.strip())]
         dimension = len(lines)
         rows = []
         for i, line in enumerate(lines):
@@ -82,7 +118,25 @@ class Matrix:
     def __repr__(self) -> str:
         return str(self.matrix)
 
-    def pretty_print(self, *, file=sys.stdout) -> None:
+    def pretty_print(self, *, file: Optional[IO] = None) -> None:
+        """
+        Prints the matrix as a grid
+
+        :param file: The file to use for printing
+
+        >>> import sys
+        >>> puzzle = sample_puzzle()
+        >>> puzzle.pretty_print(file=sys.stdout)
+        . . 5 . 7 . 2 6 8
+        . . 4 . . 2 . . .
+        . . 1 . 9 . . . .
+        . 8 . . . . 1 . .
+        . 2 . 9 . . . 7 .
+        . . 6 . . . . 3 .
+        . . 2 . 4 . 7 . .
+        . . . 5 . . 9 . .
+        9 5 7 . 3 . . . .
+        """
         for row in self.matrix:
             row = " ".join(str(x or ".") for x in row)
             print(row, file=file)
@@ -92,12 +146,29 @@ def solve(matrix: Matrix) -> Union[Matrix, Literal[False]]:
     """
     Solves the given Sudoku puzzle
 
-    Parameters:
-        matrix (Matrix): The matrix that contains the Sudoku puzzle
+    :param matrix: The matrix that contains the Sudoku puzzle
 
-    Returns:
-        Matrix: Solution matrix
-        False: If no solutions was found
+    >>> puzzle = sample_puzzle()
+    >>> print(puzzle)
+    . . 5 . 7 . 2 6 8
+    . . 4 . . 2 . . .
+    . . 1 . 9 . . . .
+    . 8 . . . . 1 . .
+    . 2 . 9 . . . 7 .
+    . . 6 . . . . 3 .
+    . . 2 . 4 . 7 . .
+    . . . 5 . . 9 . .
+    9 5 7 . 3 . . . .
+    >>> print(solve(puzzle))
+    3 9 5 4 7 1 2 6 8
+    8 7 4 6 5 2 3 9 1
+    2 6 1 3 9 8 5 4 7
+    5 8 9 7 6 3 1 2 4
+    1 2 3 9 8 4 6 7 5
+    7 4 6 2 1 5 8 3 9
+    6 1 2 8 4 9 7 5 3
+    4 3 8 5 2 7 9 1 6
+    9 5 7 1 3 6 4 8 2
     """
     p = repr(matrix).replace("0", "_")
     result = list(Prolog.query(f"L={p},sudoku(L)", maxresult=1))
@@ -110,6 +181,7 @@ def solve(matrix: Matrix) -> Union[Matrix, Literal[False]]:
 
 
 def prolog_source() -> str:
+    """Returns the Prolog source file that solves Sudoku puzzles"""
     from pathlib import Path
 
     path = Path(__file__).parent / _SOURCE_PATH
@@ -117,8 +189,9 @@ def prolog_source() -> str:
         return f.read()
 
 
-def main():
-    puzzle = Matrix.from_text("""
+def sample_puzzle() -> Matrix:
+    """Returns the sample Sudoku puzzle"""
+    matrix = Matrix.from_text("""
 . . 5 . 7 . 2 6 8
 . . 4 . . 2 . . .
 . . 1 . 9 . . . .
@@ -129,6 +202,11 @@ def main():
 . . . 5 . . 9 . .
 9 5 7 . 3 . . . .    
     """)
+    return matrix
+
+
+def main():
+    puzzle = sample_puzzle()
     print("\n-- PUZZLE --")
     puzzle.pretty_print()
     print("\n-- SOLUTION --")

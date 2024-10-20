@@ -29,7 +29,7 @@ Tests the Prolog class.
 import os.path
 import unittest
 
-import pyswip.prolog as pl  # This implicitly tests library loading code
+from pyswip.prolog import Prolog, NestedQueryError
 
 
 class TestProlog(unittest.TestCase):
@@ -47,64 +47,60 @@ class TestProlog(unittest.TestCase):
         message is thrown.
         """
 
-        p = pl.Prolog()
-
         # Add something to the base
-        p.assertz("father(john,mich)")
-        p.assertz("father(john,gina)")
-        p.assertz("mother(jane,mich)")
+        Prolog.assertz("father(john,mich)")
+        Prolog.assertz("father(john,gina)")
+        Prolog.assertz("mother(jane,mich)")
 
         somequery = "father(john, Y)"
         otherquery = "mother(jane, X)"
 
         # This should not throw an exception
-        for _ in p.query(somequery):
+        for _ in Prolog.query(somequery):
             pass
-        for _ in p.query(otherquery):
+        for _ in Prolog.query(otherquery):
             pass
 
-        with self.assertRaises(pl.NestedQueryError):
-            for q in p.query(somequery):
-                for j in p.query(otherquery):
+        with self.assertRaises(NestedQueryError):
+            for q in Prolog.query(somequery):
+                for j in Prolog.query(otherquery):
                     # This should throw an error, because I opened the second
                     # query
                     pass
 
     def test_prolog_functor_in_list(self):
-        p = pl.Prolog()
-        p.assertz("f([g(a,b),h(a,b,c)])")
-        self.assertEqual([{"L": ["g(a, b)", "h(a, b, c)"]}], list(p.query("f(L)")))
-        p.retract("f([g(a,b),h(a,b,c)])")
+        Prolog.assertz("f([g(a,b),h(a,b,c)])")
+        self.assertEqual([{"L": ["g(a, b)", "h(a, b, c)"]}], list(Prolog.query("f(L)")))
+        Prolog.retract("f([g(a,b),h(a,b,c)])")
 
     def test_prolog_functor_in_functor(self):
-        p = pl.Prolog()
-        p.assertz("f([g([h(a,1), h(b,1)])])")
-        self.assertEqual([{"G": ["g(['h(a, 1)', 'h(b, 1)'])"]}], list(p.query("f(G)")))
-        p.assertz("a([b(c(x), d([y, z, w]))])")
+        Prolog.assertz("f([g([h(a,1), h(b,1)])])")
         self.assertEqual(
-            [{"B": ["b(c(x), d(['y', 'z', 'w']))"]}], list(p.query("a(B)"))
+            [{"G": ["g(['h(a, 1)', 'h(b, 1)'])"]}], list(Prolog.query("f(G)"))
         )
-        p.retract("f([g([h(a,1), h(b,1)])])")
-        p.retract("a([b(c(x), d([y, z, w]))])")
+        Prolog.assertz("a([b(c(x), d([y, z, w]))])")
+        self.assertEqual(
+            [{"B": ["b(c(x), d(['y', 'z', 'w']))"]}], list(Prolog.query("a(B)"))
+        )
+        Prolog.retract("f([g([h(a,1), h(b,1)])])")
+        Prolog.retract("a([b(c(x), d([y, z, w]))])")
 
     def test_prolog_strings(self):
         """
         See: https://github.com/yuce/pyswip/issues/9
         """
-        p = pl.Prolog()
-        p.assertz('some_string_fact("abc")')
-        self.assertEqual([{"S": b"abc"}], list(p.query("some_string_fact(S)")))
+        Prolog.assertz('some_string_fact("abc")')
+        self.assertEqual([{"S": b"abc"}], list(Prolog.query("some_string_fact(S)")))
 
     def test_quoted_strings(self):
         """
         See: https://github.com/yuce/pyswip/issues/90
         """
-        p = pl.Prolog()
-        self.assertEqual([{"X": b"a"}], list(p.query('X = "a"')))
-
-        p.assertz('test_quoted_strings("hello","world")')
+        self.assertEqual([{"X": b"a"}], list(Prolog.query('X = "a"')))
+        Prolog.assertz('test_quoted_strings("hello","world")')
         self.assertEqual(
-            [{"A": b"hello", "B": b"world"}], list(p.query("test_quoted_strings(A,B)"))
+            [{"A": b"hello", "B": b"world"}],
+            list(Prolog.query("test_quoted_strings(A,B)")),
         )
 
     def test_prolog_read_file(self):
@@ -113,5 +109,14 @@ class TestProlog(unittest.TestCase):
         """
         current_dir = os.path.dirname(os.path.abspath(__file__))
         path = os.path.join(current_dir, "test_read.pl")
-        pl.Prolog.consult(path)
-        list(pl.Prolog.query(f'read_file("{path}", S)'))
+        Prolog.consult("test_read.pl", relative_to=__file__)
+        list(Prolog.query(f'read_file("{path}", S)'))
+
+    def test_retract(self):
+        Prolog.dynamic("person/1")
+        Prolog.asserta("person(jane)")
+        result = list(Prolog.query("person(X)"))
+        self.assertEqual([{"X": "jane"}], result)
+        Prolog.retract("person(jane)")
+        result = list(Prolog.query("person(X)"))
+        self.assertEqual([], result)

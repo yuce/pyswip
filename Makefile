@@ -1,7 +1,7 @@
 .PHONY: build clean coverage upload-coverage test upload
 
 build:
-	build
+	pyproject-build
 
 clean:
 	rm -rf dist build pyswip.egg-info

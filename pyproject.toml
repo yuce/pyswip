@@ -19,7 +19,7 @@ keywords = [
     "prolog",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
@@ -46,3 +46,9 @@ ignore = ["F403", "F405", "E721"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
+
+[tool.setuptools.package-data]
+"pyswip" = ["py.typed"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
