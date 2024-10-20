@@ -14,4 +14,13 @@ It features an SWI-Prolog foreign language interface, a utility class that makes
    :caption: Contents:
 
    get_started
+   api/modules
+
+Indices and Tables
+==================
+
+.. toctree::
+
+   genindex
+   modindex
 

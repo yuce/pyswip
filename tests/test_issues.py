@@ -159,9 +159,9 @@ class TestIssues(unittest.TestCase):
         varSet.add(B)
         varSet.add(C)  # This is equal to A
         self.assertEqual(len(varSet), 2)
-        self.assertEqual(varSet, set([A, B]))
+        self.assertEqual(varSet, {A, B})
 
-    def test_issue_4(self):
+    def test_dynamic(self):
         """
         Patch for a dynamic method
 
