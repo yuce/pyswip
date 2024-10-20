@@ -4,7 +4,6 @@ from pyswip.examples.sudoku import Matrix, solve, prolog_source
 
 
 class MatrixTestCase(unittest.TestCase):
-
     FIXTURE = """
 . 6 . 1 . 4 . 5 .
 . . 8 3 . 5 6 . .

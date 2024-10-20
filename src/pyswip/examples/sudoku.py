@@ -38,7 +38,6 @@ Prolog.consult(_SOURCE_PATH, relative_to=__file__)
 
 
 class Matrix:
-
     def __init__(self, matrix: List[List[int]]) -> None:
         if not matrix:
             raise ValueError("matrix must be given")
@@ -56,7 +55,9 @@ class Matrix:
         for i, line in enumerate(lines):
             cols = line.split()
             if len(cols) != dimension:
-                raise ValueError(f"All rows must have {dimension} columns, line {i+1} has {len(cols)}")
+                raise ValueError(
+                    f"All rows must have {dimension} columns, line {i+1} has {len(cols)}"
+                )
             rows.append([0 if x == "." else int(x) for x in cols])
         return cls(rows)
 
@@ -66,7 +67,9 @@ class Matrix:
             raise ValueError(f"Matrix must have {dimension} rows, it has {len(matrix)}")
         for i, row in enumerate(matrix):
             if len(row) != dimension:
-                raise ValueError(f"All rows must have {dimension} columns, row {i+1} has {len(row)}")
+                raise ValueError(
+                    f"All rows must have {dimension} columns, row {i+1} has {len(row)}"
+                )
 
     def __len__(self) -> int:
         return self._dimension
@@ -108,6 +111,7 @@ def solve(matrix: Matrix) -> Union[Matrix, Literal[False]]:
 
 def prolog_source() -> str:
     from pathlib import Path
+
     path = Path(__file__).parent / _SOURCE_PATH
     with open(path) as f:
         return f.read()
