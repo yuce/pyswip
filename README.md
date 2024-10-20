@@ -23,8 +23,8 @@ See [Get Started](https://pyswip.org/get-started.html) for detailed instructions
 
 ## Introduction
 
-PySwip is a Python - SWI-Prolog bridge enabling to query [SWI-Prolog](http://www.swi-prolog.org) in your Python programs.
-It features an (incomplete) SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a Pythonic interface.
+PySwip is a Python-Prolog interface that enables querying [SWI-Prolog](https://www.swi-prolog.org) in your Python programs.
+It features an SWI-Prolog foreign language interface, a utility class that makes it easy querying with Prolog and also a Pythonic interface.
 
 Since PySwip uses SWI-Prolog as a shared library and ctypes to access it, it doesn't require compilation to be installed.
 
