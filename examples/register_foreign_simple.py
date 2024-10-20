@@ -23,7 +23,6 @@
 
 # Demonstrates registering a Python function as a Prolog predicate through SWI-Prolog's FFI.
 
-from __future__ import print_function
 from pyswip.prolog import Prolog
 from pyswip.easy import registerForeign
 
@@ -37,10 +36,9 @@ hello.arity = 1
 
 def main():
     registerForeign(hello)
-    prolog = Prolog()
-    prolog.assertz("father(michael,john)")
-    prolog.assertz("father(michael,gina)")
-    list(prolog.query("father(michael,X), hello(X)"))
+    Prolog.assertz("father(michael,john)")
+    Prolog.assertz("father(michael,gina)")
+    list(Prolog.query("father(michael,X), hello(X)"))
 
 
 if __name__ == "__main__":

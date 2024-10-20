@@ -25,8 +25,7 @@ from pyswip import Prolog, Functor, Variable, Query
 
 
 def main():
-    prolog = Prolog()
-    prolog.consult("coins.pl", relative_to=__file__)
+    Prolog.consult("coins.pl", relative_to=__file__)
     count = int(input("How many coins (default: 100)? ") or 100)
     total = int(input("What should be the total (default: 500)? ") or 500)
     coins = Functor("coins", 3)

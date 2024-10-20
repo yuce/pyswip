@@ -37,11 +37,10 @@ Thanks to all [contributors](CONTRIBUTORS.txt).
 
 ```python
 from pyswip import Prolog
-prolog = Prolog()
-prolog.assertz("father(michael,john)")
-prolog.assertz("father(michael,gina)")
-list(prolog.query("father(michael,X)")) == [{'X': 'john'}, {'X': 'gina'}]
-for soln in prolog.query("father(X,Y)"):
+Prolog.assertz("father(michael,john)")
+Prolog.assertz("father(michael,gina)")
+list(Prolog.query("father(michael,X)")) == [{'X': 'john'}, {'X': 'gina'}]
+for soln in Prolog.query("father(X,Y)"):
     print(soln["X"], "is the father of", soln["Y"])
 # michael is the father of john
 # michael is the father of gina
@@ -52,8 +51,7 @@ Assuming the filename "knowledge_base.pl" and the Python is being run in the sam
 
 ```python
 from pyswip import Prolog
-prolog = Prolog()
-prolog.consult("knowledge_base.pl")
+Prolog.consult("knowledge_base.pl")
 ```
 
 ### Foreign Functions
@@ -67,10 +65,9 @@ hello.arity = 1
 
 registerForeign(hello)
 
-prolog = Prolog()
-prolog.assertz("father(michael,john)")
-prolog.assertz("father(michael,gina)")
-print(list(prolog.query("father(michael,X), hello(X)")))
+Prolog.assertz("father(michael,john)")
+Prolog.assertz("father(michael,gina)")
+print(list(Prolog.query("father(michael,X), hello(X)")))
 ```
 
 ### Pythonic interface (Experimental)

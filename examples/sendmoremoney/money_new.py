@@ -32,9 +32,8 @@ from pyswip import Prolog, Functor, Variable, call
 
 def main():
     letters = list("SENDMORY")
-    prolog = Prolog()
     sendmore = Functor("sendmore")
-    prolog.consult("money.pl", relative_to=__file__)
+    Prolog.consult("money.pl", relative_to=__file__)
 
     X = Variable()
     call(sendmore(X))
