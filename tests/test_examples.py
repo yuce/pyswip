@@ -26,8 +26,6 @@ Run several complex examples using pySwip. The main goal of these tests is
 ensure stability in several platforms.
 """
 
-import unittest
-
 import pytest
 
 from pyswip import *
