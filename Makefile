@@ -4,7 +4,7 @@ build:
 	pyproject-build
 
 clean:
-	rm -rf dist build pyswip.egg-info
+	rm -rf dist build pyswip.egg-info src/pyswip.egg-info/
 
 coverage:
 	PYTHONPATH=src py.test tests --verbose --cov=pyswip

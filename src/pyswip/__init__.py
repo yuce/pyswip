@@ -19,7 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-__VERSION__ = "0.3.1"
+__VERSION__ = "0.3.2"
 
 from pyswip.prolog import Prolog as Prolog
 from pyswip.easy import *
