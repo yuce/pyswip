@@ -119,19 +119,19 @@ def prolog_source() -> str:
 
 def main():
     puzzle = Matrix.from_text("""
-. 6 . 1 . 4 . 5 .
-. . 8 3 . 5 6 . .
-2 . . . . . . . 1
-8 . . 4 . 7 . . 6
-. . 6 . . . 3 . .
-7 . . 9 . 1 . . 4
-5 . . . . . . . 2
-. . 7 2 . 6 9 . .
-. 4 . 5 . 8 . 7 .
-""")
-    print("-- PUZZLE --")
+. . 5 . 7 . 2 6 8
+. . 4 . . 2 . . .
+. . 1 . 9 . . . .
+. 8 . . . . 1 . .
+. 2 . 9 . . . 7 .
+. . 6 . . . . 3 .
+. . 2 . 4 . 7 . .
+. . . 5 . . 9 . .
+9 5 7 . 3 . . . .    
+    """)
+    print("\n-- PUZZLE --")
     puzzle.pretty_print()
-    print(" -- SOLUTION --")
+    print("\n-- SOLUTION --")
     solution = solve(puzzle)
     if solution:
         solution.pretty_print()
