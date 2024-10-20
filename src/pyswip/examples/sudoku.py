@@ -29,9 +29,7 @@ You can run this module using::
     $ python3 -m pyswip.examples.sudoku
 """
 
-import sys
-from optparse import Option
-from typing import List, Union, Literal, TextIO, Optional, IO
+from typing import List, Union, Literal, Optional, IO
 from io import StringIO
 
 from pyswip.prolog import Prolog
@@ -85,7 +83,7 @@ class Matrix:
         ... 9 5 7 . 3 . . . .
         ... ''')
         """
-        lines = [l for line in text.strip().split("\n") if (l := line.strip())]
+        lines = [row for line in text.strip().split("\n") if (row := line.strip())]
         dimension = len(lines)
         rows = []
         for i, line in enumerate(lines):

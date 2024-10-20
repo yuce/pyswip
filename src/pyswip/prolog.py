@@ -22,7 +22,7 @@
 Provides the basic Prolog interface.
 """
 
-from typing import Union, List, Generator
+from typing import Union, Generator
 from pathlib import Path
 
 from pyswip.utils import resolve_path
