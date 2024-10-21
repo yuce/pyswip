@@ -48,7 +48,8 @@ markers = [
 ]
 
 [tool.setuptools.package-data]
-"pyswip" = ["py.typed"]
+pyswip = ["py.typed"]
+"pyswip.examples" = ["*.pl"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
