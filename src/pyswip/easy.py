@@ -101,12 +101,13 @@ class Atom(object):
         if not cleaned:
             PL_unregister_atom(self.handle)
 
-    @property
-    def value(self):
+    def get_value(self):
         ret = self.chars
         if not isinstance(ret, str):
             ret = ret.decode()
         return ret
+
+    value = property(get_value)
 
     def __str__(self):
         if self.chars is not None:
@@ -178,12 +179,10 @@ class Variable(object):
         if (self.chars is not None) and not isinstance(self.chars, str):
             self.chars = self.chars.decode()
 
-    @property
     def value(self):
         return getTerm(self.handle)
 
-    @value.setter
-    def value(self, value):
+    def unify(self, value):
         if self.handle is None:
             t = PL_new_term_ref(self.handle)
         else:
@@ -225,6 +224,11 @@ class Variable(object):
             PL_unify_nil(list_term)
         else:
             fun(t, value)
+
+    def get_value(self):
+        return getTerm(self.handle)
+
+    value = property(get_value, unify)
 
     def unified(self):
         return PL_term_type(self.handle) == PL_VARIABLE
