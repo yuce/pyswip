@@ -23,3 +23,4 @@ __VERSION__ = "0.3.2"
 
 from pyswip.prolog import Prolog as Prolog
 from pyswip.easy import *
+from pyswip.core import *

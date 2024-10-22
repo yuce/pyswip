@@ -17,8 +17,30 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from typing import Union
 
-from pyswip.core import *
+from pyswip.core import (
+    PL_new_atom, PL_register_atom, PL_atom_wchars, PL_get_atom,
+    PL_unregister_atom, PL_new_term_ref, PL_compare, PL_get_chars,
+    PL_copy_term_ref, PL_unify_atom, PL_unify_string_chars, PL_unify_integer,
+    PL_unify_bool, PL_unify_float, PL_unify_list, PL_unify_nil,
+    PL_term_type, PL_put_term, PL_new_functor, PL_functor_name,
+    PL_functor_arity, PL_get_functor, PL_new_term_refs, PL_get_arg,
+    PL_cons_functor_v, PL_put_atom_chars, PL_put_integer, PL_put_functor,
+    PL_put_nil, PL_cons_list, PL_get_long, PL_get_float,
+    PL_is_list, PL_get_list, PL_register_foreign, PL_call,
+    PL_new_module, PL_pred, PL_open_query, PL_next_solution,
+    PL_cut_query, PL_close_query,
+    PL_VARIABLE, PL_STRINGS_MARK, PL_TERM, PL_DICT,
+    PL_ATOM, PL_STRING, PL_INTEGER, PL_FLOAT,
+    PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_FA_NONDETERMINISTIC,
+    CVT_VARIABLE, BUF_RING, REP_UTF8, CVT_ATOM, CVT_STRING,
+    CFUNCTYPE,
+    cleaned, cast,
+    c_size_t, byref, c_void_p, atom_t, create_string_buffer,
+    c_char_p, functor_t, c_int, c_long, c_double,
+    foreign_t, term_t, control_t, module_t,
+)
 
 
 integer_types = (int,)
@@ -79,13 +101,12 @@ class Atom(object):
         if not cleaned:
             PL_unregister_atom(self.handle)
 
-    def get_value(self):
+    @property
+    def value(self):
         ret = self.chars
         if not isinstance(ret, str):
             ret = ret.decode()
         return ret
-
-    value = property(get_value)
 
     def __str__(self):
         if self.chars is not None:
@@ -157,7 +178,12 @@ class Variable(object):
         if (self.chars is not None) and not isinstance(self.chars, str):
             self.chars = self.chars.decode()
 
-    def unify(self, value):
+    @property
+    def value(self):
+        return getTerm(self.handle)
+
+    @value.setter
+    def value(self, value):
         if self.handle is None:
             t = PL_new_term_ref(self.handle)
         else:
@@ -199,11 +225,6 @@ class Variable(object):
             PL_unify_nil(list_term)
         else:
             fun(t, value)
-
-    def get_value(self):
-        return getTerm(self.handle)
-
-    value = property(get_value, unify)
 
     def unified(self):
         return PL_term_type(self.handle) == PL_VARIABLE
@@ -284,7 +305,9 @@ class Functor(object):
 
     fromTerm = classmethod(fromTerm)
 
-    value = property(lambda s: s.__value)
+    @property
+    def value(self):
+        return self.__value
 
     def __call__(self, *args):
         assert self.arity == len(args)  # FIXME: Put a decent error message
@@ -346,12 +369,10 @@ def putTerm(term, value):
         value.put(term)
     elif isinstance(value, list):
         putList(term, value)
-    elif isinstance(value, Atom):
-        print("ATOM")
     elif isinstance(value, Functor):
         PL_put_functor(term, value.handle)
     else:
-        raise Exception("Not implemented")
+        raise Exception(f"Not implemented for type: {type(value)}")
 
 
 def putList(l, ls):  # noqa: E741
@@ -514,11 +535,8 @@ funwraps = {}
 
 
 def _foreignWrapper(fun, nondeterministic=False):
-    global funwraps
-
     res = funwraps.get(fun)
     if res is None:
-
         def wrapper(*args):
             if nondeterministic:
                 args = [getTerm(arg) for arg in args[:-1]] + [args[-1]]
@@ -544,8 +562,6 @@ def registerForeign(func, name=None, arity=None, flags=0):
     ``arity``: Arity (number of arguments) of the function. If this value is not
     used, ``func.arity`` should exist.
     """
-    global cwraps
-
     if arity is None:
         arity = func.arity
 
@@ -559,8 +575,6 @@ def registerForeign(func, name=None, arity=None, flags=0):
     fwrap2 = cwrap(fwrap)
     cwraps.append(fwrap2)
     return PL_register_foreign(name, arity, fwrap2, flags)
-    # return PL_register_foreign(name, arity,
-    #            _callbackWrapper(arity)(_foreignWrapper(func)), flags)
 
 
 newTermRef = PL_new_term_ref
@@ -588,13 +602,14 @@ def call(*terms, **kwargs):
     return PL_call(t.handle, module)
 
 
-def newModule(name):
-    """Create a new module.
-    ``name``: An Atom or a string
+def newModule(name: Union[str, Atom]) -> module_t:
+    """
+    Create a new module
+
+    :param name: Name of the module
     """
     if isinstance(name, str):
         name = Atom(name)
-
     return PL_new_module(name.handle)
 
 
