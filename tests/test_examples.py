@@ -28,8 +28,6 @@ ensure stability in several platforms.
 
 import pytest
 
-from pyswip import *
-
 examples = [
     "create_term.py",
     "father.py",

@@ -22,26 +22,81 @@ import inspect
 from typing import Union, Callable, Optional
 
 from pyswip.core import (
-    PL_new_atom, PL_register_atom, PL_atom_wchars, PL_get_atom,
-    PL_unregister_atom, PL_new_term_ref, PL_compare, PL_get_chars,
-    PL_copy_term_ref, PL_unify_atom, PL_unify_string_chars, PL_unify_integer,
-    PL_unify_bool, PL_unify_float, PL_unify_list, PL_unify_nil,
-    PL_term_type, PL_put_term, PL_new_functor, PL_functor_name,
-    PL_functor_arity, PL_get_functor, PL_new_term_refs, PL_get_arg,
-    PL_cons_functor_v, PL_put_atom_chars, PL_put_integer, PL_put_functor,
-    PL_put_nil, PL_cons_list, PL_get_long, PL_get_float,
-    PL_is_list, PL_get_list, PL_register_foreign_in_module, PL_call,
-    PL_new_module, PL_pred, PL_open_query, PL_next_solution,
-    PL_cut_query, PL_close_query,
-    PL_VARIABLE, PL_STRINGS_MARK, PL_TERM, PL_DICT,
-    PL_ATOM, PL_STRING, PL_INTEGER, PL_FLOAT,
-    PL_Q_NODEBUG, PL_Q_CATCH_EXCEPTION, PL_FA_NONDETERMINISTIC,
-    CVT_VARIABLE, BUF_RING, REP_UTF8, CVT_ATOM, CVT_STRING,
+    PL_new_atom,
+    PL_register_atom,
+    PL_atom_wchars,
+    PL_get_atom,
+    PL_unregister_atom,
+    PL_new_term_ref,
+    PL_compare,
+    PL_get_chars,
+    PL_copy_term_ref,
+    PL_unify_atom,
+    PL_unify_string_chars,
+    PL_unify_integer,
+    PL_unify_bool,
+    PL_unify_float,
+    PL_unify_list,
+    PL_unify_nil,
+    PL_term_type,
+    PL_put_term,
+    PL_new_functor,
+    PL_functor_name,
+    PL_functor_arity,
+    PL_get_functor,
+    PL_new_term_refs,
+    PL_get_arg,
+    PL_cons_functor_v,
+    PL_put_atom_chars,
+    PL_put_integer,
+    PL_put_functor,
+    PL_put_nil,
+    PL_cons_list,
+    PL_get_long,
+    PL_get_float,
+    PL_is_list,
+    PL_get_list,
+    PL_register_foreign_in_module,
+    PL_call,
+    PL_new_module,
+    PL_pred,
+    PL_open_query,
+    PL_next_solution,
+    PL_cut_query,
+    PL_close_query,
+    PL_VARIABLE,
+    PL_STRINGS_MARK,
+    PL_TERM,
+    PL_DICT,
+    PL_ATOM,
+    PL_STRING,
+    PL_INTEGER,
+    PL_FLOAT,
+    PL_Q_NODEBUG,
+    PL_Q_CATCH_EXCEPTION,
+    PL_FA_NONDETERMINISTIC,
+    CVT_VARIABLE,
+    BUF_RING,
+    REP_UTF8,
+    CVT_ATOM,
+    CVT_STRING,
     CFUNCTYPE,
-    cleaned, cast,
-    c_size_t, byref, c_void_p, atom_t, create_string_buffer,
-    c_char_p, functor_t, c_int, c_long, c_double,
-    foreign_t, term_t, control_t, module_t,
+    cleaned,
+    cast,
+    c_size_t,
+    byref,
+    c_void_p,
+    atom_t,
+    create_string_buffer,
+    c_char_p,
+    functor_t,
+    c_int,
+    c_long,
+    c_double,
+    foreign_t,
+    term_t,
+    control_t,
+    module_t,
 )
 
 
@@ -176,9 +231,6 @@ class Variable:
             # PL_put_variable(self.handle)
         if (self.chars is not None) and not isinstance(self.chars, str):
             self.chars = self.chars.decode()
-
-    def value(self):
-        return getTerm(self.handle)
 
     def unify(self, value):
         if self.handle is None:
@@ -537,6 +589,7 @@ funwraps = {}
 def _foreignWrapper(fun, nondeterministic=False):
     res = funwraps.get(fun)
     if res is None:
+
         def wrapper(*args):
             if nondeterministic:
                 args = [getTerm(arg) for arg in args[:-1]] + [args[-1]]
@@ -553,7 +606,9 @@ def _foreignWrapper(fun, nondeterministic=False):
 cwraps = []
 
 
-def registerForeign(func: Callable, name: str="", arity: Optional[int]=None, flags: int=0):
+def registerForeign(
+    func: Callable, name: str = "", arity: Optional[int] = None, flags: int = 0
+):
     """
     Registers a Python callable as a Prolog predicate
 
@@ -626,6 +681,7 @@ def newModule(name: Union[str, Atom]) -> module_t:
     :param name: Name of the module
     """
     return module(name)
+
 
 def module(name: Union[str, Atom]) -> module_t:
     """

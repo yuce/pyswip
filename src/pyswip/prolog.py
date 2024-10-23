@@ -21,6 +21,7 @@
 """
 Provides the basic Prolog interface.
 """
+
 import functools
 import inspect
 from typing import Union, Generator, Callable, Optional
@@ -71,6 +72,7 @@ class NestedQueryError(PrologError):
     SWI-Prolog does not accept nested queries, that is, opening a query while the previous one was not closed.
     As this error may be somewhat difficult to debug in foreign code, it is automatically treated inside PySwip
     """
+
     pass
 
 
@@ -384,11 +386,20 @@ class Prolog:
                 args = [getTerm(arg) for arg in args]
             r = fun(*args)
             return True if r is None else r
+
         return wrapper
 
     @classmethod
-    def register_foreign(cls, func: Callable, /, name: str = "", arity: Optional[int] = None, *, module: str = "",
-                         nondeterministic: bool=False):
+    def register_foreign(
+        cls,
+        func: Callable,
+        /,
+        name: str = "",
+        arity: Optional[int] = None,
+        *,
+        module: str = "",
+        nondeterministic: bool = False,
+    ):
         """
         Registers a Python callable as a Prolog predicate
 
