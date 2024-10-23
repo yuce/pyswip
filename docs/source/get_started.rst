@@ -4,7 +4,7 @@ Get Started
 Requirements
 ------------
 
-* Python 3.8 or later
+* Python 3.9 or later
 * SWI-Prolog 8.4.2 or later
 * 64bit Intel or ARM processor
 
