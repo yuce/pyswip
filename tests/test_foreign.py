@@ -32,6 +32,21 @@ class MyTestCase(unittest.TestCase):
                 {"X": name} in result, "Expected result  X:{} not present".format(name)
             )
 
+    def test_deterministic_foreign_automatic_arity(self):
+        def hello(t):
+            print("Hello,", t)
+
+        Prolog.register_foreign(hello, module="autoarity")
+
+        Prolog.assertz("autoarity:mother(emily,john)")
+        Prolog.assertz("autoarity:mother(emily,gina)")
+        result = list(Prolog.query("autoarity:mother(emily,X), autoarity:hello(X)"))
+        self.assertEqual(len(result), 2, "Query should return two results")
+        for name in ("john", "gina"):
+            self.assertTrue(
+                {"X": name} in result, "Expected result  X:{} not present".format(name)
+            )
+
     def test_nondeterministic_foreign(self):
         def nondet(a, context):
             control = PL_foreign_control(context)
@@ -53,6 +68,33 @@ class MyTestCase(unittest.TestCase):
         nondet.arity = 1
         registerForeign(nondet, flags=PL_FA_NONDETERMINISTIC)
         result = list(Prolog.query("nondet(X)"))
+
+        self.assertEqual(len(result), 10, "Query should return 10 results")
+        for i in range(10):
+            self.assertTrue(
+                {"X": i} in result, "Expected result  X:{} not present".format(i)
+            )
+
+    def test_nondeterministic_foreign_autoarity(self):
+        def nondet(a, context):
+            control = PL_foreign_control(context)
+            context = PL_foreign_context(context)
+            if control == PL_FIRST_CALL:
+                context = 0
+                a.unify(int(context))
+                context += 1
+                return PL_retry(context)
+            elif control == PL_REDO:
+                a.unify(int(context))
+                if context == 10:
+                    return False
+                context += 1
+                return PL_retry(context)
+            elif control == PL_PRUNED:
+                pass
+
+        Prolog.register_foreign(nondet, module="autoarity", nondeterministic=True)
+        result = list(Prolog.query("autoarity:nondet(X)"))
 
         self.assertEqual(len(result), 10, "Query should return 10 results")
         for i in range(10):
