@@ -21,8 +21,9 @@
 """
 Provides the basic Prolog interface.
 """
-
-from typing import Union, Generator
+import functools
+import inspect
+from typing import Union, Generator, Callable, Optional
 from pathlib import Path
 
 from pyswip.utils import resolve_path
@@ -33,6 +34,8 @@ from pyswip.core import (
     PL_Q_NODEBUG,
     PL_Q_CATCH_EXCEPTION,
     PL_Q_NORMAL,
+    PL_FA_NONDETERMINISTIC,
+    CFUNCTYPE,
     PL_initialise,
     PL_open_foreign_frame,
     PL_new_term_ref,
@@ -49,6 +52,10 @@ from pyswip.core import (
     PL_cut_query,
     PL_thread_self,
     PL_thread_attach_engine,
+    PL_register_foreign_in_module,
+    foreign_t,
+    term_t,
+    control_t,
 )
 
 
@@ -64,7 +71,6 @@ class NestedQueryError(PrologError):
     SWI-Prolog does not accept nested queries, that is, opening a query while the previous one was not closed.
     As this error may be somewhat difficult to debug in foreign code, it is automatically treated inside PySwip
     """
-
     pass
 
 
@@ -111,6 +117,7 @@ class Prolog:
 
     # We keep track of open queries to avoid nested queries.
     _queryIsOpen = False
+    _cwraps = []
 
     class _QueryWrapper(object):
         def __init__(self):
@@ -358,6 +365,62 @@ class Prolog:
         [{'X': 'gina'}, {'X': 'john'}]
         """
         return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)
+
+    @classmethod
+    @functools.cache
+    def _callback_wrapper(cls, arity, nondeterministic):
+        ps = [foreign_t] + [term_t] * arity
+        if nondeterministic:
+            return CFUNCTYPE(*(ps + [control_t]))
+        return CFUNCTYPE(*ps)
+
+    @classmethod
+    @functools.cache
+    def _foreign_wrapper(cls, fun, nondeterministic=False):
+        def wrapper(*args):
+            if nondeterministic:
+                args = [getTerm(arg) for arg in args[:-1]] + [args[-1]]
+            else:
+                args = [getTerm(arg) for arg in args]
+            r = fun(*args)
+            return True if r is None else r
+        return wrapper
+
+    @classmethod
+    def register_foreign(cls, func: Callable, /, name: str = "", arity: Optional[int] = None, *, module: str = "",
+                         nondeterministic: bool=False):
+        """
+        Registers a Python callable as a Prolog predicate
+
+        :param func:
+            Callable to be registered. The callable should return a value in ``foreign_t``, ``True`` or ``False`` or ``None``.
+            Returning ``None`` is equivalent to returning ``True``.
+        :param name:
+            Name of the callable. If the name is not specified, it is derived from ``func.__name__``.
+        :param arity:
+            Number of parameters of the callable. If not specified, it is derived from the callable signature.
+        :param module:
+            Name of the module to register the predicate. By default, the current module.
+        :param nondeterministic:
+            Set the foreign callable as nondeterministic
+        """
+        if not callable(func):
+            raise ValueError("func is not callable")
+        module = module or None
+        flags = PL_FA_NONDETERMINISTIC if nondeterministic else 0
+        if arity is None:
+            arity = len(inspect.signature(func).parameters)
+            if nondeterministic:
+                arity -= 1
+        if not name:
+            name = func.__name__
+
+        cwrap = cls._callback_wrapper(arity, nondeterministic)
+        # TODO: check func
+        fwrap = cls._foreign_wrapper(func, nondeterministic)
+        fwrap = cwrap(fwrap)
+        cls._cwraps.append(fwrap)
+        return PL_register_foreign_in_module(module, name, arity, fwrap, flags)
 
 
 def normalize_values(values):

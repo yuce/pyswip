@@ -5,6 +5,7 @@ API Documentation
 
     examples
     prolog
+    easy
 
 
 

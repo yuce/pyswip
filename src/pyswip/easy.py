@@ -17,7 +17,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from typing import Union
+
+import inspect
+from typing import Union, Callable, Optional
 
 from pyswip.core import (
     PL_new_atom, PL_register_atom, PL_atom_wchars, PL_get_atom,
@@ -28,7 +30,7 @@ from pyswip.core import (
     PL_functor_arity, PL_get_functor, PL_new_term_refs, PL_get_arg,
     PL_cons_functor_v, PL_put_atom_chars, PL_put_integer, PL_put_functor,
     PL_put_nil, PL_cons_list, PL_get_long, PL_get_float,
-    PL_is_list, PL_get_list, PL_register_foreign, PL_call,
+    PL_is_list, PL_get_list, PL_register_foreign_in_module, PL_call,
     PL_new_module, PL_pred, PL_open_query, PL_next_solution,
     PL_cut_query, PL_close_query,
     PL_VARIABLE, PL_STRINGS_MARK, PL_TERM, PL_DICT,
@@ -156,11 +158,7 @@ class Term(object):
         return self.handle
 
 
-def isstr(s):
-    return isinstance(s, str)
-
-
-class Variable(object):
+class Variable:
     __slots__ = "handle", "chars"
 
     def __init__(self, handle=None, name=None):
@@ -195,7 +193,7 @@ class Variable(object):
         if type(value) == Atom:
             fun = PL_unify_atom
             value = value.handle
-        elif isstr(value):
+        elif isinstance(value, str):
             fun = PL_unify_string_chars
             value = value.encode()
         elif type(value) == int:
@@ -523,8 +521,6 @@ arities = {}
 
 
 def _callbackWrapper(arity=1, nondeterministic=False):
-    global arities
-
     res = arities.get((arity, nondeterministic))
     if res is None:
         if nondeterministic:
@@ -557,28 +553,40 @@ def _foreignWrapper(fun, nondeterministic=False):
 cwraps = []
 
 
-def registerForeign(func, name=None, arity=None, flags=0):
-    """Register a Python predicate
-    ``func``: Function to be registered. The function should return a value in
-    ``foreign_t``, ``True`` or ``False``.
-    ``name`` : Name of the function. If this value is not used, ``func.func_name``
-    should exist.
-    ``arity``: Arity (number of arguments) of the function. If this value is not
-    used, ``func.arity`` should exist.
+def registerForeign(func: Callable, name: str="", arity: Optional[int]=None, flags: int=0):
     """
-    if arity is None:
-        arity = func.arity
+    Registers a Python callable as a Prolog predicate
 
-    if name is None:
-        name = func.__name__
+    :param func: Callable to be registered. The callable should return a value in ``foreign_t``, ``True`` or ``False``.
+    :param name: Name of the callable. If the name is not specified, it is derived from ``func.__name__``.
+    :param arity: Number of parameters of the callable. If not specified, it is derived from the callable signature.
+    :param flags: Only supported flag is ``PL_FA_NONDETERMINISTIC``.
 
+    See: `PL_register_foreign <https://www.swi-prolog.org/pldoc/man?CAPI=PL_register_foreign>`_.
+
+    .. Note::
+        This function is deprecated.
+        Use :py:meth:`Prolog.register_foreign` instead.
+    """
+    if not callable(func):
+        raise ValueError("func is not callable")
     nondeterministic = bool(flags & PL_FA_NONDETERMINISTIC)
+    if arity is None:
+        # backward compatibility
+        if hasattr(func, "arity"):
+            arity = func.arity
+        else:
+            arity = len(inspect.signature(func).parameters)
+            if nondeterministic:
+                arity -= 1
+    if not name:
+        name = func.__name__
 
     cwrap = _callbackWrapper(arity, nondeterministic)
     fwrap = _foreignWrapper(func, nondeterministic)
     fwrap2 = cwrap(fwrap)
     cwraps.append(fwrap2)
-    return PL_register_foreign(name, arity, fwrap2, flags)
+    return PL_register_foreign_in_module(None, name, arity, fwrap2, flags)
 
 
 newTermRef = PL_new_term_ref
@@ -608,7 +616,22 @@ def call(*terms, **kwargs):
 
 def newModule(name: Union[str, Atom]) -> module_t:
     """
-    Create a new module
+    Returns a module with the given name.
+
+    The module is created if it does not exist.
+
+    .. NOTE::
+        This function is deprecated. Use ``module`` instead.
+
+    :param name: Name of the module
+    """
+    return module(name)
+
+def module(name: Union[str, Atom]) -> module_t:
+    """
+    Returns a module with the given name.
+
+    The module is created if it does not exist.
 
     :param name: Name of the module
     """

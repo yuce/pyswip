@@ -1132,6 +1132,9 @@ PL_exception.restype = term_t
 PL_register_foreign = _lib.PL_register_foreign
 PL_register_foreign = check_strings(0, None)(PL_register_foreign)
 
+PL_register_foreign_in_module = _lib.PL_register_foreign_in_module
+PL_register_foreign_in_module = check_strings([0, 1], None)(PL_register_foreign_in_module)
+
 PL_new_atom = _lib.PL_new_atom
 PL_new_atom.argtypes = [c_char_p]
 PL_new_atom.restype = atom_t
