@@ -6,7 +6,6 @@ from .utils import load_fixture
 
 
 class HanoiTestCase(unittest.TestCase):
-
     def test_solve(self):
         fixture = load_fixture("hanoi_fixture.txt")
         sio = StringIO()

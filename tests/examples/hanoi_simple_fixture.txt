@@ -1,0 +1,7 @@
+1. Move disk from left pole to right pole.
+2. Move disk from left pole to center pole.
+3. Move disk from right pole to center pole.
+4. Move disk from left pole to right pole.
+5. Move disk from center pole to left pole.
+6. Move disk from center pole to right pole.
+7. Move disk from left pole to right pole.
