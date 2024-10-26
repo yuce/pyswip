@@ -30,7 +30,7 @@ def main():
     total = int(input("What should be the total (default: 500)? ") or 500)
     coins = Functor("coins", 3)
     S = Variable()
-    q = Query(coins(S, count, total))
+    q = Query(coins(count, total, S))
     i = 0
     while q.nextSolution():
         ## [1,5,10,50,100]

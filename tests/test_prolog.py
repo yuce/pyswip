@@ -29,7 +29,10 @@ Tests the Prolog class.
 import os.path
 import unittest
 
-from pyswip.prolog import Prolog, NestedQueryError
+import pytest
+
+from pyswip import Atom, Variable
+from pyswip.prolog import Prolog, NestedQueryError, format_prolog
 
 
 class TestProlog(unittest.TestCase):
@@ -120,3 +123,25 @@ class TestProlog(unittest.TestCase):
         Prolog.retract("person(jane)")
         result = list(Prolog.query("person(X)"))
         self.assertEqual([], result)
+
+
+format_prolog_fixture = [
+    ("", (), ""),
+    ("no-args", (), "no-args"),
+    ("before%safter", ("text",), 'before"text"after'),
+    ("before%safter", (123,), "before123after"),
+    ("before%safter", (123.45,), "before123.45after"),
+    ("before%safter", (Atom("foo"),), "before'foo'after"),
+    ("before%safter", (Variable(name="Foo"),), "beforeFooafter"),
+    (
+        "before%safter",
+        (["foo", 38, 45.897, [1, 2, 3]],),
+        'before["foo",38,45.897,[1,2,3]]after',
+    ),
+]
+
+
+@pytest.mark.parametrize("fixture", format_prolog_fixture)
+def test_convert_to_prolog(fixture):
+    format, args, target = fixture
+    assert format_prolog(format, args) == target

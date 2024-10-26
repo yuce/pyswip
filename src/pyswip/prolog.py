@@ -24,7 +24,8 @@ Provides the basic Prolog interface.
 
 import functools
 import inspect
-from typing import Union, Generator, Callable, Optional
+import re
+from typing import Union, Generator, Callable, Optional, Tuple
 from pathlib import Path
 
 from pyswip.utils import resolve_path
@@ -63,6 +64,9 @@ from pyswip.core import (
 __all__ = "PrologError", "NestedQueryError", "Prolog"
 
 
+RE_PLACEHOLDER = re.compile(r"%s")
+
+
 class PrologError(Exception):
     pass
 
@@ -76,7 +80,7 @@ class NestedQueryError(PrologError):
     pass
 
 
-def _initialize():
+def __initialize():
     args = []
     args.append("./")
     args.append("-q")  # --quiet
@@ -107,11 +111,11 @@ def _initialize():
     PL_discard_foreign_frame(swipl_fid)
 
 
-_initialize()
+__initialize()
 
 
-# NOTE: This import MUST be after _initialize is called!!
-from pyswip.easy import getTerm  # noqa: E402
+# NOTE: These imports MUST come after _initialize is called!!
+from pyswip.easy import getTerm, Atom, Variable  # noqa: E402
 
 
 class Prolog:
@@ -193,7 +197,7 @@ class Prolog:
             print("{WARN} Single-threaded swipl build, beware!")
 
     @classmethod
-    def asserta(cls, assertion: str, *, catcherrors: bool = False) -> None:
+    def asserta(cls, format: str, *args, catcherrors: bool = False) -> None:
         """
         Assert a clause (fact or rule) into the database.
 
@@ -201,19 +205,33 @@ class Prolog:
 
         See `asserta/1 <https://www.swi-prolog.org/pldoc/doc_for?object=asserta/1>`_ in SWI-Prolog documentation.
 
-        :param assertion: Clause to insert into the head of the database
-        :param catcherrors: Catches the exception raised during goal execution
+        :param format:
+            The format to be used to generate the clause.
+            The placeholders (``%s``) are replaced by the ``args`` if one ore more arguments are given.
+        :param args:
+            Arguments to replace the placeholders in the ``format`` string
+        :param catcherrors:
+            Catches the exception raised during goal execution
+
+        .. Note::
+            Currently, If no arguments given, the format string is used as the raw clause, even if it contains a placeholder.
+            This behavior is kept for for compatibility reasons.
+            It may be removed in future versions.
 
         >>> Prolog.asserta("big(airplane)")
         >>> Prolog.asserta("small(mouse)")
         >>> Prolog.asserta('''bigger(A, B) :-
         ...    big(A),
         ...    small(B)''')
+        >>> nums = list(range(5))
+        >>> Prolog.asserta("numbers(%s)", nums)
         """
-        next(cls.query(assertion.join(["asserta((", "))."]), catcherrors=catcherrors))
+        next(
+            cls.query(format.join(["asserta((", "))."]), *args, catcherrors=catcherrors)
+        )
 
     @classmethod
-    def assertz(cls, assertion: str, *, catcherrors: bool = False) -> None:
+    def assertz(cls, format: str, *args, catcherrors: bool = False) -> None:
         """
         Assert a clause (fact or rule) into the database.
 
@@ -221,16 +239,28 @@ class Prolog:
 
         See `assertz/1 <https://www.swi-prolog.org/pldoc/doc_for?object=assertz/1>`_ in SWI-Prolog documentation.
 
-        :param assertion: Clause to insert into the tail of the database
-        :param catcherrors: Catches the exception raised during goal execution
+        :param format:
+            The format to be used to generate the clause.
+            The placeholders (``%s``) are replaced by the ``args`` if one ore more arguments are given.
+        :param catcherrors:
+            Catches the exception raised during goal execution
+
+        .. Note::
+            Currently, If no arguments given, the format string is used as the raw clause, even if it contains a placeholder.
+            This behavior is kept for for compatibility reasons.
+            It may be removed in future versions.
 
         >>> Prolog.assertz("big(airplane)")
         >>> Prolog.assertz("small(mouse)")
         >>> Prolog.assertz('''bigger(A, B) :-
         ...    big(A),
         ...    small(B)''')
+        >>> nums = list(range(5))
+        >>> Prolog.assertz("numbers(%s)", nums)
         """
-        next(cls.query(assertion.join(["assertz((", "))."]), catcherrors=catcherrors))
+        next(
+            cls.query(format.join(["assertz((", "))."]), *args, catcherrors=catcherrors)
+        )
 
     @classmethod
     def dynamic(cls, *terms: str, catcherrors: bool = False) -> None:
@@ -253,18 +283,27 @@ class Prolog:
         """
         if len(terms) < 1:
             raise ValueError("One or more terms must be given")
-        params = ", ".join(terms)
+        params = ",".join(terms)
         next(cls.query(f"dynamic(({params}))", catcherrors=catcherrors))
 
     @classmethod
-    def retract(cls, term: str, *, catcherrors: bool = False) -> None:
+    def retract(cls, format: str, *args, catcherrors: bool = False) -> None:
         """
         Removes the fact or clause from the database
 
         See `retract/1 <https://www.swi-prolog.org/pldoc/doc_for?object=retract/1>`_ in SWI-Prolog documentation.
 
-        :param term: The term to remove from the database
-        :param catcherrors: Catches the exception raised during goal execution
+        :param format:
+            The format to be used to generate the term.
+            The placeholders (``%s``) are replaced by the ``args`` if one ore more arguments are given.
+        :param catcherrors:
+            Catches the exception raised during goal execution
+
+        .. Note::
+            Currently, If no arguments given, the format string is used as the raw term, even if it contains a placeholder.
+            This behavior is kept for for compatibility reasons.
+            It may be removed in future versions.
+
 
         >>> Prolog.dynamic("person/1")
         >>> Prolog.asserta("person(jane)")
@@ -273,17 +312,28 @@ class Prolog:
         >>> Prolog.retract("person(jane)")
         >>> list(Prolog.query("person(X)"))
         []
+        >>> Prolog.dynamic("numbers/1")
+        >>> nums = list(range(5))
+        >>> Prolog.asserta("numbers(10)")
+        >>> Prolog.asserta("numbers(%s)", nums)
+        >>> list(Prolog.query("numbers(X)"))
+        [{'X': [0, 1, 2, 3, 4]}, {'X': 10}]
+        >>> Prolog.retract("numbers(%s)", nums)
+        >>> list(Prolog.query("numbers(X)"))
+        [{'X': 10}]
         """
-        next(cls.query(term.join(["retract((", "))."]), catcherrors=catcherrors))
+        next(
+            cls.query(format.join(["retract((", "))."]), *args, catcherrors=catcherrors)
+        )
 
     @classmethod
-    def retractall(cls, head: str, *, catcherrors: bool = False) -> None:
+    def retractall(cls, format: str, *args, catcherrors: bool = False) -> None:
         """
         Removes all facts or clauses in the database where the ``head`` unifies.
 
         See `retractall/1 <https://www.swi-prolog.org/pldoc/doc_for?object=retractall/1>`_ in SWI-Prolog documentation.
 
-        :param head: The term to unify with the facts or clauses in the database
+        :param format: The term to unify with the facts or clauses in the database
         :param catcherrors: Catches the exception raised during goal execution
 
         >>> Prolog.dynamic("person/1")
@@ -295,7 +345,11 @@ class Prolog:
         >>> list(Prolog.query("person(X)"))
         []
         """
-        next(cls.query(head.join(["retractall((", "))."]), catcherrors=catcherrors))
+        next(
+            cls.query(
+                format.join(["retractall((", "))."]), *args, catcherrors=catcherrors
+            )
+        )
 
     @classmethod
     def consult(
@@ -341,8 +395,8 @@ class Prolog:
     @classmethod
     def query(
         cls,
-        query: str,
-        *,
+        format: str,
+        *args,
         maxresult: int = -1,
         catcherrors: bool = True,
         normalize: bool = True,
@@ -352,10 +406,22 @@ class Prolog:
         If the query is a yes/no question, returns {} for yes, and nothing for no.
         Otherwise returns a generator of dicts with variables as keys.
 
-        :param query: The query to execute in the Prolog engine
-        :param maxresult: Maximum number of results to return
-        :param catcherrors: Catches the exception raised during goal execution
-        :param normalize: Return normalized values
+        :param format:
+            The format to be used to generate the query.
+            The placeholders (``%s``) are replaced by the ``args`` if one ore more arguments are given.
+        :param args:
+            Arguments to replace the placeholders in the ``format`` string
+        :param maxresult:
+            Maximum number of results to return
+        :param catcherrors:
+            Catches the exception raised during goal execution
+        :param normalize:
+            Return normalized values
+
+        .. Note::
+            Currently, If no arguments given, the format string is used as the raw query, even if it contains a placeholder.
+            This behavior is kept for for compatibility reasons.
+            It may be removed in future versions.
 
         >>> Prolog.assertz("father(michael,john)")
         >>> Prolog.assertz("father(michael,gina)")
@@ -366,6 +432,10 @@ class Prolog:
         >>> print(sorted(Prolog.query("father(michael,X)")))
         [{'X': 'gina'}, {'X': 'john'}]
         """
+        if args:
+            query = format_prolog(format, args)
+        else:
+            query = format
         return cls._QueryWrapper()(query, maxresult, catcherrors, normalize)
 
     @classmethod
@@ -450,3 +520,30 @@ def normalize_values(values):
     elif isinstance(values, (list, tuple)):
         return [normalize_values(v) for v in values]
     return values
+
+
+def make_prolog_str(value) -> str:
+    if isinstance(value, str):
+        return f'"{value}"'
+    elif isinstance(value, list):
+        inner = ",".join(make_prolog_str(v) for v in value)
+        return f"[{inner}]"
+    elif isinstance(value, Atom):
+        # TODO: escape atom nome
+        return f"'{value.chars}'"
+    elif isinstance(value, Variable):
+        # TODO: escape variable name
+        return value.chars
+    return str(value)
+
+
+def format_prolog(fmt: str, args: Tuple) -> str:
+    frags = RE_PLACEHOLDER.split(fmt)
+    if len(args) != len(frags) - 1:
+        raise ValueError("Number of arguments must match the number of placeholders")
+    fs = []
+    for i in range(len(args)):
+        fs.append(frags[i])
+        fs.append(make_prolog_str(args[i]))
+    fs.append(frags[-1])
+    return "".join(fs)

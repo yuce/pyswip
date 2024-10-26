@@ -21,11 +21,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pyswip import *
+from pyswip import Prolog, Functor, Variable, Query, newModule, call
 
 
 def main():
-    _ = Prolog()
+    _ = Prolog()  # not strictly required, but helps to silence the linter
 
     assertz = Functor("assertz")
     parent = Functor("parent", 2)

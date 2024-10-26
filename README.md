@@ -18,7 +18,7 @@ See the [Change Log](https://pyswip.org/change-log.html).
 
 If you have SWI-Prolog installed, it's just:
 ```
-pip install pyswip
+pip install -U pyswip
 ```
 
 See [Get Started](https://pyswip.readthedocs.io/en/latest/get_started.html) for detailed instructions.

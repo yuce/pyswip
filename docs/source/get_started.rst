@@ -29,7 +29,7 @@ PySwip is available to install from `Python Package Index <https://pypi.org/proj
 
 You can install PySwip using::
 
-    pip install pyswip
+    pip install -U pyswip
 
 You will need to have SWI-Prolog installed on your system.
 See :ref:`install_swi_prolog`.

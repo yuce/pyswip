@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 from pyswip.core import *
-from pyswip.prolog import Prolog
+from pyswip import Prolog
 
 
 def main():
