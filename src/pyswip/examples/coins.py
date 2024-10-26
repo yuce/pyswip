@@ -25,7 +25,7 @@ from typing import List, Dict
 from pyswip.prolog import Prolog
 
 
-__all__ = ("solve",)
+__all__ = "solve", "prolog_source"
 
 _PROLOG_FILE = "coins.pl"
 
