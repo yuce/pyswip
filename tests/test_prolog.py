@@ -129,7 +129,7 @@ class TestProlog(unittest.TestCase):
         ids = [1, 2, 3]
         Prolog.assertz("user(%p,%p)", joe, ids)
         result = list(Prolog.query("user(%p, IDs)", joe))
-        self.assertEqual([{'IDs': [1, 2, 3]}], result)
+        self.assertEqual([{"IDs": [1, 2, 3]}], result)
 
 
 format_prolog_fixture = [
