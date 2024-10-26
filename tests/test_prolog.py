@@ -124,6 +124,13 @@ class TestProlog(unittest.TestCase):
         result = list(Prolog.query("person(X)"))
         self.assertEqual([], result)
 
+    def test_placeholder_2(self):
+        joe = Atom("joe")
+        ids = [1, 2, 3]
+        Prolog.assertz("user(%p,%p)", joe, ids)
+        result = list(Prolog.query("user(%p, IDs)", joe))
+        self.assertEqual([{'IDs': [1, 2, 3]}], result)
+
 
 format_prolog_fixture = [
     ("", (), ""),
