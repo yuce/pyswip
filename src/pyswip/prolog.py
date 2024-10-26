@@ -64,7 +64,7 @@ from pyswip.core import (
 __all__ = "PrologError", "NestedQueryError", "Prolog"
 
 
-RE_PLACEHOLDER = re.compile(r"%s")
+RE_PLACEHOLDER = re.compile(r"%p")
 
 
 class PrologError(Exception):
@@ -86,7 +86,7 @@ def __initialize():
     args.append("-q")  # --quiet
     args.append("--nosignals")  # "Inhibit any signal handling by Prolog"
     if SWI_HOME_DIR:
-        args.append("--home=%s" % SWI_HOME_DIR)
+        args.append(f"--home={SWI_HOME_DIR}")
 
     result = PL_initialise(len(args), args)
     # result is a boolean variable (i.e. 0 or 1) indicating whether the
@@ -207,7 +207,7 @@ class Prolog:
 
         :param format:
             The format to be used to generate the clause.
-            The placeholders (``%s``) are replaced by the ``args`` if one ore more arguments are given.
+            The placeholders (``%p``) are replaced by the ``args`` if one ore more arguments are given.
         :param args:
             Arguments to replace the placeholders in the ``format`` string
         :param catcherrors:
@@ -224,7 +224,7 @@ class Prolog:
         ...    big(A),
         ...    small(B)''')
         >>> nums = list(range(5))
-        >>> Prolog.asserta("numbers(%s)", nums)
+        >>> Prolog.asserta("numbers(%p)", nums)
         """
         next(
             cls.query(format.join(["asserta((", "))."]), *args, catcherrors=catcherrors)
@@ -241,7 +241,7 @@ class Prolog:
 
         :param format:
             The format to be used to generate the clause.
-            The placeholders (``%s``) are replaced by the ``args`` if one ore more arguments are given.
+            The placeholders (``%p``) are replaced by the ``args`` if one ore more arguments are given.
         :param catcherrors:
             Catches the exception raised during goal execution
 
@@ -256,7 +256,7 @@ class Prolog:
         ...    big(A),
         ...    small(B)''')
         >>> nums = list(range(5))
-        >>> Prolog.assertz("numbers(%s)", nums)
+        >>> Prolog.assertz("numbers(%p)", nums)
         """
         next(
             cls.query(format.join(["assertz((", "))."]), *args, catcherrors=catcherrors)
@@ -295,7 +295,7 @@ class Prolog:
 
         :param format:
             The format to be used to generate the term.
-            The placeholders (``%s``) are replaced by the ``args`` if one ore more arguments are given.
+            The placeholders (``%p``) are replaced by the ``args`` if one ore more arguments are given.
         :param catcherrors:
             Catches the exception raised during goal execution
 
@@ -315,10 +315,10 @@ class Prolog:
         >>> Prolog.dynamic("numbers/1")
         >>> nums = list(range(5))
         >>> Prolog.asserta("numbers(10)")
-        >>> Prolog.asserta("numbers(%s)", nums)
+        >>> Prolog.asserta("numbers(%p)", nums)
         >>> list(Prolog.query("numbers(X)"))
         [{'X': [0, 1, 2, 3, 4]}, {'X': 10}]
-        >>> Prolog.retract("numbers(%s)", nums)
+        >>> Prolog.retract("numbers(%p)", nums)
         >>> list(Prolog.query("numbers(X)"))
         [{'X': 10}]
         """
@@ -408,7 +408,7 @@ class Prolog:
 
         :param format:
             The format to be used to generate the query.
-            The placeholders (``%s``) are replaced by the ``args`` if one ore more arguments are given.
+            The placeholders (``%p``) are replaced by the ``args`` if one ore more arguments are given.
         :param args:
             Arguments to replace the placeholders in the ``format`` string
         :param maxresult:

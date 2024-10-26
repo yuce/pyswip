@@ -106,7 +106,7 @@ integer_types = (int,)
 class InvalidTypeError(TypeError):
     def __init__(self, *args):
         type_ = args and args[0] or "Unknown"
-        msg = "Term is expected to be of type: '%s'" % type_
+        msg = f"Term is expected to be of type: '{type_}'"
         Exception.__init__(self, msg, *args)
 
 
@@ -116,7 +116,7 @@ class ArgumentTypeError(Exception):
     """
 
     def __init__(self, expected, got):
-        msg = "Expected an argument of type '%s' but got '%s'" % (expected, got)
+        msg = f"Expected an argument of type '{expected}' but got '{got}'"
         Exception.__init__(self, msg)
 
 
@@ -290,7 +290,7 @@ class Variable:
             return self.__repr__()
 
     def __repr__(self):
-        return "Variable(%s)" % self.handle
+        return f"Variable({self.handle})"
 
     def put(self, term):
         # PL_put_variable(term)
@@ -703,7 +703,7 @@ class Query(object):
     def __init__(self, *terms, **kwargs):
         for key in kwargs:
             if key not in ["flags", "module"]:
-                raise Exception("Invalid kwarg: %s" % key, key)
+                raise Exception(f"Invalid kwarg: {key}", key)
 
         flags = kwargs.get("flags", PL_Q_NODEBUG | PL_Q_CATCH_EXCEPTION)
         module = kwargs.get("module", None)

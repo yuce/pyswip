@@ -38,14 +38,14 @@ def solve(
     """
     Solves the coins problem.
 
-    Finds and returns combinations of ``coin_count`` coins that makes ``total``cents.
+    Finds and returns combinations of ``coin_count`` coins that makes ``total`` cents.
 
     :param coin_count: Number of coins
     :param total_cents: Total cent value of coins
     """
     cents = [1, 5, 10, 50, 100]
     query = Prolog.query(
-        "coins(%s, %s, Solution)", coin_count, total_cents, maxresult=max_solutions
+        "coins(%p, %p, Solution)", coin_count, total_cents, maxresult=max_solutions
     )
     return [
         {cent: count for cent, count in zip(cents, soln["Solution"])} for soln in query

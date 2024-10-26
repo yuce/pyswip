@@ -117,7 +117,7 @@ def solve(disk_count: int = 3, simple: bool = False, file: IO = None) -> None:
         tower = Tower(disk_count, file=file)
         notifier = Notifier(tower.move)
         Prolog.register_foreign(notifier.notify)
-    list(Prolog.query("hanoi(%s)", disk_count))
+    list(Prolog.query("hanoi(%p)", disk_count))
 
 
 def prolog_source() -> str:
