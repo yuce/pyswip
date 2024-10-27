@@ -34,7 +34,6 @@ examples = [
     "register_foreign.py",
     "register_foreign_simple.py",
     "knowledgebase.py",
-    "hanoi/hanoi_simple.py",
     "sendmoremoney/money.py",
     "sendmoremoney/money_new.py",
 ]

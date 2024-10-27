@@ -29,7 +29,7 @@ PySwip is available to install from `Python Package Index <https://pypi.org/proj
 
 You can install PySwip using::
 
-    pip install pyswip
+    pip install -U pyswip
 
 You will need to have SWI-Prolog installed on your system.
 See :ref:`install_swi_prolog`.
@@ -153,8 +153,9 @@ SWI-Prolog can be installed using ``pkg``::
 Test Drive
 ----------
 
-Run a quick test by running following code at your Python console::
+Run a quick test by running following code at your Python console:
 
+.. code-block:: python
 
     from pyswip import Prolog
     Prolog.assertz("father(michael,john)")

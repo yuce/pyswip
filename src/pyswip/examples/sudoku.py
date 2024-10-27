@@ -37,10 +37,10 @@ from pyswip.prolog import Prolog
 __all__ = "Matrix", "prolog_source", "sample_puzzle", "solve"
 
 _DIMENSION = 9
-_SOURCE_PATH = "sudoku.pl"
+_PROLOG_FILE = "sudoku.pl"
 
 
-Prolog.consult(_SOURCE_PATH, relative_to=__file__)
+Prolog.consult(_PROLOG_FILE, relative_to=__file__)
 
 
 class Matrix:
@@ -157,6 +157,7 @@ def solve(matrix: Matrix) -> Union[Matrix, Literal[False]]:
     . . 2 . 4 . 7 . .
     . . . 5 . . 9 . .
     9 5 7 . 3 . . . .
+    <BLANKLINE>
     >>> print(solve(puzzle))
     3 9 5 4 7 1 2 6 8
     8 7 4 6 5 2 3 9 1
@@ -167,6 +168,7 @@ def solve(matrix: Matrix) -> Union[Matrix, Literal[False]]:
     6 1 2 8 4 9 7 5 3
     4 3 8 5 2 7 9 1 6
     9 5 7 1 3 6 4 8 2
+    <BLANKLINE>
     """
     p = repr(matrix).replace("0", "_")
     result = list(Prolog.query(f"L={p},sudoku(L)", maxresult=1))
@@ -179,10 +181,10 @@ def solve(matrix: Matrix) -> Union[Matrix, Literal[False]]:
 
 
 def prolog_source() -> str:
-    """Returns the Prolog source file that solves Sudoku puzzles"""
+    """Returns the Prolog source file that solves Sudoku puzzles."""
     from pathlib import Path
 
-    path = Path(__file__).parent / _SOURCE_PATH
+    path = Path(__file__).parent / _PROLOG_FILE
     with open(path) as f:
         return f.read()
 
@@ -199,7 +201,7 @@ def sample_puzzle() -> Matrix:
 . . 2 . 4 . 7 . .
 . . . 5 . . 9 . .
 9 5 7 . 3 . . . .    
-    """)
+""")
     return matrix
 
 

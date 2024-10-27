@@ -14,6 +14,7 @@ It features an SWI-Prolog foreign language interface, a utility class that makes
    :caption: Contents:
 
    get_started
+   value_exchange
    api/modules
 
 Indices and Tables

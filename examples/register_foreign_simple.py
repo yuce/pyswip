@@ -27,11 +27,8 @@ from pyswip.prolog import Prolog
 from pyswip.easy import registerForeign
 
 
-def hello(t):
-    print("Hello,", t)
-
-
-hello.arity = 1
+def hello(who):
+    print("Hello,", who)
 
 
 def main():

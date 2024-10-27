@@ -1,20 +1,11 @@
 import unittest
 
 from pyswip.examples.sudoku import Matrix, solve, prolog_source
+from .utils import load_fixture
 
 
 class MatrixTestCase(unittest.TestCase):
-    FIXTURE = """
-. 6 . 1 . 4 . 5 .
-. . 8 3 . 5 6 . .
-2 . . . . . . . 1
-8 . . 4 . 7 . . 6
-. . 6 . . . 3 . .
-7 . . 9 . 1 . . 4
-5 . . . . . . . 2
-. . 7 2 . 6 9 . .
-. 4 . 5 . 8 . 7 .
-    """
+    FIXTURE = load_fixture("sudoku.txt")
 
     def test_matrix_from_text(self):
         got = Matrix.from_text(self.FIXTURE)
@@ -48,7 +39,7 @@ class MatrixTestCase(unittest.TestCase):
         self.assertEqual(target, solution.matrix)
 
     def test_solve_failure(self):
-        fixture = " 8" + self.FIXTURE[2:]
+        fixture = "8 " + self.FIXTURE[2:]
         puzzle = Matrix.from_text(fixture)
         solution = solve(puzzle)
         self.assertFalse(solution)

@@ -29,7 +29,10 @@ Tests the Prolog class.
 import os.path
 import unittest
 
-from pyswip.prolog import Prolog, NestedQueryError
+import pytest
+
+from pyswip import Atom, Variable
+from pyswip.prolog import Prolog, NestedQueryError, format_prolog
 
 
 class TestProlog(unittest.TestCase):
@@ -120,3 +123,33 @@ class TestProlog(unittest.TestCase):
         Prolog.retract("person(jane)")
         result = list(Prolog.query("person(X)"))
         self.assertEqual([], result)
+
+    def test_placeholder_2(self):
+        joe = Atom("joe")
+        ids = [1, 2, 3]
+        Prolog.assertz("user(%p,%p)", joe, ids)
+        result = list(Prolog.query("user(%p,IDs)", joe))
+        self.assertEqual([{"IDs": [1, 2, 3]}], result)
+
+
+format_prolog_fixture = [
+    ("", (), ""),
+    ("no-args", (), "no-args"),
+    ("before%pafter", ("text",), 'before"text"after'),
+    ("before%pafter", (123,), "before123after"),
+    ("before%pafter", (123.45,), "before123.45after"),
+    ("before%pafter", (Atom("foo"),), "before'foo'after"),
+    ("before%pafter", (Variable(name="Foo"),), "beforeFooafter"),
+    ("before%pafter", (False,), "before0after"),
+    ("before%pafter", (True,), "before1after"),
+    (
+        "before%pafter",
+        (["foo", 38, 45.897, [1, 2, 3]],),
+        'before["foo",38,45.897,[1,2,3]]after',
+    ),
+]
+
+
+@pytest.mark.parametrize("format, args, target", format_prolog_fixture)
+def test_convert_to_prolog(format, args, target):
+    assert format_prolog(format, args) == target
