@@ -29,6 +29,8 @@ import subprocess
 import sys
 import unittest
 
+import pytest
+
 
 class TestIssues(unittest.TestCase):
     """Each test method is named after the issue it is testing. The docstring
@@ -290,3 +292,25 @@ class TestIssues(unittest.TestCase):
 
         soln = [s["Y"] for s in p.query("friend(john,Y), father(Y,kur)", maxresult=1)]
         self.assertEqual(soln[0], "son(miki)")
+
+    @pytest.mark.skip("Skip until v0.3.3")
+    def test_issue_141(self):
+        from pyswip import Prolog
+        fixture = [
+            {"X": 1, "C": "x"},
+            {"X": 2, "C": "y"},
+        ]
+        ls = list(Prolog.query("X = point{x:1,y:2}.C."))
+        self.assertEqual(fixture, ls)
+
+    @pytest.mark.skip("Skip until v0.3.3")
+    def test_issue_139(self):
+        from pyswip import Prolog
+        Prolog.consult("139.pl", relative_to=__file__)
+        list(Prolog.query(f"m_Proposition_Binary_x_y(∨(¬(p), q), A, B)."))
+
+    @pytest.mark.skip("Skip until v0.3.3")
+    def test_issue_105(self):
+        from pyswip import Prolog
+        self.assertRaises(Exception, lambda: Prolog.consult("105.pl", catcherrors=False))
+
