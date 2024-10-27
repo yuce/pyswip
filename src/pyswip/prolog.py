@@ -534,6 +534,10 @@ def make_prolog_str(value) -> str:
     elif isinstance(value, Variable):
         # TODO: escape variable name
         return value.chars
+    elif value is True:
+        return "1"
+    elif value is False:
+        return "0"
     return str(value)
 
 

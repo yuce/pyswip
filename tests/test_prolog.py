@@ -128,7 +128,7 @@ class TestProlog(unittest.TestCase):
         joe = Atom("joe")
         ids = [1, 2, 3]
         Prolog.assertz("user(%p,%p)", joe, ids)
-        result = list(Prolog.query("user(%p, IDs)", joe))
+        result = list(Prolog.query("user(%p,IDs)", joe))
         self.assertEqual([{"IDs": [1, 2, 3]}], result)
 
 
@@ -140,6 +140,8 @@ format_prolog_fixture = [
     ("before%pafter", (123.45,), "before123.45after"),
     ("before%pafter", (Atom("foo"),), "before'foo'after"),
     ("before%pafter", (Variable(name="Foo"),), "beforeFooafter"),
+    ("before%pafter", (False,), "before0after"),
+    ("before%pafter", (True,), "before1after"),
     (
         "before%pafter",
         (["foo", 38, 45.897, [1, 2, 3]],),
@@ -148,7 +150,6 @@ format_prolog_fixture = [
 ]
 
 
-@pytest.mark.parametrize("fixture", format_prolog_fixture)
-def test_convert_to_prolog(fixture):
-    format, args, target = fixture
+@pytest.mark.parametrize("format, args, target", format_prolog_fixture)
+def test_convert_to_prolog(format, args, target):
     assert format_prolog(format, args) == target

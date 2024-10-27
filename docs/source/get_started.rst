@@ -153,8 +153,9 @@ SWI-Prolog can be installed using ``pkg``::
 Test Drive
 ----------
 
-Run a quick test by running following code at your Python console::
+Run a quick test by running following code at your Python console:
 
+.. code-block:: python
 
     from pyswip import Prolog
     Prolog.assertz("father(michael,john)")
