@@ -390,7 +390,7 @@ class Prolog:
         :param relative_to: The path where the consulted file is relative to
         """
         path = resolve_path(path, relative_to)
-        next(cls.query(str(path).join(["consult('", "')"]), catcherrors=catcherrors))
+        next(cls.query(str(path.as_posix()).join(["consult('", "')"]), catcherrors=catcherrors))
 
     @classmethod
     def query(
