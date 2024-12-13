@@ -26,6 +26,7 @@ from pyswip.core import (
     PL_register_atom,
     PL_atom_wchars,
     PL_get_atom,
+    PL_get_wchars,
     PL_unregister_atom,
     PL_new_term_ref,
     PL_compare,
@@ -72,6 +73,7 @@ from pyswip.core import (
     PL_STRING,
     PL_INTEGER,
     PL_FLOAT,
+    PL_NIL,
     PL_Q_NODEBUG,
     PL_Q_CATCH_EXCEPTION,
     PL_FA_NONDETERMINISTIC,
@@ -89,6 +91,7 @@ from pyswip.core import (
     atom_t,
     create_string_buffer,
     c_char_p,
+    c_wchar_p,
     functor_t,
     c_int,
     c_long,
@@ -120,7 +123,7 @@ class ArgumentTypeError(Exception):
         Exception.__init__(self, msg)
 
 
-class Atom(object):
+class Atom:
     __slots__ = "handle", "chars"
 
     def __init__(self, handleOrChars, chars=None):
@@ -306,7 +309,7 @@ class Variable:
         return self.handle
 
 
-class Functor(object):
+class Functor:
     __slots__ = "handle", "name", "arity", "args", "__value", "a0"
     func = {}
 
@@ -439,8 +442,9 @@ def putList(l, ls):  # noqa: E741
 
 def getAtomChars(t):
     """If t is an atom, return it as a string, otherwise raise InvalidTypeError."""
-    s = c_char_p()
-    if PL_get_chars(t, byref(s), CVT_ATOM | REP_UTF8):
+    s = c_wchar_p()
+    ln = c_size_t()
+    if PL_get_wchars(t, byref(ln), byref(s), CVT_ATOM | REP_UTF8):
         return s.value
     else:
         raise InvalidTypeError("atom")
@@ -497,6 +501,8 @@ def getTerm(t):
         p = PL_term_type(t)
         if p < PL_TERM:
             res = _getterm_router[p](t)
+        elif p == PL_NIL:
+            return []
         elif PL_is_list(t):
             res = getList(t)
         elif p == PL_DICT:
