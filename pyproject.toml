@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyswip"
-version = "0.3.2"
+version = "0.3.3"
 description = "PySwip enables querying SWI-Prolog in your Python programs."
 readme = "README.md"
 requires-python = ">=3.9"

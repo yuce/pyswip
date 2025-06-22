@@ -392,7 +392,7 @@ class Prolog:
         path = resolve_path(path, relative_to)
         next(
             cls.query(
-                str(path.as_posix()).join(["consult('", "')"]), catcherrors=catcherrors
+                path.as_posix().join(["consult('", "')"]), catcherrors=catcherrors
             )
         )
 
