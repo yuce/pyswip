@@ -8,6 +8,8 @@ version = "0.3.3"
 description = "PySwip enables querying SWI-Prolog in your Python programs."
 readme = "README.md"
 requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE", "CONTRIBUTORS.txt"]
 authors = [
     { name = "Yuce Tekol", email = "yucetekol@gmail.com" },
 ]
@@ -22,7 +24,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -53,3 +54,5 @@ pyswip = ["py.typed"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+    
