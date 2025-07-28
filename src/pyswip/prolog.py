@@ -59,25 +59,13 @@ from pyswip.core import (
     term_t,
     control_t,
 )
+from pyswip.errors import PrologError, NestedQueryError
 
 
 __all__ = "PrologError", "NestedQueryError", "Prolog"
 
 
 RE_PLACEHOLDER = re.compile(r"%p")
-
-
-class PrologError(Exception):
-    pass
-
-
-class NestedQueryError(PrologError):
-    """
-    SWI-Prolog does not accept nested queries, that is, opening a query while the previous one was not closed.
-    As this error may be somewhat difficult to debug in foreign code, it is automatically treated inside PySwip
-    """
-
-    pass
 
 
 def __initialize():
