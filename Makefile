@@ -1,4 +1,6 @@
-.PHONY: build clean coverage upload-coverage test upload
+.PHONY: build clean coverage upload-coverage test upload docker
+
+DOCKER ?= docker
 
 build:
 	pyproject-build
@@ -24,3 +26,6 @@ check:
 
 reformat:
 	ruff format
+
+docker:
+	$(DOCKER) build -t quay.io/ytekol/pyswip:latest -f docker/Dockerfile .
