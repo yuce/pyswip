@@ -1,5 +1,7 @@
 FROM docker.io/debian:stable-slim AS build
 
+ARG swipl_version
+
 RUN useradd -m sam
 
 RUN \
@@ -23,9 +25,9 @@ WORKDIR /home/sam
 USER sam
 
 RUN \
-    curl -LO https://www.swi-prolog.org/download/stable/src/swipl-10.0.0.tar.gz && \
-    tar xf swipl-10.0.0.tar.gz && \
-    cd swipl-10.0.0 && \
+    curl -LO https://www.swi-prolog.org/download/stable/src/swipl-${swipl_version}.tar.gz && \
+    tar xf swipl-${swipl_version}.tar.gz && \
+    cd swipl-${swipl_version} && \
     cmake \
         -B build \
         -G Ninja \
@@ -38,7 +40,7 @@ RUN \
 USER root
 
 RUN \
-   cmake --install /home/sam/swipl-10.0.0/build
+   cmake --install /home/sam/swipl-${swipl_version}/build
 
 
 FROM docker.io/debian:stable-slim

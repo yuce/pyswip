@@ -1,6 +1,7 @@
 .PHONY: build clean coverage upload-coverage test upload docker
 
 DOCKER ?= docker
+SWIPL_VERSION ?= 9.0.4
 
 build:
 	pyproject-build
@@ -28,4 +29,4 @@ reformat:
 	ruff format
 
 docker:
-	$(DOCKER) build -t quay.io/ytekol/pyswip:latest -f docker/Dockerfile .
+	$(DOCKER) build -t quay.io/ytekol/pyswip:latest-swipl-${SWIPL_VERSION} -f docker/Dockerfile --build-arg swipl_version=$(SWIPL_VERSION) .
